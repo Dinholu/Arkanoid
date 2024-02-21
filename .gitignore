@@ -1,0 +1,8 @@
+CMakeFiles/*
+CMakeCache.txt
+cmake_install.cmake
+CMakeLists.txt.user
+build
+.vscode
+Arkanoid
+Makefile
