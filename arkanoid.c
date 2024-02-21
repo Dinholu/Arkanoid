@@ -67,6 +67,12 @@ void draw()
 	if ((ball.y < 1) || (ball.y > (win_surf->h - 25)))
 		ball.vy *= -1;
 
+	// Collision avec le vaisseau
+	if ((ball.y + 24 > win_surf->h - 32) && (ball.x + 24 > x_vault) && (ball.x < x_vault + 128))
+	{
+		ball.vy *= -1;
+	}
+
 	// touche bas -> rouge
 	if (ball.y > (win_surf->h - 25))
 		srcBall.y = 64;
@@ -102,6 +108,11 @@ int main(int argc, char **argv)
 			x_vault += 10;
 		if (keys[SDL_SCANCODE_ESCAPE])
 			quit = true;
+
+		if (x_vault < 0)
+			x_vault = 0;
+		if (x_vault > win_surf->w - 128) // 128 est la largeur du vaisseau
+			x_vault = win_surf->w - 128;
 		while (SDL_PollEvent(&event))
 		{
 			if (event.type == SDL_QUIT)
