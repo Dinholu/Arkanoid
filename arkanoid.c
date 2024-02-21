@@ -13,6 +13,12 @@ struct
 	double vy;
 } ball;
 
+struct 
+{
+	double x;
+	double y;
+} brick;
+
 bool ballIsAttached = false;
 Uint64 prev, now; // timers
 double delta_t;	  // durée frame en ms
@@ -21,22 +27,27 @@ int x_vault;
 SDL_Window *pWindow = NULL;
 SDL_Surface *win_surf = NULL;
 SDL_Surface *plancheSprites = NULL;
+SDL_Surface *gameSprites = NULL;
 
 SDL_Rect srcBg = {0, 128, 96, 128}; // x,y, w,h (0,0) en haut a gauche
 SDL_Rect srcBall = {0, 96, 24, 24};
-SDL_Rect scrVaiss = {128, 0, 128, 32};
+SDL_Rect srcVaiss = {128, 0, 128, 32};
+SDL_Rect srcBrick = {1, 1, 30, 13};
 
 void init()
 {
 	pWindow = SDL_CreateWindow("Arknoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN);
 	win_surf = SDL_GetWindowSurface(pWindow);
 	plancheSprites = SDL_LoadBMP("./sprites.bmp");
+	gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
+
 	SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
+	SDL_SetColorKey(gameSprites, true, 0);	 // 0: 00/00/00 noir -> transparent
 
 	ball.x = win_surf->w / 2;
 	ball.y = win_surf->h / 2;
-	ball.vx = 1.0;
-	ball.vy = 1.4;
+	ball.vx = 2.0;
+	ball.vy = 2.8;
 
 	now = SDL_GetPerformanceCounter();
 }
@@ -91,7 +102,7 @@ void draw()
 	// vaisseau
 	dest.x = x_vault;
 	dest.y = win_surf->h - 32;
-	SDL_BlitSurface(plancheSprites, &scrVaiss, win_surf, &dest);
+	SDL_BlitSurface(plancheSprites, &srcVaiss, win_surf, &dest);
 
 	// Si la balle est attachée, la positionner sur le vaisseau
 	if (ballIsAttached)
@@ -99,6 +110,10 @@ void draw()
 		ball.x = x_vault + 52;
 		ball.y = win_surf->h - 58;
 	}
+
+	// Brique
+	SDL_Rect dstBrick = {brick.x, brick.y, 0, 0};
+	SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &dstBrick);
 }
 
 int main(int argc, char **argv)
