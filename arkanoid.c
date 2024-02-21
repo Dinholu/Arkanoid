@@ -13,6 +13,7 @@ struct
 	double vy;
 } ball;
 
+bool ballIsAttached = false;
 Uint64 prev, now; // timers
 double delta_t;	  // durée frame en ms
 int x_vault;
@@ -75,7 +76,14 @@ void draw()
 
 	// touche bas -> rouge
 	if (ball.y > (win_surf->h - 25))
-		srcBall.y = 64;
+	{
+		ball.x = x_vault + 52;	   // 52 est la moitié de la largeur du vaisseau
+		ball.y = win_surf->h - 58; // 58 est la hauteur de la balle + la hauteur du vaisseau
+		ball.vy = 0;
+		ball.vx = 0;
+		ballIsAttached = true;
+		// srcBall.y = 64;
+	}
 	// touche bas -> vert
 	if (ball.y < 1)
 		srcBall.y = 96;
@@ -84,6 +92,13 @@ void draw()
 	dest.x = x_vault;
 	dest.y = win_surf->h - 32;
 	SDL_BlitSurface(plancheSprites, &scrVaiss, win_surf, &dest);
+
+	// Si la balle est attachée, la positionner sur le vaisseau
+	if (ballIsAttached)
+	{
+		ball.x = x_vault + 52;
+		ball.y = win_surf->h - 58;
+	}
 }
 
 int main(int argc, char **argv)
@@ -102,6 +117,16 @@ int main(int argc, char **argv)
 	{
 		SDL_PumpEvents();
 		const Uint8 *keys = SDL_GetKeyboardState(NULL);
+
+		// Lancer le jeu avec la touche "Space"
+		if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
+		{
+			// Lancer le jeu (assigner une vitesse initiale à la balle)
+			ballIsAttached = false;
+			ball.vy = -1.4; // Vitesse vers le haut
+			ball.vx = -1.0;
+		}
+
 		if (keys[SDL_SCANCODE_LEFT])
 			x_vault -= 10;
 		if (keys[SDL_SCANCODE_RIGHT])
