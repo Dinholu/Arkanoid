@@ -50,9 +50,12 @@
 		- [ ] 3 fois : Lvl 9 - 16
 		- [ ] 4 fois : Lvl 17 - 24
 		- [ ] 5 fois : Lvl 25 - 32
-		- [ ] Points bonus pour briser les mur : 100 x Lvl
+		- [ ] Points bonus pour briser les mur : 100 x LvL
 	- [ ] Brique indestructible
 - [x] Collision avec les briques
+	- [ ] Collision horizontal et vertical
+ 	- [ ] Une brique par collision (break)
+  	- [ ] Collision en angle  
 - [ ] Récupérer les coordonnées des briques
 - [ ] Power-up aléatoire dans briques
 - [ ] Affichage du score
