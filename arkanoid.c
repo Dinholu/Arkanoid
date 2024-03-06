@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 
 #define NUM_BRICKS_PER_ROW 20
 #define BRICK_WIDTH 30
@@ -76,7 +77,22 @@ void handleCollisions()
 			if (isCollision(ballRect, brickRect))
 			{
 				brick[i].isVisible = false;
-				ball.vy *= -1;
+
+				// Calculez l'angle de rebond en fonction de la position de la collision
+				double relativeCollisionX = (ball.x + 12) - (brick[i].x + 15);	 // Position relative de la collision par rapport au centre de la brique
+				double normalizedRelativeCollisionX = relativeCollisionX / 15.0; // Normalisez la position relative
+
+				// Ajustez l'angle de rebond en fonction de la position relative
+				double bounceAngle = normalizedRelativeCollisionX * M_PI / 3.0; // Utilisez un angle de rebond entre -pi/3 et pi/3
+				double speed = sqrt(ball.vx * ball.vx + ball.vy * ball.vy);		// Calculez la vitesse actuelle de la balle
+
+				// Mettez à jour les composantes de la vitesse en fonction de l'angle de rebond
+				ball.vx = speed * sin(bounceAngle);
+				ball.vy = -speed * cos(bounceAngle);
+
+				const double ACCELERATION_FACTOR = 1.1;
+				ball.vx *= ACCELERATION_FACTOR;
+				ball.vy *= ACCELERATION_FACTOR;
 				break;
 			}
 		}
@@ -165,9 +181,24 @@ void draw()
 		ball.vy *= -1;
 
 	// Collision avec le vaisseau
-	if ((ball.y + 24 > win_surf->h - 32) && (ball.x + 24 > x_vault) && (ball.x < x_vault + 128))
+	if (
+		(ball.y + 24 > win_surf->h - 32) &&
+		(ball.x + 24 > x_vault) &&
+		(ball.x < x_vault + 128) &&
+		(ball.y < win_surf->h - 32))
 	{
-		ball.vy *= -1;
+		// La balle a collisionné avec le vaisseau
+		// Calculez l'angle de rebond en fonction de la position de la collision
+		double relativeCollisionX = (ball.x + 12) - (x_vault + 64);		 // Position relative de la collision par rapport au centre du vaisseau
+		double normalizedRelativeCollisionX = relativeCollisionX / 64.0; // Normalisez la position relative
+
+		// Ajustez l'angle de rebond en fonction de la position relative
+		double bounceAngle = normalizedRelativeCollisionX * M_PI / 3.0; // Utilisez un angle de rebond entre -pi/3 et pi/3
+		double speed = sqrt(ball.vx * ball.vx + ball.vy * ball.vy);		// Calculez la vitesse actuelle de la balle
+
+		// Mettez à jour les composantes de la vitesse en fonction de l'angle de rebond
+		ball.vx = speed * sin(bounceAngle);
+		ball.vy = -speed * cos(bounceAngle);
 	}
 
 	// touche bas -> rouge
