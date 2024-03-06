@@ -17,6 +17,8 @@ struct
 {
 	double x;
 	double y;
+	int type;
+	bool isVisible;
 } brick;
 
 bool ballIsAttached = false;
@@ -85,6 +87,13 @@ void draw()
 		ball.vy *= -1;
 	}
 
+	// Collision avec la brique
+	if (ball.y <= brick.y + srcBrick.h && ball.y >= brick.y - 25 && ball.x >= brick.x && ball.x <= brick.x + srcBrick.w)
+    {
+        ball.vy *= -1;
+    }
+
+
 	// touche bas -> rouge
 	if (ball.y > (win_surf->h - 25))
 	{
@@ -93,7 +102,6 @@ void draw()
 		ball.vy = 0;
 		ball.vx = 0;
 		ballIsAttached = true;
-		// srcBall.y = 64;
 	}
 	// touche bas -> vert
 	if (ball.y < 1)
@@ -160,11 +168,14 @@ int main(int argc, char **argv)
 				quit = true; // Quitte la boucle principale si l'événement de fermeture de la fenêtre est détecté
 			}
 		}
+
 		draw();
+
 		SDL_UpdateWindowSurface(pWindow);
 		now = SDL_GetPerformanceCounter();
 		delta_t = 1.0 / FPS - (double)(now - prev) / (double)SDL_GetPerformanceFrequency();
 		prev = now;
+
 		if (delta_t > 0)
 			SDL_Delay((Uint32)(delta_t * 1000));
 		printf("dt = %lf\n", delta_t * 1000);
