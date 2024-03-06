@@ -3,8 +3,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define NUM_BRICKS_PER_ROW 20
+#define BRICK_WIDTH 30
+#define BRICK_HEIGHT 13
+#define NUM_ROWS 15
+#define NUM_BRICKS (NUM_BRICKS_PER_ROW * NUM_ROWS)
+
 const int FPS = 60.0;
 // struct { double x; double y; } ball_speed;
+
 struct
 {
 	double x;
@@ -13,11 +20,15 @@ struct
 	double vy;
 } ball;
 
-struct 
+struct Brick
 {
 	double x;
 	double y;
-} brick;
+	int type;
+	bool isVisible;
+};
+
+struct Brick brick[NUM_BRICKS];
 
 bool ballIsAttached = false;
 Uint64 prev, now; // timers
@@ -34,6 +45,38 @@ SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaiss = {128, 0, 128, 32};
 SDL_Rect srcBrick = {1, 1, 30, 13};
 
+void loadLevelFromFile(const char *filename)
+{
+	FILE *file = fopen(filename, "r");
+	if (file == NULL)
+	{
+		fprintf(stderr, "Erreur lors de l'ouverture du fichier %s\n", filename);
+		exit(EXIT_FAILURE);
+	}
+
+	int row = 0;
+	int col = 0;
+	while (fscanf(file, "%1d", &brick[row * NUM_BRICKS_PER_ROW + col].type) == 1)
+	{
+		brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH;
+		brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
+		brick[row * NUM_BRICKS_PER_ROW + col].isVisible = brick[row * NUM_BRICKS_PER_ROW + col].type; // Mettez à jour en fonction de la valeur lue
+
+		printf("Loaded brick at (%f, %f) - Type: %d\n", brick[row * NUM_BRICKS_PER_ROW + col].x, brick[row * NUM_BRICKS_PER_ROW + col].y, brick[row * NUM_BRICKS_PER_ROW + col].type);
+
+		col++;
+		if (col == NUM_BRICKS_PER_ROW)
+		{
+			col = 0;
+			row++;
+			if (row == NUM_ROWS)
+				break;
+		}
+	}
+
+	fclose(file);
+}
+
 void init()
 {
 	pWindow = SDL_CreateWindow("Arknoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN);
@@ -42,13 +85,14 @@ void init()
 	gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
 
 	SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
-	SDL_SetColorKey(gameSprites, true, 0);	 // 0: 00/00/00 noir -> transparent
+	SDL_SetColorKey(gameSprites, true, 0);	  // 0: 00/00/00 noir -> transparent
 
 	ball.x = win_surf->w / 2;
 	ball.y = win_surf->h / 2;
 	ball.vx = 2.0;
 	ball.vy = 2.8;
 
+	loadLevelFromFile("level1.txt");
 	now = SDL_GetPerformanceCounter();
 }
 
@@ -112,8 +156,14 @@ void draw()
 	}
 
 	// Brique
-	SDL_Rect dstBrick = {brick.x, brick.y, 0, 0};
-	SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &dstBrick);
+	for (int i = 0; i < NUM_BRICKS; i++)
+	{
+		if (brick[i].isVisible)
+		{
+			SDL_Rect dstBrick = {brick[i].x, brick[i].y, 0, 0};
+			SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &dstBrick);
+		}
+	}
 }
 
 int main(int argc, char **argv)
@@ -167,7 +217,7 @@ int main(int argc, char **argv)
 		prev = now;
 		if (delta_t > 0)
 			SDL_Delay((Uint32)(delta_t * 1000));
-		printf("dt = %lf\n", delta_t * 1000);
+		// printf("dt = %lf\n", delta_t * 1000);
 		prev = SDL_GetPerformanceCounter();
 	}
 
