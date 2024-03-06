@@ -45,6 +45,33 @@ SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaiss = {128, 0, 128, 32};
 SDL_Rect srcBrick = {1, 1, 30, 13};
 
+bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
+{
+	return rect1.x < rect2.x + rect2.w &&
+		   rect1.x + rect1.w > rect2.x &&
+		   rect1.y < rect2.y + rect2.h &&
+		   rect1.y + rect1.h > rect2.y;
+}
+
+void handleCollisions()
+{
+	// Check collision with bricks
+	SDL_Rect ballRect = {ball.x, ball.y, 24, 24};
+	for (int i = 0; i < NUM_BRICKS; i++)
+	{
+		if (brick[i].isVisible)
+		{
+			SDL_Rect brickRect = {brick[i].x, brick[i].y, 30, 13};
+			if (isCollision(ballRect, brickRect))
+			{
+				// Handle la collision
+				brick[i].isVisible = false;
+				ball.vy *= -1; // Reflect the ball's vertical velocity
+			}
+		}
+	}
+}
+
 void loadLevelFromFile(const char *filename)
 {
 	FILE *file = fopen(filename, "r");
@@ -185,7 +212,6 @@ int main(int argc, char **argv)
 	{
 		SDL_PumpEvents();
 		const Uint8 *keys = SDL_GetKeyboardState(NULL);
-
 		// Lancer le jeu avec la touche "Space"
 		if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
 		{
@@ -194,6 +220,7 @@ int main(int argc, char **argv)
 			ball.vy = -1.4; // Vitesse vers le haut
 			ball.vx = -1.0;
 		}
+		handleCollisions();
 
 		if (keys[SDL_SCANCODE_LEFT])
 			x_vault -= 10;
