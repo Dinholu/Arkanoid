@@ -53,9 +53,20 @@ bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 		   rect1.y + rect1.h > rect2.y;
 }
 
+bool allBricksInvisible()
+{
+	for (int i = 0; i < NUM_BRICKS; i++)
+	{
+		if (brick[i].isVisible)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 void handleCollisions()
 {
-	// Check collision with bricks
 	SDL_Rect ballRect = {ball.x, ball.y, 24, 24};
 	for (int i = 0; i < NUM_BRICKS; i++)
 	{
@@ -64,9 +75,9 @@ void handleCollisions()
 			SDL_Rect brickRect = {brick[i].x, brick[i].y, 30, 13};
 			if (isCollision(ballRect, brickRect))
 			{
-				// Handle la collision
 				brick[i].isVisible = false;
-				ball.vy *= -1; // Reflect the ball's vertical velocity
+				ball.vy *= -1;
+				break;
 			}
 		}
 	}
@@ -210,6 +221,11 @@ int main(int argc, char **argv)
 
 	while (!quit)
 	{
+		if (allBricksInvisible())
+		{
+			printf("Congratulations! You've won the game!\n");
+			quit = true; // End the game loop
+		}
 		SDL_PumpEvents();
 		const Uint8 *keys = SDL_GetKeyboardState(NULL);
 		// Lancer le jeu avec la touche "Space"
