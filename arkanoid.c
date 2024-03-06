@@ -88,7 +88,7 @@ void draw()
 	}
 
 	// Collision avec la brique
-	if (ball.y <= brick.y + srcBrick.h && ball.y >= brick.y - 25 && ball.x >= brick.x && ball.x <= brick.x + srcBrick.w)
+	if (ball.y <= brick.y + srcBrick.h && ball.y >= brick.y - 24 && ball.x >= brick.x && ball.x <= brick.x + srcBrick.w)
     {
         ball.vy *= -1;
     }
