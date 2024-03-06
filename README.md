@@ -56,7 +56,11 @@
 	- [x] Collision horizontal et vertical
  	- [x] Une brique par collision (break)
   	- [ ] Collision en angle  
-- [ ] Récupérer les coordonnées des briques
+- [ ] Récupérer les coordonnées sur le sprites
+	- [ ] Brique couleur fade
+ 	- [ ] Power-Up
+  	- [ ] Map
+  	- [ ] Vaisseau 
 - [ ] Power-up aléatoire dans briques
 - [ ] Affichage du score
 
