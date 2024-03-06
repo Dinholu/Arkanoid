@@ -70,7 +70,10 @@ void loadLevelFromFile(const char *filename)
 			col = 0;
 			row++;
 			if (row == NUM_ROWS)
-				break;
+			{
+				fclose(file);
+				return;
+			}
 		}
 	}
 
