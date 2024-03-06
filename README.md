@@ -11,9 +11,10 @@
 ## A faire 
 
  - Que la balle touche la barre
- - AJouter les briques 2 types de brique:
+ - AJouter les briques 3 types de brique:
         - brique simple
-        - brique double 
+        - brique double
+        - brique indestructible    
  - Ajouter la vitesse selon l'angle etc
  - Ajouter le score
  - Ajouter les bonus :
@@ -38,3 +39,34 @@
 -  traces derrière la balle,
 -   disparition progressive des briques.
 -   distribution bonus/malus non aléatoire, etc ...
+
+## CheckList
+### Jeu de base
+- [x] Balle touche la barre
+- [ ] Ajouter les 3 types de briques :
+	- [x] Brique simple
+	- [ ] Brique dure :
+		- [ ] 2 fois : Lvl 1 - 8
+		- [ ] 3 fois : Lvl 9 - 16
+		- [ ] 4 fois : Lvl 17 - 24
+		- [ ] 5 fois : Lvl 25 - 32
+		- [ ] Points bonus pour briser les mur : 100 x LvL
+	- [ ] Brique indestructible
+- [x] Collision avec les briques
+	- [x] Collision horizontal et vertical
+ 	- [x] Une brique par collision (break)
+  	- [ ] Collision en angle  
+- [ ] Power-up aléatoire dans briques
+- [ ] Affichage du score
+
+### Design Level
+- [x] Des fichiers textes qui modélisent les différents niveaux
+	- [x] Test avec briques alignés
+- [ ] Récupérer les coordonnées sur le sprites
+	- [ ] Brique couleur fade
+ 	- [ ] Power-Up
+  	- [ ] Map
+  	- [ ] Vaisseau 
+### Cas de test
+- [ ] Balle en trajectoire verticale constante
+	- [ ] Briques traversées ? 
