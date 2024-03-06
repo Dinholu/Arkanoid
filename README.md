@@ -53,8 +53,8 @@
 		- [ ] Points bonus pour briser les mur : 100 x LvL
 	- [ ] Brique indestructible
 - [x] Collision avec les briques
-	- [ ] Collision horizontal et vertical
- 	- [ ] Une brique par collision (break)
+	- [x] Collision horizontal et vertical
+ 	- [x] Une brique par collision (break)
   	- [ ] Collision en angle  
 - [ ] Récupérer les coordonnées des briques
 - [ ] Power-up aléatoire dans briques
