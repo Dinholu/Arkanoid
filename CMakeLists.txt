@@ -19,6 +19,7 @@ endif()
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/sprites.bmp
 	Arkanoid_sprites.bmp
+	Arkanoid_ascii.bmp
 	level1.txt
 	DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)	
 
