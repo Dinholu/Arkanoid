@@ -195,6 +195,19 @@ void loadLevelFromFile(const char *filename)
     fclose(file);
 }
 
+void moveVault(const Uint8 *keys)
+{
+    if (keys[SDL_SCANCODE_LEFT])
+        x_vault -= 10;
+    if (keys[SDL_SCANCODE_RIGHT])
+        x_vault += 10;
+
+    if (x_vault < 0)
+        x_vault = 0;
+    if (x_vault > win_surf->w - 128)
+        x_vault = win_surf->w - 128;
+}
+
 void init()
 {
     pWindow = SDL_CreateWindow("Arknoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN);
@@ -275,24 +288,16 @@ int main(int argc, char **argv)
         }
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
+
+        // Quand on meurt, on peut relancer la balle
         if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
         {
             ballIsAttached = false;
-            ball.vy = -1.4;
+            ball.vy = -1.4; // Vitesse de la balle réduite avant reprise.
             ball.vx = -1.0;
         }
 
-        if (keys[SDL_SCANCODE_LEFT])
-            x_vault -= 10;
-        if (keys[SDL_SCANCODE_RIGHT])
-            x_vault += 10;
-        if (keys[SDL_SCANCODE_ESCAPE])
-            quit = true;
-
-        if (x_vault < 0)
-            x_vault = 0;
-        if (x_vault > win_surf->w - 128)
-            x_vault = win_surf->w - 128;
+        moveVault(keys);
 
         while (SDL_PollEvent(&event))
         {
