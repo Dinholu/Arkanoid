@@ -59,6 +59,7 @@ int x_vault;
 
 SDL_Window *pWindow = NULL;
 SDL_Surface *win_surf = NULL;
+// 
 SDL_Surface *plancheSprites = NULL;
 SDL_Surface *gameSprites = NULL;
 SDL_Surface *asciiSprites = NULL;
@@ -90,13 +91,13 @@ bool allBricksInvisible()
 
 void handleCollisions()
 {
-    // Ball collision with walls
+    // Walls collision
     if ((ball.x < 1) || (ball.x > (win_surf->w - 25)))
         ball.vx *= -1;
     if ((ball.y < 1) || (ball.y > (win_surf->h - 25)))
         ball.vy *= -1;
 
-    // Ball collision with vault
+    // Vault collision
     if ((ball.y + 24 > win_surf->h - 32) && (ball.x + 24 > x_vault) && (ball.x < x_vault + 128))
     {
         double relativeCollisionX = (ball.x + 12) - (x_vault + 64);
@@ -109,7 +110,7 @@ void handleCollisions()
         ball.vy = -speed * cos(bounceAngle);
     }
 
-    // Ball collision with bottom boundary
+    // Bottom wall collision
     if (ball.y > (win_surf->h - 25))
     {
         ball.x = x_vault + 52;
@@ -119,7 +120,7 @@ void handleCollisions()
         ballIsAttached = true;
     }
 
-    // Ball collision with bricks
+    // Brick collision
     for (int i = 0; i < NUM_BRICKS; i++)
     {
         if (brick[i].isVisible)
@@ -131,7 +132,6 @@ void handleCollisions()
             {
                 brick[i].isVisible = false;
 
-                // Adjust ball velocity after collision with a brick
                 double ballCenterX = ball.x + 12;
                 double ballCenterY = ball.y + 12;
 
@@ -142,12 +142,12 @@ void handleCollisions()
                 double dy = ballCenterY - brickCenterY;
 
                 double reflectionAngle = atan2(dy, dx);
-                double speed = sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
 
+                double speed = sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
                 ball.vx = speed * cos(reflectionAngle);
                 ball.vy = speed * sin(reflectionAngle);
 
-                break; // Exit loop after handling collision with one brick
+                break;
             }
         }
     }
