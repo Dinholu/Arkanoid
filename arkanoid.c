@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <string.h>
 
 #define NUM_BRICKS_PER_ROW 20
 #define BRICK_WIDTH 30
@@ -31,6 +32,12 @@
 #define D_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 80),BRICK_WIDTH,BRICK_HEIGHT}
 #define B_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 96),BRICK_WIDTH,BRICK_HEIGHT}
 #define P_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 112),BRICK_WIDTH,BRICK_HEIGHT}
+#define ASCII_START_X 0
+#define ASCII_START_Y 38
+#define ASCII_CHAR_WIDTH 18
+#define ASCII_CHAR_HEIGHT 22
+#define ASCII_CHAR_SPACING_X 32
+#define SPACING 16
 
 const int FPS = 60.0;
 const double BALL_SPEED_INCREMENT = 1; // Speed increment when hitting a brick
@@ -61,7 +68,7 @@ double ballSpeedIncrement = BALL_SPEED_INCREMENT; // Track the speed increment
 
 SDL_Window *pWindow = NULL;
 SDL_Surface *win_surf = NULL;
-// 
+
 SDL_Surface *plancheSprites = NULL;
 SDL_Surface *gameSprites = NULL;
 SDL_Surface *asciiSprites = NULL;
@@ -159,6 +166,21 @@ void handleCollisions()
     }
 }
 
+void generateASCIIRects(SDL_Rect asciiRects[10])
+{
+    int x = ASCII_START_X;
+    int y = ASCII_START_Y;
+
+    for (int i = 0; i < 10; i++)
+    {
+        asciiRects[i].x = x;
+        asciiRects[i].y = y;
+        asciiRects[i].w = ASCII_CHAR_WIDTH;
+        asciiRects[i].h = ASCII_CHAR_HEIGHT;
+
+        x += ASCII_CHAR_SPACING_X;
+    }
+}
 
 void loadLevelFromFile(const char *filename)
 {
@@ -208,26 +230,6 @@ void moveVault(const Uint8 *keys)
         x_vault = win_surf->w - 128;
 }
 
-void init()
-{
-    pWindow = SDL_CreateWindow("Arknoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN);
-    win_surf = SDL_GetWindowSurface(pWindow);
-    plancheSprites = SDL_LoadBMP("./sprites.bmp");
-    gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
-    asciiSprites = SDL_LoadBMP("./Arkanoid_ascii.bmp");
-
-    SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
-    SDL_SetColorKey(gameSprites, true, 0);    // 0: 00/00/00 noir -> transparent
-
-    ball.x = win_surf->w / 2;
-    ball.y = win_surf->h / 2;
-    ball.vx = 2.5;
-    ball.vy = 3.5;
-
-    loadLevelFromFile("level1.txt");
-    now = SDL_GetPerformanceCounter();
-}
-
 void draw()
 {
     SDL_Rect dest = {0, 0, 0, 0};
@@ -274,10 +276,27 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    init();
+    pWindow = SDL_CreateWindow("Arknoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 600, SDL_WINDOW_SHOWN);
+    win_surf = SDL_GetWindowSurface(pWindow);
+    plancheSprites = SDL_LoadBMP("./sprites.bmp");
+    gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
+    asciiSprites = SDL_LoadBMP("./Arkanoid_ascii.bmp");
+
+    SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
+    SDL_SetColorKey(gameSprites, true, 0);    // 0: 00/00/00 noir -> transparent
+
+    ball.x = win_surf->w / 2;
+    ball.y = win_surf->h / 2;
+    ball.vx = 2.5;
+    ball.vy = 3.5;
+
+    loadLevelFromFile("level1.txt");
+    now = SDL_GetPerformanceCounter();
 
     bool quit = false;
     SDL_Event event;
+
+    int score = 123456789;
 
     while (!quit)
     {
@@ -288,6 +307,8 @@ int main(int argc, char **argv)
         }
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
+        SDL_Rect asciiRects[10];
+        generateASCIIRects(asciiRects);
 
         // Quand on meurt, on peut relancer la balle
         if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
@@ -309,7 +330,22 @@ int main(int argc, char **argv)
 
         draw();
 
+        // Draw score
+        char scoreStr[10];
+        sprintf(scoreStr, "%d", score);
+
+        SDL_Rect dstScore = {10, 10, 0, 0};
+        for (int i = 0; i < strlen(scoreStr); i++)
+        {
+            int asciiIndex = scoreStr[i] - '0';
+            SDL_Rect srcChar = asciiRects[asciiIndex];
+            SDL_BlitSurface(asciiSprites, &srcChar, win_surf, &dstScore);
+            dstScore.x += SPACING;
+        }
+
+        // Update the window surface
         SDL_UpdateWindowSurface(pWindow);
+
         now = SDL_GetPerformanceCounter();
         delta_t = 1.0 / FPS - (double)(now - prev) / (double)SDL_GetPerformanceFrequency();
         prev = now;
