@@ -33,6 +33,7 @@
 #define P_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 112),BRICK_WIDTH,BRICK_HEIGHT}
 
 const int FPS = 60.0;
+const double BALL_SPEED_INCREMENT = 1; // Speed increment when hitting a brick
 
 struct
 {
@@ -56,6 +57,7 @@ bool ballIsAttached = false;
 Uint64 prev, now; // timers
 double delta_t;   // durée frame en ms
 int x_vault;
+double ballSpeedIncrement = BALL_SPEED_INCREMENT; // Track the speed increment
 
 SDL_Window *pWindow = NULL;
 SDL_Surface *win_surf = NULL;
@@ -67,7 +69,7 @@ SDL_Surface *asciiSprites = NULL;
 SDL_Rect srcBg = {0, 128, 96, 128}; // x,y, w,h (0,0) en haut a gauche
 SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaiss = {128, 0, 128, 32};
-SDL_Rect srcBrick = C_BONUS;
+SDL_Rect srcBrick = GREY_BRICK;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
@@ -147,6 +149,10 @@ void handleCollisions()
                 ball.vx = speed * cos(reflectionAngle);
                 ball.vy = speed * sin(reflectionAngle);
 
+                // Increase the ball speed
+                ball.vx += (ball.vx > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
+                ball.vy += (ball.vy > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
+
                 break;
             }
         }
@@ -202,8 +208,8 @@ void init()
 
     ball.x = win_surf->w / 2;
     ball.y = win_surf->h / 2;
-    ball.vx = 2.0;
-    ball.vy = 2.8;
+    ball.vx = 2.5;
+    ball.vy = 3.5;
 
     loadLevelFromFile("level1.txt");
     now = SDL_GetPerformanceCounter();
