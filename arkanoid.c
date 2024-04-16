@@ -284,6 +284,7 @@ int main(int argc, char **argv)
 
     SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
     SDL_SetColorKey(gameSprites, true, 0);    // 0: 00/00/00 noir -> transparent
+    SDL_SetColorKey(asciiSprites, true, 0);
 
     ball.x = win_surf->w / 2;
     ball.y = win_surf->h / 2;
