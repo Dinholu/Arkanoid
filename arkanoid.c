@@ -45,10 +45,10 @@
 #define ASCII_CHAR_HEIGHT 22
 #define ASCII_CHAR_SPACING_X 32
 #define SPACING 16
+// Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 2
-
 const int FPS = 60.0;
-const double BALL_SPEED_INCREMENT = 1; // Speed increment when hitting a brick
+#define BALL_SPEED_INCREMENT 1.0; // Speed increment when hitting a brick
 
 struct
 {
@@ -73,6 +73,7 @@ typedef struct Level
 
 struct Brick brick[NUM_BRICKS];
 
+double max_speed = 5.0;
 bool ballIsAttached = false;
 Uint64 prev, now; // timers
 double delta_t;   // durée frame en ms
@@ -172,9 +173,13 @@ void handleCollisions()
                 ball.vy = speed * sin(reflectionAngle);
 
                 // Increase the ball speed
-                ball.vx += (ball.vx > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
-                ball.vy += (ball.vy > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
+                if (sqrt(ball.vx * ball.vx + ball.vy * ball.vy) <= max_speed)
+                {
+                    ball.vx += (ball.vx > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
+                    ball.vy += (ball.vy > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
+                }
 
+                printf("Speed: %f\n", sqrt(ball.vx * ball.vx + ball.vy * ball.vy));
                 break;
             }
         }
@@ -285,6 +290,8 @@ void draw()
     }
 }
 
+// fonction pour que la balle soit accroché au vaisseau
+
 void loadCurrentLevel()
 {
     char filename[20];
@@ -301,6 +308,10 @@ void nextLevel()
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
         exit(EXIT_SUCCESS);
     }
+    ballIsAttached = true;
+    ball.vy = 0;
+    ball.vx = 0;
+    max_speed = max_speed + 2.0;
     loadCurrentLevel();
 }
 
@@ -320,11 +331,10 @@ int main(int argc, char **argv)
     SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
     SDL_SetColorKey(gameSprites, true, 0);    // 0: 00/00/00 noir -> transparent
     SDL_SetColorKey(asciiSprites, true, 0);
-
-    ball.x = win_surf->w / 2;
-    ball.y = win_surf->h / 2;
-    ball.vx = 2.5;
-    ball.vy = 3.5;
+    // TODO : faire proprement
+    ballIsAttached = true;
+    ball.y = 0;
+    ball.x = 0;
 
     loadCurrentLevel();
 
@@ -344,7 +354,6 @@ int main(int argc, char **argv)
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         SDL_Rect asciiRects[10];
         generateASCIIRects(asciiRects);
-
         // Quand on meurt, on peut relancer la balle
         if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
         {
