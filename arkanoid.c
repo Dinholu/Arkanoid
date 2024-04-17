@@ -11,90 +11,34 @@
 #define NUM_ROWS 15
 #define FIRST_LINE 1
 #define NUM_BRICKS (NUM_BRICKS_PER_ROW * NUM_ROWS)
-#define WHITE_BRICK                                       \
-    {                                                     \
-        FIRST_LINE, FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
+
+#define BRICK(COIN, LIGNE)                                                   \
+    {                                                                        \
+        (FIRST_LINE * COIN), (FIRST_LINE * LIGNE), BRICK_WIDTH, BRICK_HEIGHT \
     }
-#define ORANGE_BRICK                                             \
-    {                                                            \
-        (FIRST_LINE * 32), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define BLUE1_BRICK                                              \
-    {                                                            \
-        (FIRST_LINE * 64), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define GREEN1_BRICK                                             \
-    {                                                            \
-        (FIRST_LINE * 96), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define BLUE2_BRICK                                               \
-    {                                                             \
-        (FIRST_LINE * 128), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define GREEN2_BRICK                                              \
-    {                                                             \
-        (FIRST_LINE * 156), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define RED_BRICK                                                \
-    {                                                            \
-        FIRST_LINE, (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define BLUE3_BRICK                                                     \
-    {                                                                   \
-        (FIRST_LINE * 32), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define PINK_BRICK                                                      \
-    {                                                                   \
-        (FIRST_LINE * 64), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define YELLOW_BRICK                                                    \
-    {                                                                   \
-        (FIRST_LINE * 96), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define RED2_BRICK                                                       \
-    {                                                                    \
-        (FIRST_LINE * 128), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define BLUE4_BRICK                                                      \
-    {                                                                    \
-        (FIRST_LINE * 156), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define GREY_BRICK                                               \
-    {                                                            \
-        FIRST_LINE, (FIRST_LINE * 32), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define S_BONUS                                                   \
-    {                                                             \
-        (FIRST_LINE * 256), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define C_BONUS                                                          \
-    {                                                                    \
-        (FIRST_LINE * 256), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define L_BONUS                                                          \
-    {                                                                    \
-        (FIRST_LINE * 256), (FIRST_LINE * 32), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define E_BONUS                                                          \
-    {                                                                    \
-        (FIRST_LINE * 256), (FIRST_LINE * 48), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define O_BONUS                                                          \
-    {                                                                    \
-        (FIRST_LINE * 256), (FIRST_LINE * 64), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define D_BONUS                                                          \
-    {                                                                    \
-        (FIRST_LINE * 256), (FIRST_LINE * 80), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define B_BONUS                                                          \
-    {                                                                    \
-        (FIRST_LINE * 256), (FIRST_LINE * 96), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-#define P_BONUS                                                           \
-    {                                                                     \
-        (FIRST_LINE * 256), (FIRST_LINE * 112), BRICK_WIDTH, BRICK_HEIGHT \
-    }
+
+#define WHITE_BRICK BRICK(1, 1)
+#define ORANGE_BRICK BRICK(32, 1)
+#define BLUE1_BRICK BRICK(64, 1)
+#define GREEN1_BRICK BRICK(96, 1)
+#define BLUE2_BRICK BRICK(128, 1)
+#define GREEN2_BRICK (160, 1)
+#define RED_BRICK BRICK(1, 16)
+#define BLUE3_BRICK BRICK(32, 16)
+#define PINK_BRICK BRICK(64, 16)
+#define YELLOW_BRICK BRICK(96, 16)
+#define RED2_BRICK BRICK(128, 16)
+#define BLUE4_BRICK BRICK(156, 16)
+#define GREY_BRICK BRICK(1, 32)
+#define S_BONUS BRICK(1, 256)
+#define C_BONUS BRICK(256, 16)
+#define L_BONUS BRICK(256, 32)
+#define E_BONUS BRICK(256, 48)
+#define O_BONUS BRICK(256, 64)
+#define D_BONUS BRICK(256, 80)
+#define B_BONUS BRICK(256, 96)
+#define P_BONUS BRICK(256, 112)
+
 #define ASCII_START_X 0
 #define ASCII_START_Y 38
 #define ASCII_CHAR_WIDTH 18
@@ -147,7 +91,7 @@ SDL_Surface *asciiSprites = NULL;
 SDL_Rect srcBg = {0, 128, 96, 128}; // x,y, w,h (0,0) en haut a gauche
 SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaiss = {128, 0, 128, 32};
-SDL_Rect srcBrick = GREY_BRICK;
+SDL_Rect srcBrick = RED_BRICK;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
