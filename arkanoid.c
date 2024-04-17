@@ -331,7 +331,7 @@ void draw()
             switch (brick[i].type)
             {
             case 1:
-                srcBrick = WHITE_BRICK;
+                srcBrick = GREY_BRICK;
                 break;
             case 2:
                 srcBrick = ORANGE_BRICK;
