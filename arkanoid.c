@@ -11,33 +11,97 @@
 #define NUM_ROWS 15
 #define FIRST_LINE 1
 #define NUM_BRICKS (NUM_BRICKS_PER_ROW * NUM_ROWS)
-#define WHITE_BRICK {FIRST_LINE,FIRST_LINE,BRICK_WIDTH,BRICK_HEIGHT}
-#define ORANGE_BRICK {(FIRST_LINE * 32),FIRST_LINE,BRICK_WIDTH,BRICK_HEIGHT}
-#define BLUE1_BRICK {(FIRST_LINE * 64),FIRST_LINE,BRICK_WIDTH,BRICK_HEIGHT}
-#define GREEN1_BRICK {(FIRST_LINE * 96),FIRST_LINE,BRICK_WIDTH,BRICK_HEIGHT}
-#define BLUE2_BRICK {(FIRST_LINE * 128),FIRST_LINE,BRICK_WIDTH,BRICK_HEIGHT}
-#define GREEN2_BRICK {(FIRST_LINE * 156),FIRST_LINE,BRICK_WIDTH,BRICK_HEIGHT}
-#define RED_BRICK {FIRST_LINE,(FIRST_LINE * 16),BRICK_WIDTH,BRICK_HEIGHT}
-#define BLUE3_BRICK {(FIRST_LINE * 32),(FIRST_LINE * 16),BRICK_WIDTH,BRICK_HEIGHT}
-#define PINK_BRICK {(FIRST_LINE * 64),(FIRST_LINE * 16),BRICK_WIDTH,BRICK_HEIGHT}
-#define YELLOW_BRICK {(FIRST_LINE * 96),(FIRST_LINE * 16),BRICK_WIDTH,BRICK_HEIGHT}
-#define RED2_BRICK {(FIRST_LINE * 128),(FIRST_LINE * 16),BRICK_WIDTH,BRICK_HEIGHT}
-#define BLUE4_BRICK {(FIRST_LINE * 156),(FIRST_LINE * 16),BRICK_WIDTH,BRICK_HEIGHT}
-#define GREY_BRICK {FIRST_LINE,(FIRST_LINE * 32),BRICK_WIDTH,BRICK_HEIGHT}
-#define S_BONUS {(FIRST_LINE * 256),FIRST_LINE,BRICK_WIDTH,BRICK_HEIGHT}
-#define C_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 16),BRICK_WIDTH,BRICK_HEIGHT}
-#define L_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 32),BRICK_WIDTH,BRICK_HEIGHT}
-#define E_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 48),BRICK_WIDTH,BRICK_HEIGHT}
-#define O_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 64),BRICK_WIDTH,BRICK_HEIGHT}
-#define D_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 80),BRICK_WIDTH,BRICK_HEIGHT}
-#define B_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 96),BRICK_WIDTH,BRICK_HEIGHT}
-#define P_BONUS {(FIRST_LINE * 256),(FIRST_LINE * 112),BRICK_WIDTH,BRICK_HEIGHT}
+#define WHITE_BRICK                                       \
+    {                                                     \
+        FIRST_LINE, FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define ORANGE_BRICK                                             \
+    {                                                            \
+        (FIRST_LINE * 32), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define BLUE1_BRICK                                              \
+    {                                                            \
+        (FIRST_LINE * 64), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define GREEN1_BRICK                                             \
+    {                                                            \
+        (FIRST_LINE * 96), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define BLUE2_BRICK                                               \
+    {                                                             \
+        (FIRST_LINE * 128), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define GREEN2_BRICK                                              \
+    {                                                             \
+        (FIRST_LINE * 156), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define RED_BRICK                                                \
+    {                                                            \
+        FIRST_LINE, (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define BLUE3_BRICK                                                     \
+    {                                                                   \
+        (FIRST_LINE * 32), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define PINK_BRICK                                                      \
+    {                                                                   \
+        (FIRST_LINE * 64), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define YELLOW_BRICK                                                    \
+    {                                                                   \
+        (FIRST_LINE * 96), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define RED2_BRICK                                                       \
+    {                                                                    \
+        (FIRST_LINE * 128), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define BLUE4_BRICK                                                      \
+    {                                                                    \
+        (FIRST_LINE * 156), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define GREY_BRICK                                               \
+    {                                                            \
+        FIRST_LINE, (FIRST_LINE * 32), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define S_BONUS                                                   \
+    {                                                             \
+        (FIRST_LINE * 256), FIRST_LINE, BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define C_BONUS                                                          \
+    {                                                                    \
+        (FIRST_LINE * 256), (FIRST_LINE * 16), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define L_BONUS                                                          \
+    {                                                                    \
+        (FIRST_LINE * 256), (FIRST_LINE * 32), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define E_BONUS                                                          \
+    {                                                                    \
+        (FIRST_LINE * 256), (FIRST_LINE * 48), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define O_BONUS                                                          \
+    {                                                                    \
+        (FIRST_LINE * 256), (FIRST_LINE * 64), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define D_BONUS                                                          \
+    {                                                                    \
+        (FIRST_LINE * 256), (FIRST_LINE * 80), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define B_BONUS                                                          \
+    {                                                                    \
+        (FIRST_LINE * 256), (FIRST_LINE * 96), BRICK_WIDTH, BRICK_HEIGHT \
+    }
+#define P_BONUS                                                           \
+    {                                                                     \
+        (FIRST_LINE * 256), (FIRST_LINE * 112), BRICK_WIDTH, BRICK_HEIGHT \
+    }
 #define ASCII_START_X 0
 #define ASCII_START_Y 38
 #define ASCII_CHAR_WIDTH 18
 #define ASCII_CHAR_HEIGHT 22
 #define ASCII_CHAR_SPACING_X 32
 #define SPACING 16
+#define NUM_LEVELS 2
 
 const int FPS = 60.0;
 const double BALL_SPEED_INCREMENT = 1; // Speed increment when hitting a brick
@@ -58,6 +122,11 @@ struct Brick
     bool isVisible;
 };
 
+typedef struct Level
+{
+    int bricks[NUM_ROWS][NUM_BRICKS_PER_ROW];
+} Level;
+
 struct Brick brick[NUM_BRICKS];
 
 bool ballIsAttached = false;
@@ -65,6 +134,8 @@ Uint64 prev, now; // timers
 double delta_t;   // durée frame en ms
 int x_vault;
 double ballSpeedIncrement = BALL_SPEED_INCREMENT; // Track the speed increment
+Level levels[NUM_LEVELS];
+int currentLevel = 0;
 
 SDL_Window *pWindow = NULL;
 SDL_Surface *win_surf = NULL;
@@ -182,6 +253,7 @@ void generateASCIIRects(SDL_Rect asciiRects[10])
     }
 }
 
+// Fonction pour charger un niveau à partir d'un fichier
 void loadLevelFromFile(const char *filename)
 {
     FILE *file = fopen(filename, "r");
@@ -269,6 +341,25 @@ void draw()
     }
 }
 
+void loadCurrentLevel()
+{
+    char filename[20];
+    sprintf(filename, "level%d.txt", currentLevel + 1);
+    loadLevelFromFile(filename);
+}
+
+// Fonction pour passer au niveau suivant
+void nextLevel()
+{
+    currentLevel++;
+    if (currentLevel >= NUM_LEVELS)
+    {
+        printf("Félicitations! Vous avez terminé tous les niveaux!\n");
+        exit(EXIT_SUCCESS);
+    }
+    loadCurrentLevel();
+}
+
 int main(int argc, char **argv)
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
@@ -291,8 +382,7 @@ int main(int argc, char **argv)
     ball.vx = 2.5;
     ball.vy = 3.5;
 
-    loadLevelFromFile("level1.txt");
-    now = SDL_GetPerformanceCounter();
+    loadCurrentLevel();
 
     bool quit = false;
     SDL_Event event;
@@ -304,7 +394,7 @@ int main(int argc, char **argv)
         if (allBricksInvisible())
         {
             printf("Congratulations! You've won the game!\n");
-            quit = true;
+            nextLevel();
         }
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
