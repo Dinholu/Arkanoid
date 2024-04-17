@@ -253,6 +253,43 @@ void moveVault(const Uint8 *keys)
         x_vault = win_surf->w - 128;
 }
 
+void setupAsciiRects() // A utilisre pour les chaines de caractères
+{
+    for (int i = 0; i < 10; i++) 
+    {
+        asciiRects[i].x = i * 32;
+        asciiRects[i].y = 32;
+        asciiRects[i].w = 16;
+        asciiRects[i].h = 32;
+    }
+}
+
+void drawScore()
+{
+    int score = currentScore;
+    int digits[10];
+    int i = 0;
+
+    if (score == 0) {
+        digits[0] = 0;
+        i = 1;
+    }
+
+    while (score > 0) {
+        digits[i] = score % 10;
+        score /= 10;
+        i++;
+    }
+
+    int x = win_surf->w - 16 * i;
+    for (int j = i - 1; j >= 0; j--) {
+        SDL_Rect src = asciiRects[digits[j]];
+        SDL_Rect dst = {x, 10, src.w, src.h};
+        SDL_BlitSurface(asciiSprites, &src, win_surf, &dst);
+        x += 16;
+    }
+}
+
 void draw()
 {
     SDL_Rect dest = {0, 0, 0, 0};
@@ -289,6 +326,8 @@ void draw()
             SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &dstBrick);
         }
     }
+
+    drawScore();
 }
 
 // fonction pour que la balle soit accroché au vaisseau
@@ -315,6 +354,8 @@ void nextLevel()
     loadCurrentLevel();
 }
 
+
+
 int main(int argc, char **argv)
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
@@ -327,6 +368,7 @@ int main(int argc, char **argv)
     plancheSprites = SDL_LoadBMP("./sprites.bmp");
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
     asciiSprites = SDL_LoadBMP("./Arkanoid_ascii.bmp");
+    setupAsciiRects();
 
     SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
     SDL_SetColorKey(gameSprites, true, 0);    // 0: 00/00/00 noir -> transparent
