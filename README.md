@@ -70,3 +70,10 @@
 ### Cas de test
 - [ ] Balle en trajectoire verticale constante
 	- [ ] Briques traversées ? 
+
+
+
+
+### Aide pour la compréhension 
+
+http://nick-aschenbach.github.io/blog/2015/04/27/arkanoid-game-levels/
