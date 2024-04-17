@@ -17,27 +17,27 @@
         (FIRST_LINE * COIN), (FIRST_LINE * LIGNE), BRICK_WIDTH, BRICK_HEIGHT \
     }
 
-#define WHITE_BRICK BRICK(1, 1)
-#define ORANGE_BRICK BRICK(32, 1)
-#define BLUE1_BRICK BRICK(64, 1)
-#define GREEN1_BRICK BRICK(96, 1)
-#define BLUE2_BRICK BRICK(128, 1)
-#define GREEN2_BRICK BRICK(160, 1)
-#define RED_BRICK BRICK(1, 16)
-#define BLUE3_BRICK BRICK(32, 16)
-#define PINK_BRICK BRICK(64, 16)
-#define YELLOW_BRICK BRICK(96, 16)
-#define RED2_BRICK BRICK(128, 16)
-#define BLUE4_BRICK BRICK(156, 16)
-#define GREY_BRICK BRICK(1, 32)
-#define S_BONUS BRICK(1, 256)
-#define C_BONUS BRICK(256, 16)
-#define L_BONUS BRICK(256, 32)
-#define E_BONUS BRICK(256, 48)
-#define O_BONUS BRICK(256, 64)
-#define D_BONUS BRICK(256, 80)
-#define B_BONUS BRICK(256, 96)
-#define P_BONUS BRICK(256, 112)
+#define WHITE_BRICK (SDL_Rect) BRICK(1, 1)
+#define ORANGE_BRICK (SDL_Rect) BRICK(32, 1)
+#define BLUE1_BRICK (SDL_Rect) BRICK(64, 1)
+#define GREEN1_BRICK (SDL_Rect) BRICK(96, 1)
+#define BLUE2_BRICK (SDL_Rect) BRICK(128, 1)
+#define GREEN2_BRICK (SDL_Rect) BRICK(160, 1)
+#define RED_BRICK (SDL_Rect) BRICK(1, 16)
+#define BLUE3_BRICK (SDL_Rect) BRICK(32, 16)
+#define PINK_BRICK (SDL_Rect) BRICK(64, 16)
+#define YELLOW_BRICK (SDL_Rect) BRICK(96, 16)
+#define RED2_BRICK (SDL_Rect) BRICK(128, 16)
+#define BLUE4_BRICK (SDL_Rect) BRICK(156, 16)
+#define GREY_BRICK (SDL_Rect) BRICK(1, 32)
+#define S_BONUS (SDL_Rect) BRICK(1, 256)
+#define C_BONUS (SDL_Rect) BRICK(256, 16)
+#define L_BONUS (SDL_Rect) BRICK(256, 32)
+#define E_BONUS (SDL_Rect) BRICK(256, 48)
+#define O_BONUS (SDL_Rect) BRICK(256, 64)
+#define D_BONUS (SDL_Rect) BRICK(256, 80)
+#define B_BONUS (SDL_Rect) BRICK(256, 96)
+#define P_BONUS (SDL_Rect) BRICK(256, 112)
 
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 2
@@ -87,7 +87,7 @@ SDL_Surface *asciiSprites = NULL;
 SDL_Rect srcBg = {0, 128, 96, 128};
 SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaiss = {128, 0, 128, 32};
-SDL_Rect srcBrick = GREEN2_BRICK;
+SDL_Rect srcBrick;
 SDL_Rect asciiRects[10];
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
@@ -116,7 +116,7 @@ void wallCollision()
     {
         ball.vx *= -1;
     }
-    
+
     if ((ball.y < 1) || (ball.y > (win_surf->h - 25)))
     {
         ball.vy *= -1;
@@ -216,7 +216,7 @@ void loadLevelFromFile(const char *filename)
 
     int row = 0;
     int col = 0;
-    while (fscanf(file, "%1d", &brick[row * NUM_BRICKS_PER_ROW + col].type) == 1)
+    while (fscanf(file, "%1d", &brick[row * NUM_BRICKS_PER_ROW + col].type) != EOF)
     {
         brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH;
         brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
@@ -255,7 +255,7 @@ void moveVault(const Uint8 *keys)
 
 void setupAsciiRects() // A utilisre pour les chaines de caractères
 {
-    for (int i = 0; i < 10; i++) 
+    for (int i = 0; i < 10; i++)
     {
         asciiRects[i].x = i * 32;
         asciiRects[i].y = 32;
@@ -270,19 +270,22 @@ void drawScore()
     int digits[10];
     int i = 0;
 
-    if (score == 0) {
+    if (score == 0)
+    {
         digits[0] = 0;
         i = 1;
     }
 
-    while (score > 0) {
+    while (score > 0)
+    {
         digits[i] = score % 10;
         score /= 10;
         i++;
     }
 
     int x = win_surf->w - 16 * i;
-    for (int j = i - 1; j >= 0; j--) {
+    for (int j = i - 1; j >= 0; j--)
+    {
         SDL_Rect src = asciiRects[digits[j]];
         SDL_Rect dst = {x, 10, src.w, src.h};
         SDL_BlitSurface(asciiSprites, &src, win_surf, &dst);
@@ -321,8 +324,45 @@ void draw()
     // Draw each brick
     for (int i = 0; i < NUM_BRICKS; i++)
     {
-        if (brick[i].isVisible) {
+        if (brick[i].isVisible)
+        {
             SDL_Rect dstBrick = {brick[i].x, brick[i].y, 0, 0};
+
+            switch (brick[i].type)
+            {
+            case 1:
+                srcBrick = WHITE_BRICK;
+                break;
+            case 2:
+                srcBrick = ORANGE_BRICK;
+                break;
+
+            case 3:
+                srcBrick = BLUE1_BRICK;
+                break;
+            case 4:
+                srcBrick = GREEN1_BRICK;
+                break;
+            case 5:
+                srcBrick = BLUE2_BRICK;
+                break;
+            case 6:
+                srcBrick = GREEN2_BRICK;
+                break;
+            case 7:
+                srcBrick = RED_BRICK;
+                break;
+            case 8:
+                srcBrick = BLUE3_BRICK;
+                break;
+            case 9:
+                srcBrick = PINK_BRICK;
+                break;
+            default:
+                srcBrick = WHITE_BRICK;
+                break;
+            }
+
             SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &dstBrick);
         }
     }
@@ -353,8 +393,6 @@ void nextLevel()
     max_speed = max_speed + 2.0;
     loadCurrentLevel();
 }
-
-
 
 int main(int argc, char **argv)
 {
