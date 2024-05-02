@@ -264,32 +264,42 @@ void setupAsciiRects() // A utilisre pour les chaines de caractères
     }
 }
 
-void drawScore()
+SDL_Rect charToSDLRect(char character)
 {
-    int score = currentScore;
-    int digits[10];
-    int i = 0;
+    const int spriteWidth = 16;
+    const int spriteHeight = 32;
+    const int charsPerRow = 16;
+    const int spriteSpacing = 32;
 
-    if (score == 0)
-    {
-        digits[0] = 0;
-        i = 1;
+    if (character < ' ' || character > '~') {
+        fprintf(stderr, "Character out of printable ASCII range: %d\n", (int)character);
+        return (SDL_Rect){0, 0, spriteWidth, spriteHeight};
     }
 
-    while (score > 0)
-    {
-        digits[i] = score % 10;
-        score /= 10;
-        i++;
-    }
+    int index = character - ' ';
+    int x = (index % charsPerRow) * spriteSpacing;
+    int y = (index / charsPerRow) * spriteHeight;
 
-    int x = win_surf->w - 16 * i;
-    for (int j = i - 1; j >= 0; j--)
+    SDL_Rect rect = {x, y, spriteWidth, spriteHeight};
+    return rect;
+}
+
+void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* string, int startX, int startY) 
+{
+    int x = startX;
+    int y = startY;
+    const int spacing = 1;
+
+    SDL_Rect srcRect, destRect;
+    while (*string) 
     {
-        SDL_Rect src = asciiRects[digits[j]];
-        SDL_Rect dst = {x, 10, src.w, src.h};
-        SDL_BlitSurface(asciiSprites, &src, win_surf, &dst);
-        x += 16;
+        srcRect = charToSDLRect(*string);
+        destRect = (SDL_Rect){x, y, srcRect.w, srcRect.h};
+
+        SDL_BlitSurface(spriteSheet, &srcRect, surface, &destRect);
+
+        x += srcRect.w + spacing;
+        string++;
     }
 }
 
@@ -367,7 +377,9 @@ void draw()
         }
     }
 
-    drawScore();
+    char scoreString[1000];
+    sprintf(scoreString, "SCORE:%d", currentScore);
+    renderString(win_surf, asciiSprites, scoreString, 0, 0);
 }
 
 // fonction pour que la balle soit accroché au vaisseau
@@ -434,7 +446,7 @@ int main(int argc, char **argv)
         if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
         {
             ballIsAttached = false;
-            ball.vy = -1.4; // Vitesse de la balle réduite avant reprise.
+            ball.vy = -1.4; 
             ball.vx = -1.0;
         }
 
@@ -449,7 +461,7 @@ int main(int argc, char **argv)
         }
 
         draw();
-        // Update the window surface
+
         SDL_UpdateWindowSurface(pWindow);
 
         now = SDL_GetPerformanceCounter();
