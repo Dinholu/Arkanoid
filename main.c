@@ -86,7 +86,7 @@ SDL_Surface *asciiSprites = NULL;
 
 SDL_Rect srcBg = {0, 128, 96, 128};
 SDL_Rect srcBall = {0, 96, 24, 24};
-SDL_Rect srcVaiss = {128, 0, 128, 32};
+SDL_Rect srcVaisseau = {128, 0, 128, 32};
 SDL_Rect srcBrick;
 SDL_Rect asciiRects[10];
 
@@ -324,7 +324,7 @@ void draw()
 
     dest.x = x_vault;
     dest.y = win_surf->h - 32;
-    SDL_BlitSurface(plancheSprites, &srcVaiss, win_surf, &dest);
+    SDL_BlitSurface(plancheSprites, &srcVaisseau, win_surf, &dest);
 
     if (ballIsAttached)
     {
