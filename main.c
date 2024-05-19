@@ -123,45 +123,6 @@ void wallCollision()
     }
 }
 
-// Ajout d'une fonction pour afficher le menu d'options
-void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
-{
-    bool inMenu = true;
-    SDL_Event event;
-
-    while (inMenu)
-    {
-        SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
-
-        renderString(win_surf, asciiSprites, "1. Start Game", 100, 100);
-        renderString(win_surf, asciiSprites, "2. Quit", 100, 150);
-
-        SDL_UpdateWindowSurface(pWindow);
-
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                exit(EXIT_SUCCESS);
-            }
-            if (event.type == SDL_KEYDOWN)
-            {
-                switch (event.key.keysym.sym)
-                {
-                case SDLK_1:
-                    inMenu = false;
-                    break;
-                case SDLK_2:
-                    exit(EXIT_SUCCESS);
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-    }
-}
-
 void vaultCollision()
 {
     if ((ball.y + 24 > win_surf->h - 32) && (ball.x + 24 > x_vault) && (ball.x < x_vault + 128))
@@ -310,8 +271,7 @@ SDL_Rect charToSDLRect(char character)
     const int charsPerRow = 16;
     const int spriteSpacing = 32;
 
-    if (character < ' ' || character > '~')
-    {
+    if (character < ' ' || character > '~') {
         fprintf(stderr, "Character out of printable ASCII range: %d\n", (int)character);
         return (SDL_Rect){0, 0, spriteWidth, spriteHeight};
     }
@@ -324,14 +284,14 @@ SDL_Rect charToSDLRect(char character)
     return rect;
 }
 
-void renderString(SDL_Surface *surface, SDL_Surface *spriteSheet, const char *string, int startX, int startY)
+void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* string, int startX, int startY) 
 {
     int x = startX;
     int y = startY;
     const int spacing = 1;
 
     SDL_Rect srcRect, destRect;
-    while (*string)
+    while (*string) 
     {
         srcRect = charToSDLRect(*string);
         destRect = (SDL_Rect){x, y, srcRect.w, srcRect.h};
@@ -463,8 +423,6 @@ int main(int argc, char **argv)
     SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
     SDL_SetColorKey(gameSprites, true, 0);    // 0: 00/00/00 noir -> transparent
     SDL_SetColorKey(asciiSprites, true, 0);
-
-    showOptionsMenu(pWindow, win_surf); // Afficher le menu avant de commencer le jeu
     // TODO : faire proprement
     ballIsAttached = true;
     ball.y = 0;
@@ -488,7 +446,7 @@ int main(int argc, char **argv)
         if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
         {
             ballIsAttached = false;
-            ball.vy = -1.4;
+            ball.vy = -1.4; 
             ball.vx = -1.0;
         }
 
