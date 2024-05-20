@@ -308,6 +308,44 @@ void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* st
     }
 }
 
+void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
+{
+    bool inMenu = true;
+    SDL_Event event;
+
+    while (inMenu)
+    {
+        SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+
+        renderString(win_surf, asciiSprites, "1. Start Game", 100, 100);
+        renderString(win_surf, asciiSprites, "2. Quit", 100, 150);
+
+        SDL_UpdateWindowSurface(pWindow);
+
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
+                exit(EXIT_SUCCESS);
+            }
+            if (event.type == SDL_KEYDOWN)
+            {
+                switch (event.key.keysym.sym)
+                {
+                case SDLK_1:
+                    inMenu = false;
+                    break;
+                case SDLK_2:
+                    exit(EXIT_SUCCESS);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void draw()
 {
     SDL_Rect dest = {0, 0, 0, 0};
@@ -427,6 +465,8 @@ int main(int argc, char **argv)
     SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
     SDL_SetColorKey(gameSprites, true, 0);    // 0: 00/00/00 noir -> transparent
     SDL_SetColorKey(asciiSprites, true, 0);
+
+    showOptionsMenu(pWindow, win_surf);
     // TODO : faire proprement
     ballIsAttached = true;
     ball.y = 0;
