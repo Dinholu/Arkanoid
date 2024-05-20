@@ -251,17 +251,6 @@ void moveVault(const Uint8 *keys)
         x_vault = win_surf->w - 128;
 }
 
-void setupAsciiRects() // A utilisre pour les chaines de caractères
-{
-    for (int i = 0; i < 10; i++)
-    {
-        asciiRects[i].x = i * 32;
-        asciiRects[i].y = 32;
-        asciiRects[i].w = 16;
-        asciiRects[i].h = 32;
-    }
-}
-
 SDL_Rect charToSDLRect(char character)
 {
     const int spriteWidth = 16;
@@ -455,12 +444,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    pWindow = SDL_CreateWindow("Arknoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 800, SDL_WINDOW_SHOWN);
+    pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 800, SDL_WINDOW_SHOWN);
     win_surf = SDL_GetWindowSurface(pWindow);
     plancheSprites = SDL_LoadBMP("./sprites.bmp");
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
     asciiSprites = SDL_LoadBMP("./Arkanoid_ascii.bmp");
-    setupAsciiRects();
 
     SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
     SDL_SetColorKey(gameSprites, true, 0);    // 0: 00/00/00 noir -> transparent
