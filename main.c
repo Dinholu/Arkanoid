@@ -38,10 +38,8 @@
 #define D_BONUS (SDL_Rect) BRICK(256, 80)
 #define B_BONUS (SDL_Rect) BRICK(256, 96)
 #define P_BONUS (SDL_Rect) BRICK(256, 112)
-
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 2
-const int FPS = 60.0;
 #define BALL_SPEED_INCREMENT 1.0; // Speed increment when hitting a brick
 
 struct
@@ -66,7 +64,7 @@ typedef struct Level
 } Level;
 
 struct Brick brick[NUM_BRICKS];
-
+const int FPS = 60.0;
 double max_speed = 5.0;
 bool ballIsAttached = false;
 Uint64 prev, now;
@@ -84,7 +82,7 @@ SDL_Surface *plancheSprites = NULL;
 SDL_Surface *gameSprites = NULL;
 SDL_Surface *asciiSprites = NULL;
 
-SDL_Rect srcBg = {0, 128, 96, 128};
+SDL_Rect srcBackground = {64, 128, 64, 64};
 SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaisseau = {128, 0, 128, 32};
 SDL_Rect srcBrick;
@@ -290,6 +288,13 @@ void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* st
     int y = startY;
     const int spacing = 1;
 
+    int stringWidth = 0;
+    for (const char *s = string; *s; ++s) {
+        stringWidth += 16 + spacing; // 16 is the width of each character, adjust as needed
+    }
+
+    x = (surface->w - stringWidth) / 2;
+
     SDL_Rect srcRect, destRect;
     while (*string) 
     {
@@ -306,16 +311,15 @@ void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* st
 void draw()
 {
     SDL_Rect dest = {0, 0, 0, 0};
-    for (int j = 0; j < win_surf->h; j += 128)
-        for (int i = 0; i < win_surf->w; i += 96)
-        {
+    for (int j = 0; j < win_surf->h; j += 64)
+        for (int i = 0; i < win_surf->w; i += 64) {
             dest.x = i;
             dest.y = j;
-            SDL_BlitSurface(plancheSprites, &srcBg, win_surf, &dest);
+            SDL_BlitSurface(gameSprites, &srcBackground, win_surf, &dest);
         }
 
-    SDL_Rect dstBall = {ball.x, ball.y, 0, 0};
-    SDL_BlitSurface(plancheSprites, &srcBall, win_surf, &dstBall);
+    SDL_Rect destBall = {ball.x, ball.y, 0, 0};
+    SDL_BlitSurface(plancheSprites, &srcBall, win_surf, &destBall);
 
     ball.x += ball.vx;
     ball.y += ball.vy;
@@ -379,7 +383,7 @@ void draw()
 
     char scoreString[1000];
     sprintf(scoreString, "SCORE:%d", currentScore);
-    renderString(win_surf, asciiSprites, scoreString, 0, 0);
+    renderString(win_surf, asciiSprites, scoreString, 0, 10);
 }
 
 // fonction pour que la balle soit accroché au vaisseau

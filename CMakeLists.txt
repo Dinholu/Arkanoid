@@ -24,6 +24,7 @@ else ()
 endif ()
 
 file(COPY
+        resources/sprites/sprites.bmp
         resources/sprites/Arkanoid_sprites.bmp
         resources/sprites/Arkanoid_ascii.bmp
         resources/levels/level1.txt
