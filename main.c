@@ -316,14 +316,14 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
             {
                 switch (event.key.keysym.sym)
                 {
-                case SDLK_1:
-                    inMenu = false;
-                    break;
-                case SDLK_2:
-                    exit(EXIT_SUCCESS);
-                    break;
-                default:
-                    break;
+                    case SDLK_1:
+                        inMenu = false;
+                        break;
+                    case SDLK_2:
+                        exit(EXIT_SUCCESS);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -460,25 +460,79 @@ void nextLevel()
     loadCurrentLevel();
 }
 
-int main(int argc, char **argv)
+void initializeSDL()
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
     {
-        return 1;
+        fprintf(stderr, "SDL Initialization failed: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
     }
 
     pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 800, SDL_WINDOW_SHOWN);
+    if (!pWindow)
+    {
+        fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(EXIT_FAILURE);
+    }
+
     win_surf = SDL_GetWindowSurface(pWindow);
     plancheSprites = SDL_LoadBMP("./sprites.bmp");
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
     asciiSprites = SDL_LoadBMP("./Arkanoid_ascii.bmp");
 
-    SDL_SetColorKey(plancheSprites, true, 0); // 0: 00/00/00 noir -> transparent
-    SDL_SetColorKey(gameSprites, true, 0);    // 0: 00/00/00 noir -> transparent
-    SDL_SetColorKey(asciiSprites, true, 0);
+    if (!plancheSprites || !gameSprites || !asciiSprites)
+    {
+        fprintf(stderr, "Sprite loading failed: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(EXIT_FAILURE);
+    }
 
+    SDL_SetColorKey(plancheSprites, SDL_TRUE, 0); // 0: 00/00/00 noir -> transparent
+    SDL_SetColorKey(gameSprites, SDL_TRUE, 0);    // 0: 00/00/00 noir -> transparent
+    SDL_SetColorKey(asciiSprites, SDL_TRUE, 0);
+}
+
+void processInput(bool* quit)
+{
+    SDL_Event event;
+    SDL_PumpEvents();
+    const Uint8 *keys = SDL_GetKeyboardState(NULL);
+
+    if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
+    {
+        ballIsAttached = false;
+        ball.vy = -1.4;
+        ball.vx = -1.0;
+    }
+
+    moveVault(keys);
+
+    while (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+        {
+            *quit = true;
+        }
+    }
+}
+
+void updateDeltaTime()
+{
+    now = SDL_GetPerformanceCounter();
+    delta_t = 1.0 / FPS - (double)(now - prev) / (double)SDL_GetPerformanceFrequency();
+    prev = now;
+
+    if (delta_t > 0)
+        SDL_Delay((Uint32)(delta_t * 1000));
+    prev = SDL_GetPerformanceCounter();
+}
+
+int main(int argc, char **argv)
+{
+    initializeSDL();
     showOptionsMenu(pWindow, win_surf);
-    // TODO : faire proprement
+
     ballIsAttached = true;
     ball.y = 0;
     ball.x = 0;
@@ -486,7 +540,6 @@ int main(int argc, char **argv)
     loadCurrentLevel();
 
     bool quit = false;
-    SDL_Event event;
 
     while (!quit)
     {
@@ -495,36 +548,11 @@ int main(int argc, char **argv)
             printf("Congratulations! You've won the game!\n");
             nextLevel();
         }
-        SDL_PumpEvents();
-        const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
-        {
-            ballIsAttached = false;
-            ball.vy = -1.4; 
-            ball.vx = -1.0;
-        }
 
-        moveVault(keys);
-
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                quit = true;
-            }
-        }
-
+        processInput(&quit);
         render();
-
         SDL_UpdateWindowSurface(pWindow);
-
-        now = SDL_GetPerformanceCounter();
-        delta_t = 1.0 / FPS - (double)(now - prev) / (double)SDL_GetPerformanceFrequency();
-        prev = now;
-
-        if (delta_t > 0)
-            SDL_Delay((Uint32)(delta_t * 1000));
-        prev = SDL_GetPerformanceCounter();
+        updateDeltaTime();
     }
 
     SDL_Quit();
