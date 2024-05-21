@@ -40,31 +40,28 @@
 #define P_BONUS (SDL_Rect) BRICK(256, 112)
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 2
-#define BALL_SPEED_INCREMENT 1.0; // Speed increment when hitting a brick
+#define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
 
-struct
-{
+struct Ball {
     double x;
     double y;
     double vx;
     double vy;
 } ball;
 
-struct Brick
-{
+struct Brick {
     double x;
     double y;
     int type;
     bool isVisible;
 };
 
-typedef struct Level
-{
+typedef struct Level {
     int bricks[NUM_ROWS][NUM_BRICKS_PER_ROW];
 } Level;
 
 struct Brick brick[NUM_BRICKS];
-const int FPS = 60.0;
+const int FPS = 60;
 double max_speed = 5.0;
 bool ballIsAttached = false;
 Uint64 prev, now;
@@ -91,9 +88,9 @@ SDL_Rect asciiRects[10];
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
     return rect1.x < rect2.x + rect2.w &&
-           rect1.x + rect1.w > rect2.x &&
+           rect1.x + rect2.w > rect2.x &&
            rect1.y < rect2.y + rect2.h &&
-           rect1.y + rect1.h > rect2.y;
+           rect1.y + rect2.h > rect2.y;
 }
 
 bool allBricksInvisible()
@@ -138,7 +135,6 @@ void vaultCollision()
 
 void defeatCollision()
 {
-    // TODO : Gérer la défaite et désincrémentation des vies
     if (ball.y > (win_surf->h - 25))
     {
         ball.x = x_vault + 52;
@@ -171,7 +167,7 @@ void handleBallProperty(int brickIndex)
 
     printf("Speed: %f\n", sqrt(ball.vx * ball.vx + ball.vy * ball.vy));
 }
-// TODO: Simplify this function + separate logic
+
 void brickCollision()
 {
     for (int i = 0; i < NUM_BRICKS; i++)
@@ -202,7 +198,6 @@ void handleCollisions()
     brickCollision();
 }
 
-// Fonction pour charger un niveau à partir d'un fichier
 void loadLevelFromFile(const char *filename)
 {
     FILE *file = fopen(filename, "r");
@@ -259,7 +254,7 @@ SDL_Rect charToSDLRect(char character)
     const int spriteSpacing = 32;
 
     if (character < ' ' || character > '~') {
-        fprintf(stderr, "Character out of printable ASCII range: %d\n", (int)character);
+        fprintf(stderr, "Character out of printable ASCII range: %d\n", character);
         return (SDL_Rect){0, 0, spriteWidth, spriteHeight};
     }
 
@@ -335,41 +330,51 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     }
 }
 
-void draw()
+void renderBackground(SDL_Surface* gameSprites, SDL_Rect* srcBackground, SDL_Surface* win_surf)
 {
     SDL_Rect dest = {0, 0, 0, 0};
     for (int j = 0; j < win_surf->h; j += 64)
-        for (int i = 0; i < win_surf->w; i += 64) {
+    {
+        for (int i = 0; i < win_surf->w; i += 64)
+        {
             dest.x = i;
             dest.y = j;
-            SDL_BlitSurface(gameSprites, &srcBackground, win_surf, &dest);
+            SDL_BlitSurface(gameSprites, srcBackground, win_surf, &dest);
         }
-
-    SDL_Rect destBall = {ball.x, ball.y, 0, 0};
-    SDL_BlitSurface(plancheSprites, &srcBall, win_surf, &destBall);
-
-    ball.x += ball.vx;
-    ball.y += ball.vy;
-
-    handleCollisions(); // Handle all collisions
-
-    dest.x = x_vault;
-    dest.y = win_surf->h - 32;
-    SDL_BlitSurface(plancheSprites, &srcVaisseau, win_surf, &dest);
-
-    if (ballIsAttached)
-    {
-        ball.x = x_vault + 52;
-        ball.y = win_surf->h - 58;
     }
-    // Draw each brick
-    for (int i = 0; i < NUM_BRICKS; i++)
-    {
-        if (brick[i].isVisible)
-        {
-            SDL_Rect dstBrick = {brick[i].x, brick[i].y, 0, 0};
+}
 
-            switch (brick[i].type)
+void renderBall(SDL_Surface* plancheSprites, SDL_Rect* srcBall, SDL_Surface* win_surf, struct Ball* ball)
+{
+    SDL_Rect destBall = {ball->x, ball->y, 0, 0};
+    SDL_BlitSurface(plancheSprites, srcBall, win_surf, &destBall);
+
+    ball->x += ball->vx;
+    ball->y += ball->vy;
+}
+
+void renderVault(SDL_Surface* plancheSprites, SDL_Rect* srcVaisseau, SDL_Surface* win_surf, int x_vault)
+{
+    SDL_Rect dest = {x_vault, win_surf->h - 32, 0, 0};
+    SDL_BlitSurface(plancheSprites, srcVaisseau, win_surf, &dest);
+}
+
+void attachBallToVault(struct Ball* ball, int x_vault, int win_surf_height)
+{
+    ball->x = x_vault + 52;
+    ball->y = win_surf_height - 58;
+}
+
+void renderBricks(SDL_Surface* gameSprites, SDL_Surface* win_surf, struct Brick bricks[], int num_bricks)
+{
+    for (int i = 0; i < num_bricks; i++)
+    {
+        if (bricks[i].isVisible)
+        {
+            SDL_Rect destBrick = {bricks[i].x, bricks[i].y, 0, 0};
+            SDL_Rect srcBrick;
+
+            switch (bricks[i].type)
             {
             case 1:
                 srcBrick = GREY_BRICK;
@@ -377,7 +382,6 @@ void draw()
             case 2:
                 srcBrick = ORANGE_BRICK;
                 break;
-
             case 3:
                 srcBrick = BLUE1_BRICK;
                 break;
@@ -404,16 +408,36 @@ void draw()
                 break;
             }
 
-            SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &dstBrick);
+            SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &destBrick);
         }
     }
+}
 
+void renderScore(SDL_Surface* win_surf, SDL_Surface* asciiSprites, int currentScore)
+{
     char scoreString[1000];
     sprintf(scoreString, "SCORE:%d", currentScore);
     renderString(win_surf, asciiSprites, scoreString, 0, 10);
 }
 
-// fonction pour que la balle soit accroché au vaisseau
+void render()
+{
+    renderBackground(gameSprites, &srcBackground, win_surf);
+    renderBall(plancheSprites, &srcBall, win_surf, &ball);
+
+    handleCollisions(); // Handle all collisions
+
+    renderVault(plancheSprites, &srcVaisseau, win_surf, x_vault);
+
+    if (ballIsAttached)
+    {
+        attachBallToVault(&ball, x_vault, win_surf->h);
+    }
+
+    renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
+    renderScore(win_surf, asciiSprites, currentScore);
+}
+
 void loadCurrentLevel()
 {
     char filename[20];
@@ -421,7 +445,6 @@ void loadCurrentLevel()
     loadLevelFromFile(filename);
 }
 
-// Fonction pour passer au niveau suivant
 void nextLevel()
 {
     currentLevel++;
@@ -474,7 +497,6 @@ int main(int argc, char **argv)
         }
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        // Quand on meurt, on peut relancer la balle
         if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
         {
             ballIsAttached = false;
@@ -492,7 +514,7 @@ int main(int argc, char **argv)
             }
         }
 
-        draw();
+        render();
 
         SDL_UpdateWindowSurface(pWindow);
 
