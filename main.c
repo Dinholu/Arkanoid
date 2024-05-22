@@ -74,11 +74,12 @@ SDL_Surface *asciiSprites = NULL;
 
 SDL_Rect srcBackground = {64, 128, 64, 64};
 SDL_Rect srcBall = {0, 96, 24, 24};
-SDL_Rect srcVaisseau = {384, 128, 64, 16};
+SDL_Rect srcVaisseau = {384, 160, 82, 16};
 SDL_Rect srcBrick;
 SDL_Rect asciiRects[10];
 
 int x_vault;
+int vault_width;
 int currentLevel = 0;
 int currentScore = 0;
 double delta_t;
@@ -126,10 +127,10 @@ void wallCollision()
 // Ici x_vault nous indique la position relative du vaisseau sur l'affichage
 void vaultCollision()
 {
-    if ((ball.y + 24 > win_surf->h - 32) && (ball.x + 24 > x_vault) && (ball.x < x_vault + 128))
+    if ((ball.y + 24 > win_surf->h - 32) && (ball.x + 24 > x_vault) && (ball.x < x_vault + vault_width))
     {
-        double relativeCollisionX = (ball.x + 12) - (x_vault + 64);
-        double normalizedRelativeCollisionX = relativeCollisionX / 64.0;
+        double relativeCollisionX = (ball.x + 12) - (x_vault + vault_width / 2);
+        double normalizedRelativeCollisionX = relativeCollisionX / (vault_width / 2);
 
         double bounceAngle = normalizedRelativeCollisionX * M_PI / 3.0;
         double speed = sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
@@ -362,12 +363,15 @@ void renderBall(SDL_Surface* plancheSprites, SDL_Rect* srcBall, SDL_Surface* win
 void renderVault(SDL_Surface* gameSprites, SDL_Rect* srcVaisseau, SDL_Surface* win_surf, int x_vault)
 {
     SDL_Rect dest = {x_vault, win_surf->h - 32, 0, 0};
+    vault_width = srcVaisseau->w;
     SDL_BlitSurface(gameSprites, srcVaisseau, win_surf, &dest);
 }
 
+// TODO: remplacer 52 par la moitie de la taille du vaisseau pour que la balle se positionne au centre du vaisseau
+// 58 correspond à la hauteur ou le vaisseeau est positionné + largeur de la balle
 void attachBallToVault(struct Ball* ball, int x_vault, int win_surf_height)
 {
-    ball->x = x_vault + 52;
+    ball->x = x_vault + (vault_width / 2) - 12;
     ball->y = win_surf_height - 58;
 }
 
