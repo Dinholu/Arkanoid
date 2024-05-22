@@ -82,6 +82,7 @@ int x_vault;
 int vault_width;
 int currentLevel = 0;
 int currentScore = 0;
+int currentLife = 3;
 double delta_t;
 double ballSpeedIncrement = BALL_SPEED_INCREMENT;
 const int FPS = 60;
@@ -144,6 +145,7 @@ void defeatCollision()
 {
     if (ball.y > (win_surf->h - 25))
     {
+        currentLife--;
         ball.x = x_vault + 52;
         ball.y = win_surf->h - 58;
         ball.vy = 0;
@@ -201,8 +203,8 @@ void handleCollisions()
 {
     wallCollision();
     vaultCollision();
-    defeatCollision();
     brickCollision();
+    defeatCollision();
 }
 
 void loadLevelFromFile(const char *filename)
@@ -281,7 +283,7 @@ void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* st
 
     int stringWidth = 0;
     for (const char *s = string; *s; ++s) {
-        stringWidth += 16 + spacing; // 16 is the width of each character, adjust as needed
+        stringWidth += 16 + spacing;
     }
 
     x = (surface->w - stringWidth) / 2;
@@ -423,11 +425,12 @@ void renderBricks(SDL_Surface* gameSprites, SDL_Surface* win_surf, struct Brick 
     }
 }
 
-void renderScore(SDL_Surface* win_surf, SDL_Surface* asciiSprites, int currentScore)
+void renderInfo(SDL_Surface* win_surf, SDL_Surface* asciiSprites, int value, char* label, int startX, int startY)
 {
-    char scoreString[1000];
-    sprintf(scoreString, "SCORE:%d", currentScore);
-    renderString(win_surf, asciiSprites, scoreString, 0, 10);
+    char* string = malloc (sizeof (*string) * 256);;
+    sprintf(string, "%s:%d", label, value);
+    renderString(win_surf, asciiSprites, string, startX, startY);
+    free(string);
 }
 
 void render()
@@ -445,7 +448,7 @@ void render()
     }
 
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
-    renderScore(win_surf, asciiSprites, currentScore);
+    renderInfo(win_surf, asciiSprites, currentScore, "TEST MULTIPLE STRING VARIABLE", 0, 10);
 }
 
 void loadCurrentLevel()
