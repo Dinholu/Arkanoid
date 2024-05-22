@@ -61,16 +61,9 @@ typedef struct Level {
 } Level;
 
 struct Brick brick[NUM_BRICKS];
-const int FPS = 60;
-double max_speed = 5.0;
-bool ballIsAttached = false;
+
 Uint64 prev, now;
-double delta_t;
-int x_vault;
-double ballSpeedIncrement = BALL_SPEED_INCREMENT; // Track the speed increment
 Level levels[NUM_LEVELS];
-int currentLevel = 0;
-int currentScore = 0;
 
 SDL_Window *pWindow = NULL;
 SDL_Surface *win_surf = NULL;
@@ -81,9 +74,18 @@ SDL_Surface *asciiSprites = NULL;
 
 SDL_Rect srcBackground = {64, 128, 64, 64};
 SDL_Rect srcBall = {0, 96, 24, 24};
-SDL_Rect srcVaisseau = {128, 0, 128, 32};
+SDL_Rect srcVaisseau = {384, 128, 64, 16};
 SDL_Rect srcBrick;
 SDL_Rect asciiRects[10];
+
+int x_vault;
+int currentLevel = 0;
+int currentScore = 0;
+double delta_t;
+double ballSpeedIncrement = BALL_SPEED_INCREMENT;
+const int FPS = 60;
+double max_speed = 5.0;
+bool ballIsAttached = false;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
@@ -117,7 +119,11 @@ void wallCollision()
         ball.vy *= -1;
     }
 }
-
+// TODO: remplacer les nombres magiques pour que cette fonction soit applicable peu importe la taille des vaisseaux.
+// 24 correspond à la largeur de la balle en SDL_Rect
+// 32 correspond à la position qu'on vouudrait positionner le vaisseau
+// 128 correspond à la taille du vaisseau
+// Ici x_vault nous indique la position relative du vaisseau sur l'affichage
 void vaultCollision()
 {
     if ((ball.y + 24 > win_surf->h - 32) && (ball.x + 24 > x_vault) && (ball.x < x_vault + 128))
@@ -353,10 +359,10 @@ void renderBall(SDL_Surface* plancheSprites, SDL_Rect* srcBall, SDL_Surface* win
     ball->y += ball->vy;
 }
 
-void renderVault(SDL_Surface* plancheSprites, SDL_Rect* srcVaisseau, SDL_Surface* win_surf, int x_vault)
+void renderVault(SDL_Surface* gameSprites, SDL_Rect* srcVaisseau, SDL_Surface* win_surf, int x_vault)
 {
     SDL_Rect dest = {x_vault, win_surf->h - 32, 0, 0};
-    SDL_BlitSurface(plancheSprites, srcVaisseau, win_surf, &dest);
+    SDL_BlitSurface(gameSprites, srcVaisseau, win_surf, &dest);
 }
 
 void attachBallToVault(struct Ball* ball, int x_vault, int win_surf_height)
@@ -427,7 +433,7 @@ void render()
 
     handleCollisions(); // Handle all collisions
 
-    renderVault(plancheSprites, &srcVaisseau, win_surf, x_vault);
+    renderVault(gameSprites, &srcVaisseau, win_surf, x_vault);
 
     if (ballIsAttached)
     {
