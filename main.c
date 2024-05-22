@@ -281,13 +281,6 @@ void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* st
     int y = startY;
     const int spacing = 1;
 
-    int stringWidth = 0;
-    for (const char *s = string; *s; ++s) {
-        stringWidth += 16 + spacing;
-    }
-
-    x = (surface->w - stringWidth) / 2;
-
     SDL_Rect srcRect, destRect;
     while (*string) 
     {
@@ -448,7 +441,9 @@ void render()
     }
 
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
-    renderInfo(win_surf, asciiSprites, currentScore, "TEST MULTIPLE STRING VARIABLE", 0, 10);
+    renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
+    renderInfo(win_surf, asciiSprites, currentLife, "LIFE",win_surf->w - 116,10); // A faire proprement le fait qu'il soit en haut à droite de l'écran
+
 }
 
 void loadCurrentLevel()
@@ -515,8 +510,8 @@ void processInput(bool* quit)
     if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
     {
         ballIsAttached = false;
-        ball.vy = -1.4;
-        ball.vx = -1.0;
+        ball.vy = -5;
+        ball.vx = -1;
     }
 
     moveVault(keys);
@@ -562,6 +557,11 @@ int main(int argc, char **argv)
             nextLevel();
         }
 
+        if (currentLife <= 0)
+        {
+            printf("Life: 0, GAME OVER!");
+            quit = true;
+        }
         processInput(&quit);
         render();
         SDL_UpdateWindowSurface(pWindow);
