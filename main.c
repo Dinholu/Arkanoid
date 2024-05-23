@@ -17,20 +17,20 @@
         (FIRST_LINE * COIN), (FIRST_LINE * LIGNE), BRICK_WIDTH, BRICK_HEIGHT \
     }
 
-#define WHITE_BRICK (SDL_Rect) BRICK(1, 1)
-#define ORANGE_BRICK (SDL_Rect) BRICK(32, 1)
-#define BLUE1_BRICK (SDL_Rect) BRICK(64, 1)
-#define GREEN1_BRICK (SDL_Rect) BRICK(96, 1)
-#define BLUE2_BRICK (SDL_Rect) BRICK(128, 1)
-#define GREEN2_BRICK (SDL_Rect) BRICK(160, 1)
-#define RED_BRICK (SDL_Rect) BRICK(1, 16)
+#define WHITE_BRICK (SDL_Rect) BRICK(0, 0)
+#define ORANGE_BRICK (SDL_Rect) BRICK(32, 0)
+#define BLUE1_BRICK (SDL_Rect) BRICK(64, 0)
+#define GREEN1_BRICK (SDL_Rect) BRICK(96, 0)
+#define BLUE2_BRICK (SDL_Rect) BRICK(128, 0)
+#define GREEN2_BRICK (SDL_Rect) BRICK(160, 0)
+#define RED_BRICK (SDL_Rect) BRICK(0, 16)
 #define BLUE3_BRICK (SDL_Rect) BRICK(32, 16)
 #define PINK_BRICK (SDL_Rect) BRICK(64, 16)
 #define YELLOW_BRICK (SDL_Rect) BRICK(96, 16)
 #define RED2_BRICK (SDL_Rect) BRICK(128, 16)
 #define BLUE4_BRICK (SDL_Rect) BRICK(156, 16)
-#define GREY_BRICK (SDL_Rect) BRICK(1, 32)
-#define S_BONUS (SDL_Rect) BRICK(1, 256)
+#define GREY_BRICK (SDL_Rect) BRICK(0, 32)
+#define S_BONUS (SDL_Rect) BRICK(0, 256)
 #define C_BONUS (SDL_Rect) BRICK(256, 16)
 #define L_BONUS (SDL_Rect) BRICK(256, 32)
 #define E_BONUS (SDL_Rect) BRICK(256, 48)
@@ -404,7 +404,7 @@ void render()
     renderBackground(gameSprites, &srcBackground, win_surf);
     renderBall(plancheSprites, &srcBall, win_surf, &ball);
 
-    handleCollisions(); // Handle all collisions
+    handleCollisions();
 
     renderVault(gameSprites, &srcVaisseau, win_surf, x_vault);
 
@@ -508,8 +508,8 @@ void initializeSDL()
         exit(EXIT_FAILURE);
     }
 
-    SDL_SetColorKey(plancheSprites, SDL_TRUE, 0); // 0: 00/00/00 noir -> transparent
-    SDL_SetColorKey(gameSprites, SDL_TRUE, 0);    // 0: 00/00/00 noir -> transparent
+    SDL_SetColorKey(plancheSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(gameSprites, SDL_TRUE, 0);
     SDL_SetColorKey(asciiSprites, SDL_TRUE, 0);
 }
 
