@@ -42,6 +42,7 @@
 #define NUM_LEVELS 2
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
 #define MAX_BALLS 3
+#define VIE_MAX 5
 
 struct Ball
 {
@@ -98,7 +99,9 @@ double ballSpeedIncrement = BALL_SPEED_INCREMENT;
 const int FPS = 60;
 double max_speed = 8.0;
 bool ballIsAttached = false;
-
+// Variable pour savoir si la touche V a été pressée donc a enlever quand ca sera fait par collision avec le bonus
+bool vWasPressed = false;
+// -------------------------------
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
     return rect1.x < rect2.x + rect2.w &&
@@ -572,8 +575,29 @@ void initializeSDL()
     vault_width = srcVaisseau.w;
 }
 
+void addLife()
+{
+    if (currentLife <= VIE_MAX)
+    {
+        currentLife++;
+    }
+}
+
+void slowDownBall()
+{
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
+        if (balls[i].isActive)
+        {
+            balls[i].vx /= 1.15;
+            balls[i].vy /= 1.15;
+        }
+    }
+}
+
 void processInput(bool *quit)
 {
+
     SDL_Event event;
     SDL_PumpEvents();
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
@@ -590,6 +614,24 @@ void processInput(bool *quit)
         splitBall();
     }
 
+    if (keys[SDL_SCANCODE_V])
+    {
+        if (!vWasPressed)
+        {
+            addLife();
+            vWasPressed = true;
+        }
+    }
+
+    if (keys[SDL_SCANCODE_V] == 0)
+    {
+        vWasPressed = false;
+    }
+
+    if (keys[SDL_SCANCODE_C])
+    {
+        slowDownBall();
+    }
     moveVault(keys);
 
     while (SDL_PollEvent(&event))
