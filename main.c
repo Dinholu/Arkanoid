@@ -30,6 +30,7 @@
 #define RED2_BRICK (SDL_Rect) BRICK(128, 16)
 #define BLUE4_BRICK (SDL_Rect) BRICK(156, 16)
 #define GREY_BRICK (SDL_Rect) BRICK(0, 32)
+#define GOLD_BRICK (SDL_Rect) BRICK(0, 48)
 #define S_BONUS (SDL_Rect) BRICK(0, 256)
 #define C_BONUS (SDL_Rect) BRICK(256, 16)
 #define L_BONUS (SDL_Rect) BRICK(256, 32)
@@ -61,6 +62,7 @@ struct Brick
     double x;
     double y;
     int type;
+    char destructType;
     bool isVisible;
 };
 
@@ -85,9 +87,10 @@ SDL_Surface *menuSprites = NULL;
 // Pour l'ecran gameOver, incrémenter la variable y par 64 (version sombre du sprite actuel)
 SDL_Rect srcBackground = {320, 128, 64, 64}; 
 // ------------------------------------------------------------------------------------------------------------------
-SDL_Rect srcBall = {0, 96, 24, 24};
+SDL_Rect srcBall = {80, 66, 16, 12};
 SDL_Rect srcVaisseau = {384, 160, 82, 16};
 SDL_Rect srcBrick;
+SDL_Rect destVaisseau;
 SDL_Rect asciiRects[10];
 SDL_Rect srcLogo = {0, 0, 400, 144};
 
@@ -379,7 +382,7 @@ void renderBalls()
         if (balls[i].isActive)
         {
             SDL_Rect destBall = {balls[i].x, balls[i].y, 0, 0};
-            SDL_BlitSurface(plancheSprites, &srcBall, win_surf, &destBall);
+            SDL_BlitSurface(gameSprites, &srcBall, win_surf, &destBall);
             balls[i].x += balls[i].vx;
             balls[i].y += balls[i].vy;
         }
@@ -388,16 +391,16 @@ void renderBalls()
 
 void renderVault(SDL_Surface *gameSprites, SDL_Rect *srcVaisseau, SDL_Surface *win_surf, int x_vault)
 {
-    SDL_Rect dest = {x_vault, win_surf->h - 32, 0, 0};
-    SDL_BlitSurface(gameSprites, srcVaisseau, win_surf, &dest);
+    destVaisseau = (SDL_Rect){x_vault, win_surf->h - 32, 0, 0};
+    SDL_BlitSurface(gameSprites, srcVaisseau, win_surf, &destVaisseau);
 }
 
 // TODO: remplacer 52 par la moitie de la taille du vaisseau pour que la balle se positionne au centre du vaisseau
 // 58 correspond à la hauteur ou le vaisseeau est positionné + largeur de la balle
 void attachBallToVault(struct Ball *ball, int x_vault, int win_surf_height)
 {
-    ball->x = x_vault + (vault_width / 2) - 12;
-    ball->y = win_surf_height - 58;
+    ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2);
+    ball->y = destVaisseau.y - srcBall.h;
 }
 
 void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick bricks[], int num_bricks)
@@ -407,7 +410,6 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
         if (bricks[i].isVisible)
         {
             SDL_Rect destBrick = {bricks[i].x, bricks[i].y, 0, 0};
-            SDL_Rect srcBrick;
 
             switch (bricks[i].type)
             {
@@ -415,7 +417,7 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
                     srcBrick = WHITE_BRICK;
                     break;
                 case 2:
-                    srcBrick = ORANGE_BRICK;
+                    srcBrick = YELLOW_BRICK;
                     break;
                 case 3:
                     srcBrick = BLUE1_BRICK;
@@ -427,7 +429,7 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
                     srcBrick = BLUE2_BRICK;
                     break;
                 case 6:
-                    srcBrick = GREEN2_BRICK;
+                    srcBrick = ORANGE_BRICK;
                     break;
                 case 7:
                     srcBrick = RED_BRICK;
@@ -439,7 +441,6 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
                     srcBrick = PINK_BRICK;
                     break;
                 default:
-                    srcBrick = WHITE_BRICK;
                     break;
             }
             SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &destBrick);
