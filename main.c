@@ -679,7 +679,7 @@ int main(int argc, char **argv)
 
         if (currentLife <= 0)
         {
-            printf("Life: 0, GAME OVER!\n");
+            printf("Life: 0, GAME OVER!\n"); // TODO : ajouter ecran Game Over
             quit = true;
         }
 
