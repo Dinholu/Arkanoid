@@ -71,12 +71,14 @@ SDL_Surface *win_surf = NULL;
 SDL_Surface *plancheSprites = NULL;
 SDL_Surface *gameSprites = NULL;
 SDL_Surface *asciiSprites = NULL;
+SDL_Surface *menuSprites = NULL;
 
 SDL_Rect srcBackground = {64, 128, 64, 64};
 SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaisseau = {384, 160, 82, 16};
 SDL_Rect srcBrick;
 SDL_Rect asciiRects[10];
+SDL_Rect srcLogo = {0,0,400,144};
 
 int x_vault;
 int vault_width;
@@ -294,43 +296,14 @@ void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* st
     }
 }
 
-void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
+void renderMenu(SDL_Surface* menuSprites, SDL_Rect* srcLogo, SDL_Surface* win_surf)
 {
-    bool inMenu = true;
-    SDL_Event event;
+    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
+    dest.x = (win_surf->w - srcLogo->w) / 2;
 
-    while (inMenu)
-    {
-        SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
-
-        renderString(win_surf, asciiSprites, "1. Start Game", 100, 100);
-        renderString(win_surf, asciiSprites, "2. Quit", 100, 150);
-
-        SDL_UpdateWindowSurface(pWindow);
-
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                exit(EXIT_SUCCESS);
-            }
-            if (event.type == SDL_KEYDOWN)
-            {
-                switch (event.key.keysym.sym)
-                {
-                    case SDLK_1:
-                        inMenu = false;
-                        break;
-                    case SDLK_2:
-                        exit(EXIT_SUCCESS);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
+    SDL_BlitSurface(menuSprites, srcLogo, win_surf, &dest);
 }
+
 
 void renderBackground(SDL_Surface* gameSprites, SDL_Rect* srcBackground, SDL_Surface* win_surf)
 {
@@ -447,6 +420,43 @@ void render()
 
 }
 
+void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
+{
+    bool inMenu = true;
+    SDL_Event event;
+
+    while (inMenu)
+    {
+        renderMenu(menuSprites, &srcLogo, win_surf);
+
+        renderString(win_surf, asciiSprites, "1. Start Game", 100, srcLogo.h + 228);
+        renderString(win_surf, asciiSprites, "2. Quit", 100, srcLogo.h + 278);
+
+        SDL_UpdateWindowSurface(pWindow);
+
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
+                exit(EXIT_SUCCESS);
+            }
+            if (event.type == SDL_KEYDOWN)
+            {
+                switch (event.key.keysym.sym)
+                {
+                    case SDLK_1:
+                        inMenu = false;
+                        break;
+                    case SDLK_2:
+                        exit(EXIT_SUCCESS);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+}
 void loadCurrentLevel()
 {
     char filename[20];
@@ -489,6 +499,7 @@ void initializeSDL()
     plancheSprites = SDL_LoadBMP("./sprites.bmp");
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
     asciiSprites = SDL_LoadBMP("./Arkanoid_ascii.bmp");
+    menuSprites = SDL_LoadBMP("./logo.bmp");
 
     if (!plancheSprites || !gameSprites || !asciiSprites)
     {
