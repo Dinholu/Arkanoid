@@ -5,10 +5,10 @@
 #include <math.h>
 #include <string.h>
 
-#define NUM_BRICKS_PER_ROW 20
-#define BRICK_WIDTH 30
-#define BRICK_HEIGHT 13
-#define NUM_ROWS 15
+#define NUM_BRICKS_PER_ROW 16
+#define BRICK_WIDTH 32
+#define BRICK_HEIGHT 16
+#define NUM_ROWS 16
 #define FIRST_LINE 1
 #define NUM_BRICKS (NUM_BRICKS_PER_ROW * NUM_ROWS)
 
@@ -481,14 +481,14 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     SDL_Event event;
 
     int optionWidth = 128;
-    int optionX = (win_surf->w - optionWidth) / 2;
+    int startOptionX = (win_surf->w - optionWidth) / 2;
 
     while (inMenu)
     {
         renderMenu(menuSprites, &srcLogo, win_surf);
 
-        renderString(win_surf, asciiSprites, "1. START", optionX, srcLogo.h + 192);
-        renderString(win_surf, asciiSprites, "2. QUIT ", optionX, srcLogo.h + 256);
+        renderString(win_surf, asciiSprites, "1. START", startOptionX, srcLogo.h + 192);
+        renderString(win_surf, asciiSprites, "2. QUIT ", startOptionX, srcLogo.h + 256);
 
         SDL_UpdateWindowSurface(pWindow);
 
