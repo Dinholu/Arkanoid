@@ -425,12 +425,15 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     bool inMenu = true;
     SDL_Event event;
 
+    int optionWidth = 128;
+    int optionX = (win_surf->w - optionWidth) / 2;
+
     while (inMenu)
     {
         renderMenu(menuSprites, &srcLogo, win_surf);
 
-        renderString(win_surf, asciiSprites, "1. Start Game", 100, srcLogo.h + 228);
-        renderString(win_surf, asciiSprites, "2. Quit", 100, srcLogo.h + 278);
+        renderString(win_surf, asciiSprites, "1. START", optionX, srcLogo.h + 192);
+        renderString(win_surf, asciiSprites, "2. QUIT ", optionX, srcLogo.h + 256);
 
         SDL_UpdateWindowSurface(pWindow);
 
@@ -457,6 +460,7 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
         }
     }
 }
+
 void loadCurrentLevel()
 {
     char filename[20];
