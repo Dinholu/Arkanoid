@@ -32,15 +32,15 @@ TEXT_COLOR_DARK = (255, 255, 255)
 
 # Brick Colors
 COLORS = [
-    (80, 80, 80),     # GREY_BRICK
-    (255, 140, 0),    # ORANGE_BRICK
-    (0, 0, 205),      # BLUE1_BRICK
-    (0, 255, 0),      # GREEN1_BRICK
-    (0, 0, 139),      # BLUE2_BRICK
-    (34, 139, 34),    # GREEN2_BRICK
-    (255, 0, 0),      # RED_BRICK
-    (0, 0, 255),      # BLUE3_BRICK
-    (255, 20, 147)    # PINK_BRICK
+    (243, 243, 243),  # GREY_BRICK
+    (255, 152, 20),    # ORANGE_BRICK
+    (20, 255, 255),    # BLUE1_BRICK
+    (20, 255, 20),    # GREEN1_BRICK
+    (20, 20, 204),      # BLUE2_BRICK
+    (20, 178, 20),    # GREEN2_BRICK
+    (255, 20, 20),      # RED_BRICK
+    (20, 123, 255),      # BLUE3_BRICK
+    (255, 20, 255)    # PINK_BRICK
 ]
 
 pygame.init()
@@ -106,7 +106,6 @@ def main():
 
     while running:
         background_color, grid_color, button_color, button_hover_color, palette_border, text_color = apply_theme(current_theme)
-        
         screen.fill(background_color)
         draw_title(text_color)
         draw_grid(grid, grid_color)

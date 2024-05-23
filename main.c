@@ -409,38 +409,37 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
 
             switch (bricks[i].type)
             {
-            case 1:
-                srcBrick = GREY_BRICK;
-                break;
-            case 2:
-                srcBrick = ORANGE_BRICK;
-                break;
-            case 3:
-                srcBrick = BLUE1_BRICK;
-                break;
-            case 4:
-                srcBrick = GREEN1_BRICK;
-                break;
-            case 5:
-                srcBrick = BLUE2_BRICK;
-                break;
-            case 6:
-                srcBrick = GREEN2_BRICK;
-                break;
-            case 7:
-                srcBrick = RED_BRICK;
-                break;
-            case 8:
-                srcBrick = BLUE3_BRICK;
-                break;
-            case 9:
-                srcBrick = PINK_BRICK;
-                break;
-            default:
-                srcBrick = WHITE_BRICK;
-                break;
+                case 1:
+                    srcBrick = WHITE_BRICK;
+                    break;
+                case 2:
+                    srcBrick = ORANGE_BRICK;
+                    break;
+                case 3:
+                    srcBrick = BLUE1_BRICK;
+                    break;
+                case 4:
+                    srcBrick = GREEN1_BRICK;
+                    break;
+                case 5:
+                    srcBrick = BLUE2_BRICK;
+                    break;
+                case 6:
+                    srcBrick = GREEN2_BRICK;
+                    break;
+                case 7:
+                    srcBrick = RED_BRICK;
+                    break;
+                case 8:
+                    srcBrick = BLUE3_BRICK;
+                    break;
+                case 9:
+                    srcBrick = PINK_BRICK;
+                    break;
+                default:
+                    srcBrick = WHITE_BRICK;
+                    break;
             }
-
             SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &destBrick);
         }
     }
