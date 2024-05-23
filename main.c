@@ -41,22 +41,30 @@
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 2
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
+#define MAX_BALLS 3
 
-struct Ball {
+struct Ball
+{
     double x;
     double y;
     double vx;
     double vy;
+    bool isActive;
 } ball;
 
-struct Brick {
+struct Ball balls[MAX_BALLS];
+int activeBallCount = 1;
+
+struct Brick
+{
     double x;
     double y;
     int type;
     bool isVisible;
 };
 
-typedef struct Level {
+typedef struct Level
+{
     int bricks[NUM_ROWS][NUM_BRICKS_PER_ROW];
 } Level;
 
@@ -78,7 +86,7 @@ SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaisseau = {384, 160, 82, 16};
 SDL_Rect srcBrick;
 SDL_Rect asciiRects[10];
-SDL_Rect srcLogo = {0,0,400,144};
+SDL_Rect srcLogo = {0, 0, 400, 144};
 
 int x_vault;
 int vault_width;
@@ -111,16 +119,44 @@ bool allBricksInvisible()
     return true;
 }
 
-void wallCollision()
+void initializeBalls()
 {
-    if ((ball.x < 1) || (ball.x > (win_surf->w - 25)))
+    for (int i = 0; i < MAX_BALLS; i++)
     {
-        ball.vx *= -1;
+        balls[i].x = 0;
+        balls[i].y = 0;
+        balls[i].vx = 0;
+        balls[i].vy = 0;
+        balls[i].isActive = false;
+    }
+    balls[0].isActive = true;
+}
+
+void splitBall()
+{
+    if (activeBallCount == 1)
+    {
+        balls[1] = balls[0];
+        balls[2] = balls[0];
+        balls[1].vx = balls[0].vx * cos(M_PI / 6) - balls[0].vy * sin(M_PI / 6);
+        balls[1].vy = balls[0].vx * sin(M_PI / 6) + balls[0].vy * cos(M_PI / 6);
+        balls[2].vx = balls[0].vx * cos(-M_PI / 6) - balls[0].vy * sin(-M_PI / 6);
+        balls[2].vy = balls[0].vx * sin(-M_PI / 6) + balls[0].vy * cos(-M_PI / 6);
+        balls[1].isActive = true;
+        balls[2].isActive = true;
+        activeBallCount = 3;
+    }
+}
+void wallCollision(struct Ball *ball)
+{
+    if ((ball->x < 1) || (ball->x > (win_surf->w - 25)))
+    {
+        ball->vx *= -1;
     }
 
-    if ((ball.y < 1) || (ball.y > (win_surf->h - 25)))
+    if ((ball->y < 1) || (ball->y > (win_surf->h - 25)))
     {
-        ball.vy *= -1;
+        ball->vy *= -1;
     }
 }
 // TODO: remplacer les nombres magiques pour que cette fonction soit applicable peu importe la taille des vaisseaux.
@@ -128,64 +164,70 @@ void wallCollision()
 // 32 correspond à la position qu'on vouudrait positionner le vaisseau
 // 128 correspond à la taille du vaisseau
 // Ici x_vault nous indique la position relative du vaisseau sur l'affichage
-void vaultCollision()
+void vaultCollision(struct Ball *ball)
 {
-    if ((ball.y + srcBall.h > win_surf->h - 32) && (ball.x + srcBall.w > x_vault) && (ball.x < x_vault + vault_width))
+    if ((ball->y + srcBall.h > win_surf->h - 32) && (ball->x + srcBall.w > x_vault) && (ball->x < x_vault + vault_width))
     {
-        double relativeCollisionX = (ball.x + 12) - (x_vault + vault_width / 2);
+        double relativeCollisionX = (ball->x + 12) - (x_vault + vault_width / 2);
         double normalizedRelativeCollisionX = relativeCollisionX / (vault_width / 2);
 
         double bounceAngle = normalizedRelativeCollisionX * M_PI / 3.0;
-        double speed = sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+        double speed = sqrt(ball->vx * ball->vx + ball->vy * ball->vy);
 
-        ball.vx = speed * sin(bounceAngle);
-        ball.vy = -speed * cos(bounceAngle);
+        ball->vx = speed * sin(bounceAngle);
+        ball->vy = -speed * cos(bounceAngle);
     }
 }
-
-void defeatCollision()
+void defeatCollision(struct Ball *ball)
 {
-    if (ball.y > (win_surf->h - 25))
+    if (ball->y > (win_surf->h - 25))
     {
-        currentLife--;
-        ball.x = x_vault + 52;
-        ball.y = win_surf->h - 58;
-        ball.vy = 0;
-        ball.vx = 0;
-        ballIsAttached = true;
+        ball->isActive = false;
+        activeBallCount--;
+        if (activeBallCount == 0)
+        {
+            currentLife--;
+            ballIsAttached = true;
+            balls[0].isActive = true;
+            balls[0].x = x_vault + (vault_width / 2) - 12;
+            balls[0].y = win_surf->h - 58;
+            balls[0].vy = 0;
+            balls[0].vx = 0;
+            activeBallCount = 1;
+        }
     }
 }
 
-void handleBallProperty(int brickIndex)
+void handleBallProperty(struct Ball *ball, int brickIndex)
 {
-    double ballCenterX = ball.x + srcBall.w / 2;
-    double ballCenterY = ball.y + srcBall.h / 2;
+    double ballCenterX = ball->x + srcBall.w / 2;
+    double ballCenterY = ball->y + srcBall.h / 2;
     double brickCenterX = brick[brickIndex].x + (BRICK_WIDTH / 2);
     double brickCenterY = brick[brickIndex].y + (BRICK_HEIGHT / 2);
     double dx = ballCenterX - brickCenterX;
     double dy = ballCenterY - brickCenterY;
 
     double reflectionAngle = atan2(dy, dx);
-    double speed = sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
-    ball.vx = speed * cos(reflectionAngle);
-    ball.vy = speed * sin(reflectionAngle);
+    double speed = sqrt(ball->vx * ball->vx + ball->vy * ball->vy);
+    ball->vx = speed * cos(reflectionAngle);
+    ball->vy = speed * sin(reflectionAngle);
 
     if (speed <= max_speed)
     {
-        ball.vx += (ball.vx > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
-        ball.vy += (ball.vy > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
+        ball->vx += (ball->vx > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
+        ball->vy += (ball->vy > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
     }
 
-    printf("Speed: %f\n", sqrt(ball.vx * ball.vx + ball.vy * ball.vy));
+    printf("Speed: %f\n", sqrt(ball->vx * ball->vx + ball->vy * ball->vy));
 }
 
-void brickCollision()
+void brickCollision(struct Ball *ball)
 {
     for (int i = 0; i < NUM_BRICKS; i++)
     {
         if (brick[i].isVisible)
         {
-            SDL_Rect ballRect = {ball.x, ball.y, srcBall.w, srcBall.h};
+            SDL_Rect ballRect = {ball->x, ball->y, srcBall.w, srcBall.h};
             SDL_Rect brickRect = {brick[i].x, brick[i].y, BRICK_WIDTH, BRICK_HEIGHT};
 
             if (isCollision(ballRect, brickRect))
@@ -193,7 +235,7 @@ void brickCollision()
                 brick[i].isVisible = false;
                 currentScore += 10;
 
-                handleBallProperty(i);
+                handleBallProperty(ball, i);
                 printf("Score: %d\n", currentScore);
                 break;
             }
@@ -203,10 +245,16 @@ void brickCollision()
 
 void handleCollisions()
 {
-    wallCollision();
-    vaultCollision();
-    brickCollision();
-    defeatCollision();
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
+        if (balls[i].isActive)
+        {
+            wallCollision(&balls[i]);
+            vaultCollision(&balls[i]);
+            brickCollision(&balls[i]);
+            defeatCollision(&balls[i]);
+        }
+    }
 }
 
 void loadLevelFromFile(const char *filename)
@@ -264,7 +312,8 @@ SDL_Rect charToSDLRect(char character)
     const int charsPerRow = 16;
     const int spriteSpacing = 32;
 
-    if (character < ' ' || character > '~') {
+    if (character < ' ' || character > '~')
+    {
         fprintf(stderr, "Character out of printable ASCII range: %d\n", character);
         return (SDL_Rect){0, 0, spriteWidth, spriteHeight};
     }
@@ -277,14 +326,14 @@ SDL_Rect charToSDLRect(char character)
     return rect;
 }
 
-void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* string, int startX, int startY) 
+void renderString(SDL_Surface *surface, SDL_Surface *spriteSheet, const char *string, int startX, int startY)
 {
     int x = startX;
     int y = startY;
     const int spacing = 1;
 
     SDL_Rect srcRect, destRect;
-    while (*string) 
+    while (*string)
     {
         srcRect = charToSDLRect(*string);
         destRect = (SDL_Rect){x, y, srcRect.w, srcRect.h};
@@ -296,7 +345,7 @@ void renderString(SDL_Surface* surface, SDL_Surface* spriteSheet, const char* st
     }
 }
 
-void renderMenu(SDL_Surface* menuSprites, SDL_Rect* srcLogo, SDL_Surface* win_surf)
+void renderMenu(SDL_Surface *menuSprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
 {
     SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
     dest.x = (win_surf->w - srcLogo->w) / 2;
@@ -304,8 +353,7 @@ void renderMenu(SDL_Surface* menuSprites, SDL_Rect* srcLogo, SDL_Surface* win_su
     SDL_BlitSurface(menuSprites, srcLogo, win_surf, &dest);
 }
 
-
-void renderBackground(SDL_Surface* gameSprites, SDL_Rect* srcBackground, SDL_Surface* win_surf)
+void renderBackground(SDL_Surface *gameSprites, SDL_Rect *srcBackground, SDL_Surface *win_surf)
 {
     SDL_Rect dest = {0, 0, 0, 0};
     for (int j = 0; j < win_surf->h; j += 64)
@@ -319,16 +367,21 @@ void renderBackground(SDL_Surface* gameSprites, SDL_Rect* srcBackground, SDL_Sur
     }
 }
 
-void renderBall(SDL_Surface* plancheSprites, SDL_Rect* srcBall, SDL_Surface* win_surf, struct Ball* ball)
+void renderBalls()
 {
-    SDL_Rect destBall = {ball->x, ball->y, 0, 0};
-    SDL_BlitSurface(plancheSprites, srcBall, win_surf, &destBall);
-
-    ball->x += ball->vx;
-    ball->y += ball->vy;
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
+        if (balls[i].isActive)
+        {
+            SDL_Rect destBall = {balls[i].x, balls[i].y, 0, 0};
+            SDL_BlitSurface(plancheSprites, &srcBall, win_surf, &destBall);
+            balls[i].x += balls[i].vx;
+            balls[i].y += balls[i].vy;
+        }
+    }
 }
 
-void renderVault(SDL_Surface* gameSprites, SDL_Rect* srcVaisseau, SDL_Surface* win_surf, int x_vault)
+void renderVault(SDL_Surface *gameSprites, SDL_Rect *srcVaisseau, SDL_Surface *win_surf, int x_vault)
 {
     SDL_Rect dest = {x_vault, win_surf->h - 32, 0, 0};
     SDL_BlitSurface(gameSprites, srcVaisseau, win_surf, &dest);
@@ -336,13 +389,13 @@ void renderVault(SDL_Surface* gameSprites, SDL_Rect* srcVaisseau, SDL_Surface* w
 
 // TODO: remplacer 52 par la moitie de la taille du vaisseau pour que la balle se positionne au centre du vaisseau
 // 58 correspond à la hauteur ou le vaisseeau est positionné + largeur de la balle
-void attachBallToVault(struct Ball* ball, int x_vault, int win_surf_height)
+void attachBallToVault(struct Ball *ball, int x_vault, int win_surf_height)
 {
     ball->x = x_vault + (vault_width / 2) - 12;
     ball->y = win_surf_height - 58;
 }
 
-void renderBricks(SDL_Surface* gameSprites, SDL_Surface* win_surf, struct Brick bricks[], int num_bricks)
+void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick bricks[], int num_bricks)
 {
     for (int i = 0; i < num_bricks; i++)
     {
@@ -390,9 +443,10 @@ void renderBricks(SDL_Surface* gameSprites, SDL_Surface* win_surf, struct Brick 
     }
 }
 
-void renderInfo(SDL_Surface* win_surf, SDL_Surface* asciiSprites, int value, char* label, int startX, int startY)
+void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, char *label, int startX, int startY)
 {
-    char* string = malloc (sizeof (*string) * 256);;
+    char *string = malloc(sizeof(*string) * 256);
+    ;
     sprintf(string, "%s:%d", label, value);
     renderString(win_surf, asciiSprites, string, startX, startY);
     free(string);
@@ -401,7 +455,6 @@ void renderInfo(SDL_Surface* win_surf, SDL_Surface* asciiSprites, int value, cha
 void render()
 {
     renderBackground(gameSprites, &srcBackground, win_surf);
-    renderBall(plancheSprites, &srcBall, win_surf, &ball);
 
     handleCollisions();
 
@@ -409,14 +462,14 @@ void render()
 
     if (ballIsAttached)
     {
-        attachBallToVault(&ball, x_vault, win_surf->h);
+        attachBallToVault(&balls[0], x_vault, win_surf->h);
     }
 
-    renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
-    renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10); // A faire proprement le fait qu'il soit en haut à gauche de l'écran
-    renderInfo(win_surf, asciiSprites, currentLife, "LIFE",win_surf->w - 116,10); // A faire proprement le fait qu'il soit en haut à droite de l'écran
-    // TODO : Rajouter un render pour le highscore au milieu
+    renderBalls();
 
+    renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
+    renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
+    renderInfo(win_surf, asciiSprites, currentLife, "LIFE", win_surf->w - 116, 10);
 }
 
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
@@ -446,14 +499,14 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
             {
                 switch (event.key.keysym.sym)
                 {
-                    case SDLK_1:
-                        inMenu = false;
-                        break;
-                    case SDLK_2:
-                        exit(EXIT_SUCCESS);
-                        break;
-                    default:
-                        break;
+                case SDLK_1:
+                    inMenu = false;
+                    break;
+                case SDLK_2:
+                    exit(EXIT_SUCCESS);
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -519,17 +572,22 @@ void initializeSDL()
     vault_width = srcVaisseau.w;
 }
 
-void processInput(bool* quit)
+void processInput(bool *quit)
 {
     SDL_Event event;
     SDL_PumpEvents();
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
-    if (keys[SDL_SCANCODE_SPACE] && ball.vy == 0)
+    if (keys[SDL_SCANCODE_SPACE] && ballIsAttached)
     {
         ballIsAttached = false;
-        ball.vy = -5;
-        ball.vx = -1;
+        balls[0].vy = -5;
+        balls[0].vx = -1;
+    }
+
+    if (keys[SDL_SCANCODE_B])
+    {
+        splitBall();
     }
 
     moveVault(keys);
@@ -560,8 +618,10 @@ int main(int argc, char **argv)
     showOptionsMenu(pWindow, win_surf);
 
     ballIsAttached = true;
-    ball.y = 0;
-    ball.x = 0;
+
+    initializeBalls();
+    balls[0].x = x_vault + 52;
+    balls[0].y = win_surf->h - 58;
 
     loadCurrentLevel();
 
@@ -580,6 +640,7 @@ int main(int argc, char **argv)
             printf("Life: 0, GAME OVER!\n");
             quit = true;
         }
+
         processInput(&quit);
         render();
         SDL_UpdateWindowSurface(pWindow);
