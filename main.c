@@ -86,7 +86,7 @@ int currentLife = 3;
 double delta_t;
 double ballSpeedIncrement = BALL_SPEED_INCREMENT;
 const int FPS = 60;
-double max_speed = 5.0;
+double max_speed = 8.0;
 bool ballIsAttached = false;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
@@ -251,8 +251,8 @@ void moveVault(const Uint8 *keys)
 
     if (x_vault < 0)
         x_vault = 0;
-    if (x_vault > win_surf->w - 128)
-        x_vault = win_surf->w - 128;
+    if (x_vault > win_surf->w - srcVaisseau.w)
+        x_vault = win_surf->w - srcVaisseau.w;
 }
 
 SDL_Rect charToSDLRect(char character)
@@ -441,8 +441,9 @@ void render()
     }
 
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
-    renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
+    renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10); // A faire proprement le fait qu'il soit en haut à gauche de l'écran
     renderInfo(win_surf, asciiSprites, currentLife, "LIFE",win_surf->w - 116,10); // A faire proprement le fait qu'il soit en haut à droite de l'écran
+    // TODO : Rajouter un render pour le highscore au milieu
 
 }
 
