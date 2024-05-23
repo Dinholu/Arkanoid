@@ -27,6 +27,7 @@ file(COPY
         resources/sprites/sprites.bmp
         resources/sprites/Arkanoid_sprites.bmp
         resources/sprites/Arkanoid_ascii.bmp
+        #resources/sprites/ascii_sprite.bmp
         resources/levels/level1.txt
         resources/levels/level2.txt
         resources/sprites/logo.bmp

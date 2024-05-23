@@ -331,7 +331,6 @@ void renderBall(SDL_Surface* plancheSprites, SDL_Rect* srcBall, SDL_Surface* win
 void renderVault(SDL_Surface* gameSprites, SDL_Rect* srcVaisseau, SDL_Surface* win_surf, int x_vault)
 {
     SDL_Rect dest = {x_vault, win_surf->h - 32, 0, 0};
-    vault_width = srcVaisseau->w;
     SDL_BlitSurface(gameSprites, srcVaisseau, win_surf, &dest);
 }
 
@@ -515,6 +514,9 @@ void initializeSDL()
     SDL_SetColorKey(plancheSprites, SDL_TRUE, 0);
     SDL_SetColorKey(gameSprites, SDL_TRUE, 0);
     SDL_SetColorKey(asciiSprites, SDL_TRUE, 0);
+
+    x_vault = (win_surf->w - srcVaisseau.w) / 2;
+    vault_width = srcVaisseau.w;
 }
 
 void processInput(bool* quit)
