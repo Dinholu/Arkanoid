@@ -81,8 +81,10 @@ SDL_Surface *plancheSprites = NULL;
 SDL_Surface *gameSprites = NULL;
 SDL_Surface *asciiSprites = NULL;
 SDL_Surface *menuSprites = NULL;
-
-SDL_Rect srcBackground = {64, 128, 64, 64};
+// ici, la variable x permet de changer le fond en commençant par 64 jusqu'a 320 en incrémentant a chaque fois par 64
+// Pour l'ecran gameOver, incrémenter la variable y par 64 (version sombre du sprite actuel)
+SDL_Rect srcBackground = {320, 128, 64, 64}; 
+// ------------------------------------------------------------------------------------------------------------------
 SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaisseau = {384, 160, 82, 16};
 SDL_Rect srcBrick;
