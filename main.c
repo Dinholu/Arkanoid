@@ -130,7 +130,7 @@ void wallCollision()
 // Ici x_vault nous indique la position relative du vaisseau sur l'affichage
 void vaultCollision()
 {
-    if ((ball.y + 24 > win_surf->h - 32) && (ball.x + 24 > x_vault) && (ball.x < x_vault + vault_width))
+    if ((ball.y + srcBall.h > win_surf->h - 32) && (ball.x + srcBall.w > x_vault) && (ball.x < x_vault + vault_width))
     {
         double relativeCollisionX = (ball.x + 12) - (x_vault + vault_width / 2);
         double normalizedRelativeCollisionX = relativeCollisionX / (vault_width / 2);
@@ -158,8 +158,8 @@ void defeatCollision()
 
 void handleBallProperty(int brickIndex)
 {
-    double ballCenterX = ball.x + 12;
-    double ballCenterY = ball.y + 12;
+    double ballCenterX = ball.x + srcBall.w / 2;
+    double ballCenterY = ball.y + srcBall.h / 2;
     double brickCenterX = brick[brickIndex].x + (BRICK_WIDTH / 2);
     double brickCenterY = brick[brickIndex].y + (BRICK_HEIGHT / 2);
     double dx = ballCenterX - brickCenterX;
@@ -185,7 +185,7 @@ void brickCollision()
     {
         if (brick[i].isVisible)
         {
-            SDL_Rect ballRect = {ball.x, ball.y, 24, 24};
+            SDL_Rect ballRect = {ball.x, ball.y, srcBall.w, srcBall.h};
             SDL_Rect brickRect = {brick[i].x, brick[i].y, BRICK_WIDTH, BRICK_HEIGHT};
 
             if (isCollision(ballRect, brickRect))
@@ -571,7 +571,7 @@ int main(int argc, char **argv)
 
         if (currentLife <= 0)
         {
-            printf("Life: 0, GAME OVER!");
+            printf("Life: 0, GAME OVER!\n");
             quit = true;
         }
         processInput(&quit);
