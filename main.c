@@ -532,13 +532,19 @@ void loadLevelFromFile(const char *filename)
 
     int row = 0;
     int col = 0;
-    while (fscanf(file, "%1d", &brick[row * NUM_BRICKS_PER_ROW + col].type) != EOF)
+    char brickType;
+    while (fscanf(file, "%1c", &brickType) != EOF)
     {
+        if (brickType == '\n')
+        {
+            continue; // Skip newline characters
+        }
+        brick[row * NUM_BRICKS_PER_ROW + col].type = brickType;
         brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH;
         brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
-        brick[row * NUM_BRICKS_PER_ROW + col].isVisible = brick[row * NUM_BRICKS_PER_ROW + col].type;
+        brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
 
-        printf("Loaded brick at (%f, %f) - Type: %d\n", brick[row * NUM_BRICKS_PER_ROW + col].x, brick[row * NUM_BRICKS_PER_ROW + col].y, brick[row * NUM_BRICKS_PER_ROW + col].type);
+        printf("Loaded brick at (%f, %f) - Type: %c\n", brick[row * NUM_BRICKS_PER_ROW + col].x, brick[row * NUM_BRICKS_PER_ROW + col].y, brick[row * NUM_BRICKS_PER_ROW + col].type);
 
         col++;
         if (col == NUM_BRICKS_PER_ROW)
@@ -555,6 +561,7 @@ void loadLevelFromFile(const char *filename)
 
     fclose(file);
 }
+
 
 void moveVault(const Uint8 *keys)
 {
@@ -666,48 +673,51 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
         if (bricks[i].isVisible)
         {
             SDL_Rect destBrick = {bricks[i].x, bricks[i].y, 0, 0};
+            SDL_Rect srcBrick;
 
             switch (bricks[i].type)
             {
-            case 1:
+            case 'W': // White
                 srcBrick = WHITE_BRICK;
                 break;
-            case 2:
+            case 'Y': // Yellow
                 srcBrick = YELLOW_BRICK;
                 break;
-            case 3:
+            case 'B': // Blue1
                 srcBrick = BLUE1_BRICK;
                 break;
-            case 4:
+            case 'G': // Green1
                 srcBrick = GREEN1_BRICK;
                 break;
-            case 5:
+            case 'b': // Blue2
                 srcBrick = BLUE2_BRICK;
                 break;
-            case 6:
+            case 'O': // Orange
                 srcBrick = ORANGE_BRICK;
                 break;
-            case 7:
+            case 'R': // Red
                 srcBrick = RED_BRICK;
                 break;
-            case 8:
+            case 'L': // bLue3
                 srcBrick = BLUE3_BRICK;
                 break;
-            case 9:
+            case 'P': // Pink
                 srcBrick = PINK_BRICK;
                 break;
-            case 10:
+            case 'E': // grEy
                 srcBrick = GREY_BRICK;
                 break;
-            case 11:
+            case 'D': // golD
                 srcBrick = GOLD_BRICK;
-            default:
                 break;
+            default:
+                continue;
             }
             SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &destBrick);
         }
     }
 }
+
 
 void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, char *label, int startX, int startY)
 {

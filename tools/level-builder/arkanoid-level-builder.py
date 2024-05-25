@@ -32,18 +32,21 @@ TEXT_COLOR_DARK = (255, 255, 255)
 
 # Brick Colors
 COLORS = [
-    (243, 243, 243),    # GREY_BRICK
-    (255, 255, 20),     # YELLOW_BRICK
-    (20, 255, 255),     # BLUE1_BRICK
-    (20, 255, 20),      # GREEN1_BRICK
-    (20, 20, 204),      # BLUE2_BRICK
-    (255, 152, 20),     # ORANGE_BRICK
-    (255, 20, 20),      # RED_BRICK
-    (20, 123, 255),     # BLUE3_BRICK
-    (255, 20, 255),     # PINK_BRICK
-    (166, 166, 166),    # GREY_BRICK
-    (194, 180, 20),     # GOLD_BRICK
+    (243, 243, 243),    # White (W)
+    (255, 255, 20),     # Yellow (Y)
+    (20, 255, 255),     # Blue1 (B)
+    (20, 255, 20),      # Green1 (G)
+    (20, 20, 204),      # Blue2 (b)
+    (255, 152, 20),     # Orange (O)
+    (255, 20, 20),      # Red (R)
+    (20, 123, 255),     # Blue3 (L)
+    (255, 20, 255),     # Pink (P)
+    (166, 166, 166),    # Grey (E)
+    (194, 180, 20),     # Gold (D)
 ]
+
+# Brick Characters
+BRICK_CHARS = ['-', 'W', 'Y', 'B', 'G', 'b', 'O', 'R', 'L', 'P', 'E', 'D']
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -153,7 +156,7 @@ def SaveLevel(grid):
     
     with open(filepath, 'w') as f:
         for row in grid:
-            f.write(''.join(map(str, row)) + '\n')
+            f.write(''.join([BRICK_CHARS[brick] for brick in row]) + '\n')
     print(f"Level saved to {filepath}")
 
 if __name__ == '__main__':
