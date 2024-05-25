@@ -64,8 +64,10 @@ struct Brick
     double x;
     double y;
     int type;
-    char destructType;
+    int touched;
+    int score;
     bool isVisible;
+    bool isDestructible;
 };
 
 typedef struct Level
@@ -97,6 +99,8 @@ SDL_Rect srcVaisseau = {384, 160, 82, 16};
 SDL_Rect srcBrick;
 SDL_Rect destVaisseau;
 SDL_Rect srcLogo = {0, 0, 400, 144};
+SDL_Rect srcLeftLaser = {0, 80, 16, 20};
+SDL_Rect srcRightLaser = {16, 80, 16, 20};
 
 // Mur
 SDL_Rect srcTopWall = {0, 0, 556, 22};
@@ -487,6 +491,11 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
             case 9:
                 srcBrick = PINK_BRICK;
                 break;
+            case 10:
+                srcBrick = GREY_BRICK;
+                break;
+            case 11:
+                srcBrick = GOLD_BRICK;
             default:
                 break;
             }
@@ -502,7 +511,15 @@ void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, cha
     renderString(win_surf, asciiSprites, string, startX, startY);
     free(string);
 }
-
+/// @brief Cette fonction est un test d'affichage des laser
+/// @param gameSprites 
+/// @param srcLaser 
+/// @param win_surf 
+void renderLaser(SDL_Surface *gameSprites, SDL_Rect* srcLaser, SDL_Surface *win_surf, int positionX)
+{
+    SDL_Rect destLaser = {positionX, win_surf->h/2, 0, 0};
+    SDL_BlitSurface(gameSprites, srcLaser, win_surf, &destLaser);
+}
 void render()
 {
     renderBackground(gameSprites, &srcBackground, win_surf);
@@ -519,6 +536,8 @@ void render()
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
     renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
     renderInfo(win_surf, asciiSprites, currentLife, "LIFE", win_surf->w - 116, 10);
+    renderLaser(gameSprites, &srcLeftLaser, win_surf, 100);
+    renderLaser(gameSprites, &srcRightLaser, win_surf, 200);
 }
 
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
