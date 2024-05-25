@@ -55,18 +55,18 @@
 - [x] Collision avec les briques
 	- [x] Collision horizontal et vertical
  	- [x] Une brique par collision (break)
-  	- [ ] Collision en angle  
+  	- [x] Collision en angle  
 - [ ] Power-up aléatoire dans briques
-- [ ] Affichage du score
+- [x] Affichage du score
 
 ### Design Level
 - [x] Des fichiers textes qui modélisent les différents niveaux
 	- [x] Test avec briques alignés
-- [ ] Récupérer les coordonnées sur le sprites
-	- [ ] Brique couleur fade
+- [x] Récupérer les coordonnées sur le sprites
+	- [x] Brique couleur fade
  	- [ ] Power-Up
-  	- [ ] Map
-  	- [ ] Vaisseau 
+  	- [x] Map
+  	- [x] Vaisseau 
 ### Cas de test
 - [ ] Balle en trajectoire verticale constante
 	- [ ] Briques traversées ? 
