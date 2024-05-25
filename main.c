@@ -83,16 +83,24 @@ SDL_Surface *plancheSprites = NULL;
 SDL_Surface *gameSprites = NULL;
 SDL_Surface *asciiSprites = NULL;
 SDL_Surface *menuSprites = NULL;
+SDL_Surface *topWallSprites = NULL;
+SDL_Surface *leftWallSprites = NULL;
+SDL_Surface *rightWallSprites = NULL;
 // ici, la variable x permet de changer le fond en commençant par 64 jusqu'a 320 en incrémentant a chaque fois par 64
 // Pour l'ecran gameOver, incrémenter la variable y par 64 (version sombre du sprite actuel)
 SDL_Rect srcBackground = {320, 128, 64, 64};
+SDL_Rect srcBackground = {320, 128, 64, 64};
 // ------------------------------------------------------------------------------------------------------------------
-SDL_Rect srcBall = {80, 66, 16, 12};
+SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaisseau = {384, 160, 82, 16};
 SDL_Rect srcBrick;
 SDL_Rect destVaisseau;
 SDL_Rect asciiRects[10];
 SDL_Rect srcLogo = {0, 0, 400, 144};
+
+// Mur
+SDL_Rect srcTopWall = {0, 0, 556, 22};
+SDL_Rect srcEdgeWall = {0, 0, 650, 22};
 
 int x_vault;
 int vault_width;
@@ -112,11 +120,12 @@ bool vWasPressed = false;
 // -------------------------------
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
-    return rect1.x < rect2.x + rect2.w &&
-           rect1.x + rect2.w > rect2.x &&
-           rect1.y < rect2.y + rect2.h &&
-           rect1.y + rect2.h > rect2.y;
+    return !(rect1.x + rect1.w < rect2.x ||
+             rect1.x > rect2.x + rect2.w ||
+             rect1.y + rect1.h < rect2.y ||
+             rect1.y > rect2.y + rect2.h);
 }
+
 
 bool allBricksInvisible()
 {
@@ -157,18 +166,27 @@ void splitBall()
         activeBallCount = 3;
     }
 }
+
 void wallCollision(struct Ball *ball)
 {
-    if ((ball->x < 1) || (ball->x > (win_surf->w - 25)))
+    if (ball->x < 0)
     {
+        ball->x = 0; // Forcer le reset de position pour éviter d'être bloqué
+        ball->vx *= -1;
+    }
+    else if (ball->x + srcBall.w > win_surf->w)
+    {
+        ball->x = win_surf->w - srcBall.w; // De même ici
         ball->vx *= -1;
     }
 
-    if ((ball->y < 1) || (ball->y > (win_surf->h - 25)))
+    if (ball->y < 0)
     {
+        ball->y = 0; // ET ici
         ball->vy *= -1;
     }
 }
+
 // TODO: remplacer les nombres magiques pour que cette fonction soit applicable peu importe la taille des vaisseaux.
 // 24 correspond à la largeur de la balle en SDL_Rect
 // 32 correspond à la position qu'on vouudrait positionner le vaisseau
@@ -348,7 +366,7 @@ SDL_Rect charToSDLRect(char character)
     return rect;
 }
 
-void renderString(SDL_Surface *surface, SDL_Surface *spriteSheet, const char *string, int startX, int startY)
+void renderString(SDL_Surface *surface, SDL_Surface *sprites, const char *string, int startX, int startY)
 {
     int x = startX;
     int y = startY;
@@ -360,22 +378,22 @@ void renderString(SDL_Surface *surface, SDL_Surface *spriteSheet, const char *st
         srcRect = charToSDLRect(*string);
         destRect = (SDL_Rect){x, y, srcRect.w, srcRect.h};
 
-        SDL_BlitSurface(spriteSheet, &srcRect, surface, &destRect);
+        SDL_BlitSurface(sprites, &srcRect, surface, &destRect);
 
         x += srcRect.w + spacing;
         string++;
     }
 }
 
-void renderMenu(SDL_Surface *menuSprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
+void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
 {
     SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
     dest.x = (win_surf->w - srcLogo->w) / 2;
 
-    SDL_BlitSurface(menuSprites, srcLogo, win_surf, &dest);
+    SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
 }
 
-void renderBackground(SDL_Surface *gameSprites, SDL_Rect *srcBackground, SDL_Surface *win_surf)
+void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface *win_surf)
 {
     SDL_Rect dest = {0, 0, 0, 0};
     for (int j = 0; j < win_surf->h; j += 64)
@@ -384,19 +402,19 @@ void renderBackground(SDL_Surface *gameSprites, SDL_Rect *srcBackground, SDL_Sur
         {
             dest.x = i;
             dest.y = j;
-            SDL_BlitSurface(gameSprites, srcBackground, win_surf, &dest);
+            SDL_BlitSurface(sprites, srcBackground, win_surf, &dest);
         }
     }
 }
 
-void renderBalls()
+void renderBalls(SDL_Surface *sprites, SDL_Rect* srcBall, SDL_Surface* win_surf, struct Ball* ball)
 {
     for (int i = 0; i < MAX_BALLS; i++)
     {
         if (balls[i].isActive)
         {
             SDL_Rect destBall = {balls[i].x, balls[i].y, 0, 0};
-            SDL_BlitSurface(gameSprites, &srcBall, win_surf, &destBall);
+            SDL_BlitSurface(plancheSprites, srcBall, win_surf, &destBall);
             balls[i].x += balls[i].vx;
             balls[i].y += balls[i].vy;
         }
@@ -465,7 +483,6 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
 void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, char *label, int startX, int startY)
 {
     char *string = malloc(sizeof(*string) * 256);
-    ;
     sprintf(string, "%s:%d", label, value);
     renderString(win_surf, asciiSprites, string, startX, startY);
     free(string);
@@ -484,7 +501,7 @@ void render()
         attachBallToVault(&balls[0], x_vault, win_surf->h);
     }
 
-    renderBalls();
+    renderBalls(plancheSprites, &srcBall, win_surf, &ball);
 
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
     renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
@@ -576,8 +593,11 @@ void initializeSDL()
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
     asciiSprites = SDL_LoadBMP("./Arkanoid_ascii.bmp");
     menuSprites = SDL_LoadBMP("./logo.bmp");
+    topWallSprites = SDL_LoadBMP("./edge_top.bmp");
+    leftWallSprites = SDL_LoadBMP("./edge_left.bmp");
+    rightWallSprites = SDL_LoadBMP("./edge_right.bmp");
 
-    if (!plancheSprites || !gameSprites || !asciiSprites)
+    if (!plancheSprites || !gameSprites || !asciiSprites || !menuSprites || !topWallSprites || !leftWallSprites || !rightWallSprites)
     {
         fprintf(stderr, "Sprite loading failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -587,6 +607,10 @@ void initializeSDL()
     SDL_SetColorKey(plancheSprites, SDL_TRUE, 0);
     SDL_SetColorKey(gameSprites, SDL_TRUE, 0);
     SDL_SetColorKey(asciiSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(menuSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(topWallSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(leftWallSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(rightWallSprites, SDL_TRUE, 0);
 
     x_vault = (win_surf->w - srcVaisseau.w) / 2;
     vault_width = srcVaisseau.w;
@@ -685,44 +709,40 @@ void processInput(bool *quit)
 void updateDeltaTime()
 {
     now = SDL_GetPerformanceCounter();
-    delta_t = 1.0 / FPS - (double)(now - prev) / (double)SDL_GetPerformanceFrequency();
-    prev = now;
-
-    if (delta_t > 0)
-        SDL_Delay((Uint32)(delta_t * 1000));
-    prev = SDL_GetPerformanceCounter();
+	delta_t = 1.0 / FPS - (double)(now - prev) / (double)SDL_GetPerformanceFrequency();
+	prev = now;
+	if (delta_t > 0)
+		SDL_Delay((Uint32)(delta_t * 1000));
+	prev = SDL_GetPerformanceCounter();
 }
 
 int main(int argc, char **argv)
 {
     initializeSDL();
     showOptionsMenu(pWindow, win_surf);
-
     ballIsAttached = true;
     attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
-    balls[0].x = x_vault + 52;
-    balls[0].y = win_surf->h - 58;
-
     loadCurrentLevel();
 
     bool quit = false;
+    prev = SDL_GetPerformanceCounter();
 
     while (!quit)
     {
+        processInput(&quit);
+
         if (allBricksInvisible())
         {
-            printf("Congratulations! You've won the game!\n");
             nextLevel();
         }
 
         if (currentLife <= 0)
         {
-            printf("Life: 0, GAME OVER!\n"); // TODO : ajouter ecran Game Over
+            printf("Life: 0, GAME OVER!\n");
             quit = true;
         }
 
-        processInput(&quit);
         render();
         SDL_UpdateWindowSurface(pWindow);
         updateDeltaTime();
