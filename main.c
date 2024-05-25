@@ -106,7 +106,7 @@ int currentLevel = 0;
 int currentScore = 0;
 
 // bonus enlarge le vaisseau
-int isVaultEnlarged = 0;
+bool isVaultEnlarged = false;
 Uint64 enlargeStartTime;
 const double enlargeDuration = 5.0;
 
@@ -621,15 +621,56 @@ void initializeSDL()
 
 void enlargeVault()
 {
+
     if (!isVaultEnlarged)
     {
-
-        vault_width += 16;
-        isVaultEnlarged = 1;
+        printf("Vaisseau agrandi!\n");
+        for (int i = 0; i < 5; i++)
+        {
+            srcVaisseau.y += 16; // Déplacer vers la ligne du sprite agrandi
+            srcVaisseau.w += 16; // Augmenter la largeur du sprite
+            vault_width = srcVaisseau.w;
+        }
+        // Mettre à jour la largeur du vaisseau
+        isVaultEnlarged = true;
         enlargeStartTime = SDL_GetPerformanceCounter(); // Démarrer la minuterie
+    }
+    else
+    {
+        printf("Vaisseau réduit!\n");
+        Uint64 now = SDL_GetPerformanceCounter();
+        double elapsed = (now - enlargeStartTime) / (double)SDL_GetPerformanceFrequency();
+        if (elapsed > enlargeDuration)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                srcVaisseau.y -= 16;         // Revenir à la ligne du sprite original
+                srcVaisseau.w -= 16;         // Réduire la largeur du sprite
+                vault_width = srcVaisseau.w; // Mettre à jour la largeur du vaisseau
+            }
+            isVaultEnlarged = false;
+        }
     }
 }
 
+void updateVaultEnlargement()
+{
+    if (isVaultEnlarged)
+    {
+        Uint64 now = SDL_GetPerformanceCounter();
+        double elapsed = (now - enlargeStartTime) / (double)SDL_GetPerformanceFrequency();
+        if (elapsed > enlargeDuration)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                srcVaisseau.y -= 16; // Revenir à la ligne du sprite original
+                srcVaisseau.w -= 16;
+                vault_width = srcVaisseau.w;
+            }
+            isVaultEnlarged = false;
+        }
+    }
+}
 void addLife()
 {
     if (currentLife <= VIE_MAX)
@@ -750,7 +791,7 @@ int main(int argc, char **argv)
     while (!quit)
     {
         processInput(&quit);
-
+        updateVaultEnlargement();
         if (allBricksInvisible())
         {
             nextLevel();
