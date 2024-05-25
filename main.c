@@ -123,6 +123,8 @@ double max_speed = 8.0;
 
 // Variable pour savoir si la touche V a été pressée donc a enlever quand ca sera fait par collision avec le bonus
 bool vWasPressed = false;
+// Variable pour savoir si la touche N a été pressée donc a enlever quand ca sera fait par collision avec le bonus
+bool nwasPressed = false;
 // -------------------------------
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
@@ -569,8 +571,7 @@ void nextLevel()
     }
     ballIsAttached = true;
     attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
-    ball.vy = 0;
-    ball.vx = 0;
+    initializeBalls();
     max_speed = max_speed + 2.0;
     loadCurrentLevel();
 }
@@ -679,6 +680,12 @@ void addLife()
     }
 }
 
+void wraplevel()
+{
+    nwasPressed = true;
+    nextLevel();
+}
+
 void slowDownBall()
 {
     for (int i = 0; i < MAX_BALLS; i++)
@@ -717,6 +724,18 @@ void processInput(bool *quit)
     if (keys[SDL_SCANCODE_B] && !ballIsAttached && activeBallCount == 1)
     {
         splitBall();
+    }
+    if (keys[SDL_SCANCODE_N] == 0)
+    {
+        nwasPressed = false;
+    }
+
+    if (keys[SDL_SCANCODE_N])
+    {
+        if (!nwasPressed)
+        {
+            wraplevel();
+        }
     }
 
     if (keys[SDL_SCANCODE_V])
