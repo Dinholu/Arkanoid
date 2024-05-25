@@ -33,20 +33,39 @@
 #define GOLD_BRICK (SDL_Rect) BRICK(0, 48)
 
 // passer de 32 sur x pour passer le bonus
+
+// slow down ball
 #define S_BONUS (SDL_Rect) BRICK(256, 0)
+// catch and fire
 #define C_BONUS (SDL_Rect) BRICK(256, 16)
+// laser beam
 #define L_BONUS (SDL_Rect) BRICK(256, 32)
+// enlarge vault
 #define E_BONUS (SDL_Rect) BRICK(256, 48)
-#define O_BONUS (SDL_Rect) BRICK(256, 64)
-#define D_BONUS (SDL_Rect) BRICK(256, 80)
-#define B_BONUS (SDL_Rect) BRICK(256, 96)
-#define P_BONUS (SDL_Rect) BRICK(256, 112)
+// split ball
+#define D_BONUS (SDL_Rect) BRICK(256, 64)
+// wrap level
+#define B_BONUS (SDL_Rect) BRICK(256, 80)
+// add life
+#define P_BONUS (SDL_Rect) BRICK(256, 96)
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 2
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
 #define MAX_BALLS 3
 #define VIE_MAX 5
 #define MAX_LASERS 10
+#define MAX_BONUSES 10
+
+struct Bonus
+{
+    double x;
+    double y;
+    double vy;
+    bool isActive;
+    int type; // Type de bonus (1: slow down ball, 2: catch and fire, etc.)
+};
+
+struct Bonus bonuses[MAX_BONUSES];
 
 struct Laser
 {
@@ -131,6 +150,8 @@ double enlargeDuration = 0.5;      // Durée de l'agrandissement en secondes
 double enlargedHoldDuration = 5.0; // Durée pendant laquelle le vaisseau reste agrandi en secondes
 double shrinkDuration = 0.5;       // Durée de la réduction en secondes
 
+// bonus laser beam
+bool isLaserBeam = false;
 // bonus catch and fire
 Uint64 attachTime = 0;
 bool ballIsAttached = false;
@@ -240,7 +261,17 @@ void fireLaser()
         }
     }
 }
-
+void initializeBonuses()
+{
+    for (int i = 0; i < MAX_BONUSES; i++)
+    {
+        bonuses[i].x = 0;
+        bonuses[i].y = 0;
+        bonuses[i].vy = 200; // Vitesse de descente des bonus
+        bonuses[i].isActive = false;
+        bonuses[i].type = 0;
+    }
+}
 void initializeLasers()
 {
     for (int i = 0; i < MAX_LASERS; i++)
@@ -390,7 +421,75 @@ void brickCollision(struct Ball *ball)
 
                 handleBallProperty(ball, i);
                 printf("Score: %d\n", currentScore);
+
+                // Génération de bonus
+                int randValue = rand() % 10; // Générer un nombre aléatoire entre 0 et 9
+                if (randValue < 2)
+                { // 20% de chance de générer un bonus
+                    for (int j = 0; j < MAX_BONUSES; j++)
+                    {
+                        if (!bonuses[j].isActive)
+                        {
+                            bonuses[j].x = brick[i].x + BRICK_WIDTH / 2;
+                            bonuses[j].y = brick[i].y + BRICK_HEIGHT / 2;
+                            bonuses[j].isActive = true;
+                            bonuses[j].type = rand() % 7 + 1; // Générer un type de bonus entre 1 et 7
+                            break;
+                        }
+                    }
+                }
                 break;
+            }
+        }
+    }
+}
+
+void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
+{
+    for (int i = 0; i < MAX_BONUSES; i++)
+    {
+        if (bonuses[i].isActive)
+        {
+            bonuses[i].y += bonuses[i].vy * delta_t;
+            // Vérifier si le bonus sort de l'écran
+            if (bonuses[i].y > win_surf->h)
+            {
+                bonuses[i].isActive = false;
+            }
+
+            // Rendre le bonus
+            if (bonuses[i].isActive)
+            {
+                SDL_Rect srcBonus;
+                switch (bonuses[i].type)
+                {
+                case 1:
+                    srcBonus = S_BONUS;
+                    break;
+                case 2:
+                    srcBonus = C_BONUS;
+                    break;
+                case 3:
+                    srcBonus = L_BONUS;
+                    break;
+                case 4:
+                    srcBonus = E_BONUS;
+                    break;
+                case 5:
+                    srcBonus = D_BONUS;
+                    break;
+                case 6:
+                    srcBonus = B_BONUS;
+                    break;
+                case 7:
+                    srcBonus = P_BONUS;
+                    break;
+                default:
+                    srcBonus = S_BONUS;
+                    break; // Default to slow down ball
+                }
+                SDL_Rect destBonus = {bonuses[i].x, bonuses[i].y, 0, 0};
+                SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
             }
         }
     }
@@ -631,6 +730,8 @@ void render()
     renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
     renderInfo(win_surf, asciiSprites, currentLife, "LIFE", win_surf->w - 116, 10);
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
+    handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
+    moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
 }
 
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
@@ -693,6 +794,7 @@ void nextLevel()
     attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
     initializeLasers();
+    initializeBonuses();
     max_speed = max_speed + 2.0;
     loadCurrentLevel();
 }
@@ -839,6 +941,56 @@ void CatchAndFire()
     releaseCount = 5;
 }
 
+void handleBonusCollision()
+{
+    SDL_Rect vaultRect = {x_vault, win_surf->h - 32, vault_width, srcVaisseau.h};
+
+    for (int i = 0; i < MAX_BONUSES; i++)
+    {
+        if (bonuses[i].isActive)
+        {
+            SDL_Rect bonusRect = {bonuses[i].x, bonuses[i].y, 32, 16}; // Assurez-vous que la taille est correcte
+
+            if (isCollision(vaultRect, bonusRect))
+            {
+                bonuses[i].isActive = false;
+
+                // Appliquer l'effet du bonus
+                switch (bonuses[i].type)
+                {
+                case 1:
+                    // Slow down ball
+                    slowDownBall();
+                    break;
+                case 2:
+                    CatchAndFire();
+                    break;
+                case 3:
+                    isLaserBeam = true;
+                    break;
+                case 4:
+                    enlargeVault();
+                    break;
+                case 5:
+                    // Split ball
+                    splitBall();
+                    break;
+                case 6:
+                    // Wrap level
+                    wraplevel();
+                    break;
+                case 7:
+                    // Add life
+                    addLife();
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void processInput(bool *quit)
 {
 
@@ -856,7 +1008,7 @@ void processInput(bool *quit)
         balls[0].vy = -5;
         balls[0].vx = -1;
     }
-
+    // BONUS SPLIT BALL (D_BONUS)
     if (keys[SDL_SCANCODE_B] && !ballIsAttached && activeBallCount == 1)
     {
         splitBall();
@@ -865,7 +1017,7 @@ void processInput(bool *quit)
     {
         nwasPressed = false;
     }
-
+    // BONUS WRAP LEVEL (B_BONUS)
     if (keys[SDL_SCANCODE_N])
     {
         if (!nwasPressed)
@@ -873,7 +1025,7 @@ void processInput(bool *quit)
             wraplevel();
         }
     }
-
+    // BONUS ADD LIFE (P_BONUS)
     if (keys[SDL_SCANCODE_V])
     {
         if (!vWasPressed)
@@ -887,15 +1039,15 @@ void processInput(bool *quit)
     {
         vWasPressed = false;
     }
-
+    // BONUS SLOW DOWN BALL (S_BONUS)
     if (keys[SDL_SCANCODE_C])
     {
         slowDownBall();
     }
-
+    // BONUS FIRE LASER (L_BONUS)
     if (keys[SDL_SCANCODE_M])
     {
-        if (!mWasPressed)
+        if (!mWasPressed && isLaserBeam)
         {
             fireLaser();
         }
@@ -905,12 +1057,12 @@ void processInput(bool *quit)
     {
         mWasPressed = false;
     }
-
+    // BONUS CATCH AND FIRE (C_BONUS)
     if (keys[SDL_SCANCODE_X])
     {
         CatchAndFire();
     }
-
+    // BONUS ENLARGE VAULT (E_BONUS)
     if (keys[SDL_SCANCODE_Z])
     {
         enlargeVault();
@@ -952,6 +1104,7 @@ int main(int argc, char **argv)
     attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
     initializeLasers();
+    initializeBonuses();
     loadCurrentLevel();
 
     bool quit = false;
