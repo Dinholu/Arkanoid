@@ -94,7 +94,6 @@ SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVaisseau = {384, 160, 82, 16};
 SDL_Rect srcBrick;
 SDL_Rect destVaisseau;
-SDL_Rect asciiRects[10];
 SDL_Rect srcLogo = {0, 0, 400, 144};
 
 // Mur
