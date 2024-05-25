@@ -32,10 +32,10 @@
 #define GREY_BRICK (SDL_Rect) BRICK(0, 32)
 #define GOLD_BRICK (SDL_Rect) BRICK(0, 48)
 
-// passer de 32 sur x pour passer le bonus
+// passer de 32 sur x pour animer le bonus <-----
 
 // slow down ball
-#define S_BONUS (SDL_Rect) BRICK(256, 0)
+#define S_BONUS (SDL_Rect) BRICK(256, 0) // pour animer ca doit faire (288, 0) puis (320, 0) puis (352, 0) et cela 8 x puis reprendre a (256, 0)
 // catch and fire
 #define C_BONUS (SDL_Rect) BRICK(256, 16)
 // laser beam
@@ -62,7 +62,9 @@ struct Bonus
     double y;
     double vy;
     bool isActive;
-    int type; // Type de bonus (1: slow down ball, 2: catch and fire, etc.)
+    int type;
+    int animationFrame;   // Frame actuelle de l'animation
+    double animationTime; // Temps écoulé depuis la dernière frame
 };
 
 struct Bonus bonuses[MAX_BONUSES];
@@ -270,6 +272,8 @@ void initializeBonuses()
         bonuses[i].vy = 200; // Vitesse de descente des bonus
         bonuses[i].isActive = false;
         bonuses[i].type = 0;
+        bonuses[i].animationFrame = 0;
+        bonuses[i].animationTime = 0;
     }
 }
 void initializeLasers()
@@ -450,7 +454,16 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
     {
         if (bonuses[i].isActive)
         {
-            bonuses[i].y += bonuses[i].vy * delta_t;
+            bonuses[i].y += bonuses[i].vy * delta_t; // Mise à jour de la position en fonction de delta_t
+            bonuses[i].animationTime += delta_t;     // Mise à jour du temps d'animation
+
+            // Mise à jour de l'animation toutes les 0.1 secondes
+            if (bonuses[i].animationTime >= 0.1)
+            {
+                bonuses[i].animationFrame = (bonuses[i].animationFrame + 1) % 8; // Boucler sur 8 frames d'animation
+                bonuses[i].animationTime = 0;
+            }
+
             // Vérifier si le bonus sort de l'écran
             if (bonuses[i].y > win_surf->h)
             {
@@ -461,34 +474,35 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             if (bonuses[i].isActive)
             {
                 SDL_Rect srcBonus;
+                int frameOffset = bonuses[i].animationFrame * 32; // Décalage pour chaque frame
                 switch (bonuses[i].type)
                 {
                 case 1:
-                    srcBonus = S_BONUS;
+                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
                     break;
                 case 2:
-                    srcBonus = C_BONUS;
+                    srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
                     break;
                 case 3:
-                    srcBonus = L_BONUS;
+                    srcBonus = (SDL_Rect){256 + frameOffset, 32, 32, 16};
                     break;
                 case 4:
-                    srcBonus = E_BONUS;
+                    srcBonus = (SDL_Rect){256 + frameOffset, 48, 32, 16};
                     break;
                 case 5:
-                    srcBonus = D_BONUS;
+                    srcBonus = (SDL_Rect){256 + frameOffset, 64, 32, 16};
                     break;
                 case 6:
-                    srcBonus = B_BONUS;
+                    srcBonus = (SDL_Rect){256 + frameOffset, 80, 32, 16};
                     break;
                 case 7:
-                    srcBonus = P_BONUS;
+                    srcBonus = (SDL_Rect){256 + frameOffset, 96, 32, 16};
                     break;
                 default:
-                    srcBonus = S_BONUS;
+                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
                     break; // Default to slow down ball
                 }
-                SDL_Rect destBonus = {bonuses[i].x, bonuses[i].y, 0, 0};
+                SDL_Rect destBonus = {bonuses[i].x, bonuses[i].y, srcBonus.w, srcBonus.h};
                 SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
             }
         }
@@ -712,26 +726,6 @@ void renderLaser(SDL_Surface *gameSprites, SDL_Rect *srcLaser, SDL_Surface *win_
 {
     SDL_Rect destLaser = {positionX, win_surf->h / 2, 0, 0};
     SDL_BlitSurface(gameSprites, srcLaser, win_surf, &destLaser);
-}
-void render()
-{
-    renderBackground(gameSprites, &srcBackground, win_surf);
-
-    handleCollisions();
-
-    renderVault(gameSprites, &srcVaisseau, win_surf, x_vault);
-    if (ballIsAttached)
-    {
-        attachBallToVault(&balls[0], x_vault, win_surf->h);
-    }
-
-    renderBalls(plancheSprites, &srcBall, win_surf, &ball);
-    renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
-    renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
-    renderInfo(win_surf, asciiSprites, currentLife, "LIFE", win_surf->w - 116, 10);
-    moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
-    handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
-    moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
 }
 
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
@@ -990,7 +984,26 @@ void handleBonusCollision()
         }
     }
 }
+void render()
+{
+    renderBackground(gameSprites, &srcBackground, win_surf);
 
+    handleCollisions();
+
+    renderVault(gameSprites, &srcVaisseau, win_surf, x_vault);
+    if (ballIsAttached)
+    {
+        attachBallToVault(&balls[0], x_vault, win_surf->h);
+    }
+
+    renderBalls(plancheSprites, &srcBall, win_surf, &ball);
+    renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
+    renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
+    renderInfo(win_surf, asciiSprites, currentLife, "LIFE", win_surf->w - 116, 10);
+    moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
+    handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
+    moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
+}
 void processInput(bool *quit)
 {
 
