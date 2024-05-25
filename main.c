@@ -506,8 +506,6 @@ void render()
     }
 
     renderBalls(plancheSprites, &srcBall, win_surf, &ball);
-
-    renderBalls();
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
     renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
     renderInfo(win_surf, asciiSprites, currentLife, "LIFE", win_surf->w - 116, 10);
