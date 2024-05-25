@@ -98,6 +98,15 @@ int x_vault;
 int vault_width;
 int currentLevel = 0;
 int currentScore = 0;
+
+// bonus enlarge le vaisseau
+int isVaultEnlarged = 0;
+Uint64 enlargeStartTime;
+const double enlargeDuration = 5.0;
+
+// bonus catch and fire
+Uint64 attachTime = 0;
+bool ballIsAttached = false;
 int releaseCount = 0;
 
 int currentLife = 3;
@@ -105,8 +114,7 @@ double delta_t;
 double ballSpeedIncrement = BALL_SPEED_INCREMENT;
 const int FPS = 60;
 double max_speed = 8.0;
-Uint64 attachTime = 0;
-bool ballIsAttached = false;
+
 // Variable pour savoir si la touche V a été pressée donc a enlever quand ca sera fait par collision avec le bonus
 bool vWasPressed = false;
 // -------------------------------
@@ -478,14 +486,12 @@ void render()
     handleCollisions();
 
     renderVault(gameSprites, &srcVaisseau, win_surf, x_vault);
-
     if (ballIsAttached)
     {
         attachBallToVault(&balls[0], x_vault, win_surf->h);
     }
 
     renderBalls();
-
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
     renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
     renderInfo(win_surf, asciiSprites, currentLife, "LIFE", win_surf->w - 116, 10);
@@ -592,6 +598,17 @@ void initializeSDL()
     vault_width = srcVaisseau.w;
 }
 
+void enlargeVault()
+{
+    if (!isVaultEnlarged)
+    {
+
+        vault_width += 16;
+        isVaultEnlarged = 1;
+        enlargeStartTime = SDL_GetPerformanceCounter(); // Démarrer la minuterie
+    }
+}
+
 void addLife()
 {
     if (currentLife <= VIE_MAX)
@@ -635,7 +652,7 @@ void processInput(bool *quit)
         balls[0].vx = -1;
     }
 
-    if (keys[SDL_SCANCODE_B])
+    if (keys[SDL_SCANCODE_B] && !ballIsAttached && activeBallCount == 1)
     {
         splitBall();
     }
@@ -662,6 +679,11 @@ void processInput(bool *quit)
     if (keys[SDL_SCANCODE_X])
     {
         CatchAndFire();
+    }
+
+    if (keys[SDL_SCANCODE_Z])
+    {
+        enlargeVault();
     }
 
     if (ballIsAttached && (SDL_GetPerformanceCounter() - attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
