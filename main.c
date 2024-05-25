@@ -85,7 +85,7 @@ SDL_Surface *asciiSprites = NULL;
 SDL_Surface *menuSprites = NULL;
 // ici, la variable x permet de changer le fond en commençant par 64 jusqu'a 320 en incrémentant a chaque fois par 64
 // Pour l'ecran gameOver, incrémenter la variable y par 64 (version sombre du sprite actuel)
-SDL_Rect srcBackground = {320, 128, 64, 64}; 
+SDL_Rect srcBackground = {320, 128, 64, 64};
 // ------------------------------------------------------------------------------------------------------------------
 SDL_Rect srcBall = {80, 66, 16, 12};
 SDL_Rect srcVaisseau = {384, 160, 82, 16};
@@ -98,11 +98,14 @@ int x_vault;
 int vault_width;
 int currentLevel = 0;
 int currentScore = 0;
+int releaseCount = 0;
+
 int currentLife = 3;
 double delta_t;
 double ballSpeedIncrement = BALL_SPEED_INCREMENT;
 const int FPS = 60;
 double max_speed = 8.0;
+Uint64 attachTime = 0;
 bool ballIsAttached = false;
 // Variable pour savoir si la touche V a été pressée donc a enlever quand ca sera fait par collision avec le bonus
 bool vWasPressed = false;
@@ -139,7 +142,6 @@ void initializeBalls()
     }
     balls[0].isActive = true;
 }
-
 void splitBall()
 {
     if (activeBallCount == 1)
@@ -176,16 +178,27 @@ void vaultCollision(struct Ball *ball)
 {
     if ((ball->y + srcBall.h > win_surf->h - 32) && (ball->x + srcBall.w > x_vault) && (ball->x < x_vault + vault_width))
     {
-        double relativeCollisionX = (ball->x + 12) - (x_vault + vault_width / 2);
-        double normalizedRelativeCollisionX = relativeCollisionX / (vault_width / 2);
+        if (releaseCount > 0)
+        {
+            ballIsAttached = true;
+            attachTime = SDL_GetPerformanceCounter();
+            ball->vx = 0;
+            ball->vy = 0;
+        }
+        else
+        {
+            double relativeCollisionX = (ball->x + 12) - (x_vault + vault_width / 2);
+            double normalizedRelativeCollisionX = relativeCollisionX / (vault_width / 2);
 
-        double bounceAngle = normalizedRelativeCollisionX * M_PI / 3.0;
-        double speed = sqrt(ball->vx * ball->vx + ball->vy * ball->vy);
+            double bounceAngle = normalizedRelativeCollisionX * M_PI / 3.0;
+            double speed = sqrt(ball->vx * ball->vx + ball->vy * ball->vy);
 
-        ball->vx = speed * sin(bounceAngle);
-        ball->vy = -speed * cos(bounceAngle);
+            ball->vx = speed * sin(bounceAngle);
+            ball->vy = -speed * cos(bounceAngle);
+        }
     }
 }
+
 void defeatCollision(struct Ball *ball)
 {
     if (ball->y > (win_surf->h - 25))
@@ -196,6 +209,7 @@ void defeatCollision(struct Ball *ball)
         {
             currentLife--;
             ballIsAttached = true;
+            attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
             balls[0].isActive = true;
             balls[0].x = x_vault + (vault_width / 2) - 12;
             balls[0].y = win_surf->h - 58;
@@ -413,35 +427,35 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
 
             switch (bricks[i].type)
             {
-                case 1:
-                    srcBrick = WHITE_BRICK;
-                    break;
-                case 2:
-                    srcBrick = YELLOW_BRICK;
-                    break;
-                case 3:
-                    srcBrick = BLUE1_BRICK;
-                    break;
-                case 4:
-                    srcBrick = GREEN1_BRICK;
-                    break;
-                case 5:
-                    srcBrick = BLUE2_BRICK;
-                    break;
-                case 6:
-                    srcBrick = ORANGE_BRICK;
-                    break;
-                case 7:
-                    srcBrick = RED_BRICK;
-                    break;
-                case 8:
-                    srcBrick = BLUE3_BRICK;
-                    break;
-                case 9:
-                    srcBrick = PINK_BRICK;
-                    break;
-                default:
-                    break;
+            case 1:
+                srcBrick = WHITE_BRICK;
+                break;
+            case 2:
+                srcBrick = YELLOW_BRICK;
+                break;
+            case 3:
+                srcBrick = BLUE1_BRICK;
+                break;
+            case 4:
+                srcBrick = GREEN1_BRICK;
+                break;
+            case 5:
+                srcBrick = BLUE2_BRICK;
+                break;
+            case 6:
+                srcBrick = ORANGE_BRICK;
+                break;
+            case 7:
+                srcBrick = RED_BRICK;
+                break;
+            case 8:
+                srcBrick = BLUE3_BRICK;
+                break;
+            case 9:
+                srcBrick = PINK_BRICK;
+                break;
+            default:
+                break;
             }
             SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &destBrick);
         }
@@ -534,6 +548,7 @@ void nextLevel()
         exit(EXIT_SUCCESS);
     }
     ballIsAttached = true;
+    attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     ball.vy = 0;
     ball.vx = 0;
     max_speed = max_speed + 2.0;
@@ -597,6 +612,11 @@ void slowDownBall()
     }
 }
 
+void CatchAndFire()
+{
+    releaseCount = 5;
+}
+
 void processInput(bool *quit)
 {
 
@@ -606,6 +626,10 @@ void processInput(bool *quit)
 
     if (keys[SDL_SCANCODE_SPACE] && ballIsAttached)
     {
+        if (releaseCount > 0)
+        {
+            releaseCount--;
+        }
         ballIsAttached = false;
         balls[0].vy = -5;
         balls[0].vx = -1;
@@ -634,6 +658,19 @@ void processInput(bool *quit)
     {
         slowDownBall();
     }
+
+    if (keys[SDL_SCANCODE_X])
+    {
+        CatchAndFire();
+    }
+
+    if (ballIsAttached && (SDL_GetPerformanceCounter() - attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
+    {
+        ballIsAttached = false;
+        balls[0].vy = -5;
+        balls[0].vx = -1;
+    }
+
     moveVault(keys);
 
     while (SDL_PollEvent(&event))
@@ -662,7 +699,7 @@ int main(int argc, char **argv)
     showOptionsMenu(pWindow, win_surf);
 
     ballIsAttached = true;
-
+    attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
     balls[0].x = x_vault + 52;
     balls[0].y = win_surf->h - 58;
