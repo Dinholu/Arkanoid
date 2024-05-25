@@ -46,6 +46,15 @@
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
 #define MAX_BALLS 3
 #define VIE_MAX 5
+#define MAX_LASERS 10
+
+struct Laser
+{
+    double x;
+    double y;
+    double vy;
+    bool isActive;
+} lasers[MAX_LASERS];
 
 struct Ball
 {
@@ -137,7 +146,10 @@ double max_speed = 8.0;
 bool vWasPressed = false;
 // Variable pour savoir si la touche N a été pressée donc a enlever quand ca sera fait par collision avec le bonus
 bool nwasPressed = false;
+// Variable pour savoir si la touche M a été pressée donc a enlever quand ca sera fait par collision avec le bonus
+bool mWasPressed = false;
 // -------------------------------
+
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
     return !(rect1.x + rect1.w < rect2.x ||
@@ -156,6 +168,88 @@ bool allBricksInvisible()
         }
     }
     return true;
+}
+
+void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser, SDL_Surface *win_surf)
+{
+    for (int i = 0; i < MAX_LASERS; i++)
+    {
+        if (lasers[i].isActive)
+        {
+            lasers[i].y += lasers[i].vy;
+
+            // Vérifier les collisions avec les briques
+            for (int j = 0; j < NUM_BRICKS; j++)
+            {
+                if (brick[j].isVisible)
+                {
+                    SDL_Rect laserRect = {lasers[i].x, lasers[i].y, srcLeftLaser->w, srcLeftLaser->h};
+                    SDL_Rect brickRect = {brick[j].x, brick[j].y, BRICK_WIDTH, BRICK_HEIGHT};
+
+                    if (isCollision(laserRect, brickRect))
+                    {
+                        brick[j].isVisible = false;
+                        lasers[i].isActive = false;
+                        currentScore += 10;
+                        break;
+                    }
+                }
+            }
+
+            // Désactiver le laser s'il sort de l'écran
+            if (lasers[i].y < 0)
+            {
+                lasers[i].isActive = false;
+            }
+
+            // Rendre le laser
+            if (lasers[i].isActive)
+            {
+                SDL_Rect destLaser = {lasers[i].x, lasers[i].y, 0, 0};
+                if (i % 2 == 0)
+                {
+                    SDL_BlitSurface(gameSprites, srcLeftLaser, win_surf, &destLaser);
+                }
+                else
+                {
+                    SDL_BlitSurface(gameSprites, srcRightLaser, win_surf, &destLaser);
+                }
+            }
+        }
+    }
+}
+
+void fireLaser()
+{
+    mWasPressed = true;
+    for (int i = 0; i < MAX_LASERS; i += 2)
+    {
+        if (!lasers[i].isActive && !lasers[i + 1].isActive)
+        {
+            // Laser gauche
+            lasers[i].x = x_vault + 10;        // Positionner le laser sur le côté gauche du vaisseau
+            lasers[i].y = destVaisseau.y - 20; // Positionner le laser juste au-dessus du vaisseau
+            lasers[i].isActive = true;
+
+            // Laser droit
+            lasers[i + 1].x = x_vault + vault_width - 26; // Positionner le laser sur le côté droit du vaisseau
+            lasers[i + 1].y = destVaisseau.y - 20;        // Positionner le laser juste au-dessus du vaisseau
+            lasers[i + 1].isActive = true;
+
+            break;
+        }
+    }
+}
+
+void initializeLasers()
+{
+    for (int i = 0; i < MAX_LASERS; i++)
+    {
+        lasers[i].x = 0;
+        lasers[i].y = 0;
+        lasers[i].vy = -10; // Les lasers se déplacent vers le haut
+        lasers[i].isActive = false;
+    }
 }
 
 void initializeBalls()
@@ -512,12 +606,12 @@ void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, cha
     free(string);
 }
 /// @brief Cette fonction est un test d'affichage des laser
-/// @param gameSprites 
-/// @param srcLaser 
-/// @param win_surf 
-void renderLaser(SDL_Surface *gameSprites, SDL_Rect* srcLaser, SDL_Surface *win_surf, int positionX)
+/// @param gameSprites
+/// @param srcLaser
+/// @param win_surf
+void renderLaser(SDL_Surface *gameSprites, SDL_Rect *srcLaser, SDL_Surface *win_surf, int positionX)
 {
-    SDL_Rect destLaser = {positionX, win_surf->h/2, 0, 0};
+    SDL_Rect destLaser = {positionX, win_surf->h / 2, 0, 0};
     SDL_BlitSurface(gameSprites, srcLaser, win_surf, &destLaser);
 }
 void render()
@@ -536,8 +630,7 @@ void render()
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
     renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
     renderInfo(win_surf, asciiSprites, currentLife, "LIFE", win_surf->w - 116, 10);
-    renderLaser(gameSprites, &srcLeftLaser, win_surf, 100);
-    renderLaser(gameSprites, &srcRightLaser, win_surf, 200);
+    moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
 }
 
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
@@ -599,6 +692,7 @@ void nextLevel()
     ballIsAttached = true;
     attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
+    initializeLasers();
     max_speed = max_speed + 2.0;
     loadCurrentLevel();
 }
@@ -799,6 +893,19 @@ void processInput(bool *quit)
         slowDownBall();
     }
 
+    if (keys[SDL_SCANCODE_M])
+    {
+        if (!mWasPressed)
+        {
+            fireLaser();
+        }
+    }
+
+    if (keys[SDL_SCANCODE_M] == 0)
+    {
+        mWasPressed = false;
+    }
+
     if (keys[SDL_SCANCODE_X])
     {
         CatchAndFire();
@@ -844,6 +951,7 @@ int main(int argc, char **argv)
     ballIsAttached = true;
     attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
+    initializeLasers();
     loadCurrentLevel();
 
     bool quit = false;
