@@ -85,7 +85,6 @@ struct Ball
 } ball;
 
 struct Ball balls[MAX_BALLS];
-int activeBallCount = 1;
 
 struct Brick
 {
@@ -131,13 +130,15 @@ SDL_Rect srcLeftLaser = {0, 80, 16, 20};
 SDL_Rect srcRightLaser = {16, 80, 16, 20};
 
 // Mur
-SDL_Rect srcTopWall = {0, 0, 556, 22};
-SDL_Rect srcEdgeWall = {0, 0, 650, 22};
+SDL_Rect srcTopWall = {22, 0, 512, 22};
+SDL_Rect srcEdgeWall = {0, 0, 22, 650};
+const int Y_WALLS = 144;
 
 int x_vault;
 int vault_width;
 int currentLevel = 0;
 int currentScore = 0;
+int activeBallCount = 1;
 
 // bonus enlarge le vaisseau
 bool isVaultEnlarged = false;
@@ -315,23 +316,26 @@ void splitBall()
 
 void wallCollision(struct Ball *ball)
 {
-    if (ball->x < 0)
+    // Collision mur latéral
+    if (ball->x < srcEdgeWall.w)
     {
-        ball->x = 0; // Forcer le reset de position pour éviter d'être bloqué
+        ball->x = srcEdgeWall.w; // Reset position to avoid getting stuck
         ball->vx *= -1;
     }
-    else if (ball->x + srcBall.w > win_surf->w)
+    else if (ball->x + srcBall.w > win_surf->w - srcEdgeWall.w)
     {
-        ball->x = win_surf->w - srcBall.w; // De même ici
+        ball->x = win_surf->w - srcEdgeWall.w - srcBall.w;
         ball->vx *= -1;
     }
 
-    if (ball->y < 0)
+    // Collision mur top
+    if (ball->y < srcTopWall.h + Y_WALLS)
     {
-        ball->y = 0; // ET ici
+        ball->y = srcTopWall.h + Y_WALLS;
         ball->vy *= -1;
     }
 }
+
 
 // TODO: remplacer les nombres magiques pour que cette fonction soit applicable peu importe la taille des vaisseaux.
 // 24 correspond à la largeur de la balle en SDL_Rect
@@ -373,16 +377,17 @@ void defeatCollision(struct Ball *ball)
         {
             currentLife--;
             ballIsAttached = true;
-            attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
+            attachTime = SDL_GetPerformanceCounter(); // Define attachment time
             balls[0].isActive = true;
-            balls[0].x = x_vault + (vault_width / 2) - 12;
-            balls[0].y = win_surf->h - 58;
+            balls[0].x = x_vault + (vault_width / 2) - (srcBall.w / 2);
+            balls[0].y = destVaisseau.y - srcBall.h;
             balls[0].vy = 0;
             balls[0].vx = 0;
             activeBallCount = 1;
         }
     }
 }
+
 
 void handleBallProperty(struct Ball *ball, int brickIndex)
 {
@@ -533,6 +538,7 @@ void loadLevelFromFile(const char *filename)
     int row = 0;
     int col = 0;
     char brickType;
+
     while (fscanf(file, "%1c", &brickType) != EOF)
     {
         if (brickType == '\n')
@@ -540,8 +546,8 @@ void loadLevelFromFile(const char *filename)
             continue; // Skip newline characters
         }
         brick[row * NUM_BRICKS_PER_ROW + col].type = brickType;
-        brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH;
-        brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
+        brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH ; // Adjusted to consider the left wall width
+        brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT; // Adjusted to consider the top wall height and offset
         brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
 
         printf("Loaded brick at (%f, %f) - Type: %c\n", brick[row * NUM_BRICKS_PER_ROW + col].x, brick[row * NUM_BRICKS_PER_ROW + col].y, brick[row * NUM_BRICKS_PER_ROW + col].type);
@@ -561,7 +567,6 @@ void loadLevelFromFile(const char *filename)
 
     fclose(file);
 }
-
 
 void moveVault(const Uint8 *keys)
 {
@@ -672,7 +677,7 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
     {
         if (bricks[i].isVisible)
         {
-            SDL_Rect destBrick = {bricks[i].x, bricks[i].y, 0, 0};
+            SDL_Rect destBrick = {bricks[i].x + srcEdgeWall.w, bricks[i].y + srcTopWall.h + Y_WALLS, 0, 0};
             SDL_Rect srcBrick;
 
             switch (bricks[i].type)
@@ -809,7 +814,7 @@ void initializeSDL()
         exit(EXIT_FAILURE);
     }
 
-    pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 800, SDL_WINDOW_SHOWN);
+    pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 556, 800, SDL_WINDOW_SHOWN);
     if (!pWindow)
     {
         fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
@@ -993,6 +998,18 @@ void handleBonusCollision()
     }
 }
 
+void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, SDL_Surface *win_surf, int positionX, int positionY, int width, int height)
+{
+    SDL_Rect destWall = {positionX, positionY, width, height} ;
+    SDL_BlitSurface(sprites, srcWall, win_surf, &destWall);
+}
+
+void renderAllWalls()
+{
+    renderWall(leftWallSprites, &srcEdgeWall, win_surf, 0, Y_WALLS, srcEdgeWall.w, srcEdgeWall.h);
+    renderWall(rightWallSprites, &srcEdgeWall, win_surf, win_surf->w - srcEdgeWall.w, Y_WALLS, srcEdgeWall.w, srcEdgeWall.h);
+    renderWall(topWallSprites, &srcTopWall, win_surf, srcEdgeWall.w, Y_WALLS, srcTopWall.w, srcTopWall.h);
+}
 void render()
 {
     renderBackground(gameSprites, &srcBackground, win_surf);
@@ -1012,6 +1029,7 @@ void render()
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
     moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
+    renderAllWalls();    
 }
 void processInput(bool *quit)
 {
