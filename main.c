@@ -31,7 +31,9 @@
 #define BLUE4_BRICK (SDL_Rect) BRICK(156, 16)
 #define GREY_BRICK (SDL_Rect) BRICK(0, 32)
 #define GOLD_BRICK (SDL_Rect) BRICK(0, 48)
-#define S_BONUS (SDL_Rect) BRICK(0, 256)
+
+// passer de 32 sur x pour passer le bonus
+#define S_BONUS (SDL_Rect) BRICK(256, 0)
 #define C_BONUS (SDL_Rect) BRICK(256, 16)
 #define L_BONUS (SDL_Rect) BRICK(256, 32)
 #define E_BONUS (SDL_Rect) BRICK(256, 48)
@@ -107,8 +109,14 @@ int currentScore = 0;
 
 // bonus enlarge le vaisseau
 bool isVaultEnlarged = false;
-Uint64 enlargeStartTime;
-const double enlargeDuration = 5.0;
+bool isEnlarging = false;
+bool isShrinking = false;
+int enlargeSteps = 5;
+int currentStep = 0;
+Uint64 enlargeStartTime = 0;
+double enlargeDuration = 0.5;      // Durée de l'agrandissement en secondes
+double enlargedHoldDuration = 5.0; // Durée pendant laquelle le vaisseau reste agrandi en secondes
+double shrinkDuration = 0.5;       // Durée de la réduction en secondes
 
 // bonus catch and fire
 Uint64 attachTime = 0;
@@ -619,59 +627,74 @@ void initializeSDL()
     x_vault = (win_surf->w - srcVaisseau.w) / 2;
     vault_width = srcVaisseau.w;
 }
-
 void enlargeVault()
 {
-
-    if (!isVaultEnlarged)
+    if (!isEnlarging && !isVaultEnlarged && !isShrinking)
     {
-        printf("Vaisseau agrandi!\n");
-        for (int i = 0; i < 5; i++)
-        {
-            srcVaisseau.y += 16; // Déplacer vers la ligne du sprite agrandi
-            srcVaisseau.w += 16; // Augmenter la largeur du sprite
-            vault_width = srcVaisseau.w;
-        }
-        // Mettre à jour la largeur du vaisseau
-        isVaultEnlarged = true;
+        printf("Agrandissement du vaisseau!\n");
+        isEnlarging = true;
+        currentStep = 0;
         enlargeStartTime = SDL_GetPerformanceCounter(); // Démarrer la minuterie
-    }
-    else
-    {
-        printf("Vaisseau réduit!\n");
-        Uint64 now = SDL_GetPerformanceCounter();
-        double elapsed = (now - enlargeStartTime) / (double)SDL_GetPerformanceFrequency();
-        if (elapsed > enlargeDuration)
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                srcVaisseau.y -= 16;         // Revenir à la ligne du sprite original
-                srcVaisseau.w -= 16;         // Réduire la largeur du sprite
-                vault_width = srcVaisseau.w; // Mettre à jour la largeur du vaisseau
-            }
-            isVaultEnlarged = false;
-        }
     }
 }
 
 void updateVaultEnlargement()
 {
-    if (isVaultEnlarged)
+    Uint64 now = SDL_GetPerformanceCounter();
+    double elapsed = (now - enlargeStartTime) / (double)SDL_GetPerformanceFrequency();
+
+    if (isEnlarging)
     {
-        Uint64 now = SDL_GetPerformanceCounter();
-        double elapsed = (now - enlargeStartTime) / (double)SDL_GetPerformanceFrequency();
-        if (elapsed > enlargeDuration)
+        double stepDuration = enlargeDuration / enlargeSteps;
+        double t = elapsed / stepDuration;
+
+        if (t >= 1.0 && currentStep < enlargeSteps)
         {
-            for (int i = 0; i < 5; i++)
-            {
-                srcVaisseau.y -= 16; // Revenir à la ligne du sprite original
-                srcVaisseau.w -= 16;
-                vault_width = srcVaisseau.w;
-            }
+            srcVaisseau.y += 16;         // Déplacer vers la ligne du sprite agrandi
+            srcVaisseau.w += 16;         // Augmenter la largeur du sprite
+            vault_width = srcVaisseau.w; // Mettre à jour la largeur du vaisseau
+            currentStep++;
+            enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la prochaine étape
+        }
+
+        if (currentStep == enlargeSteps)
+        {
+            isEnlarging = false;
+            isVaultEnlarged = true;
+            enlargeStartTime = SDL_GetPerformanceCounter(); // Démarrer la minuterie pour la durée de maintien
+        }
+    }
+    else if (isVaultEnlarged)
+    {
+        if (elapsed >= enlargedHoldDuration)
+        {
             isVaultEnlarged = false;
+            isShrinking = true;
+            currentStep = 0;
+            enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la réduction
+        }
+    }
+    else if (isShrinking)
+    {
+        double stepDuration = shrinkDuration / enlargeSteps;
+        double t = elapsed / stepDuration;
+
+        if (t >= 1.0 && currentStep < enlargeSteps)
+        {
+            srcVaisseau.y -= 16;         // Revenir à la ligne du sprite original
+            srcVaisseau.w -= 16;         // Réduire la largeur du sprite
+            vault_width = srcVaisseau.w; // Mettre à jour la largeur du vaisseau
+            currentStep++;
+            enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la prochaine étape
+        }
+
+        if (currentStep == enlargeSteps)
+        {
+            isShrinking = false;
         }
     }
 }
+
 void addLife()
 {
     if (currentLife <= VIE_MAX)
