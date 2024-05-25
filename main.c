@@ -419,10 +419,13 @@ void brickCollision(struct Ball *ball)
         if (brick[i].isVisible)
         {
             SDL_Rect ballRect = {ball->x, ball->y, srcBall.w, srcBall.h};
-            SDL_Rect brickRect = {brick[i].x, brick[i].y, BRICK_WIDTH, BRICK_HEIGHT};
+            SDL_Rect brickRect = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
             if (isCollision(ballRect, brickRect))
             {
+                // Debug print to verify collision detection
+                printf("Collision detected! Ball at (%f, %f), Brick at (%f, %f)\n", ball->x, ball->y, brickRect.x, brickRect.y);
+
                 brick[i].isVisible = false;
                 currentScore += 10;
 
@@ -479,31 +482,31 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                 int frameOffset = bonuses[i].animationFrame * 32;
                 switch (bonuses[i].type)
                 {
-                case 1:
-                    printf("Bonus S\n");
-                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
-                    break;
-                case 2:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
-                    break;
-                case 3:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 32, 32, 16};
-                    break;
-                case 4:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 48, 32, 16};
-                    break;
-                case 5:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 64, 32, 16};
-                    break;
-                case 6:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 80, 32, 16};
-                    break;
-                case 7:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 96, 32, 16};
-                    break;
-                default:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
-                    break;
+                    case 1:
+                        printf("Bonus S\n");
+                        srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
+                        break;
+                    case 2:
+                        srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
+                        break;
+                    case 3:
+                        srcBonus = (SDL_Rect){256 + frameOffset, 32, 32, 16};
+                        break;
+                    case 4:
+                        srcBonus = (SDL_Rect){256 + frameOffset, 48, 32, 16};
+                        break;
+                    case 5:
+                        srcBonus = (SDL_Rect){256 + frameOffset, 64, 32, 16};
+                        break;
+                    case 6:
+                        srcBonus = (SDL_Rect){256 + frameOffset, 80, 32, 16};
+                        break;
+                    case 7:
+                        srcBonus = (SDL_Rect){256 + frameOffset, 96, 32, 16};
+                        break;
+                    default:
+                        srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
+                        break;
                 }
                 SDL_Rect destBonus = {bonuses[i].x, bonuses[i].y, srcBonus.w, srcBonus.h};
                 SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
@@ -682,47 +685,46 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
 
             switch (bricks[i].type)
             {
-            case 'W': // White
-                srcBrick = WHITE_BRICK;
-                break;
-            case 'Y': // Yellow
-                srcBrick = YELLOW_BRICK;
-                break;
-            case 'B': // Blue1
-                srcBrick = BLUE1_BRICK;
-                break;
-            case 'G': // Green1
-                srcBrick = GREEN1_BRICK;
-                break;
-            case 'b': // Blue2
-                srcBrick = BLUE2_BRICK;
-                break;
-            case 'O': // Orange
-                srcBrick = ORANGE_BRICK;
-                break;
-            case 'R': // Red
-                srcBrick = RED_BRICK;
-                break;
-            case 'L': // bLue3
-                srcBrick = BLUE3_BRICK;
-                break;
-            case 'P': // Pink
-                srcBrick = PINK_BRICK;
-                break;
-            case 'E': // grEy
-                srcBrick = GREY_BRICK;
-                break;
-            case 'D': // golD
-                srcBrick = GOLD_BRICK;
-                break;
-            default:
-                continue;
+                case 'W': // White
+                    srcBrick = WHITE_BRICK;
+                    break;
+                case 'Y': // Yellow
+                    srcBrick = YELLOW_BRICK;
+                    break;
+                case 'B': // Blue1
+                    srcBrick = BLUE1_BRICK;
+                    break;
+                case 'G': // Green1
+                    srcBrick = GREEN1_BRICK;
+                    break;
+                case 'b': // Blue2
+                    srcBrick = BLUE2_BRICK;
+                    break;
+                case 'O': // Orange
+                    srcBrick = ORANGE_BRICK;
+                    break;
+                case 'R': // Red
+                    srcBrick = RED_BRICK;
+                    break;
+                case 'L': // bLue3
+                    srcBrick = BLUE3_BRICK;
+                    break;
+                case 'P': // Pink
+                    srcBrick = PINK_BRICK;
+                    break;
+                case 'E': // grEy
+                    srcBrick = GREY_BRICK;
+                    break;
+                case 'D': // golD
+                    srcBrick = GOLD_BRICK;
+                    break;
+                default:
+                    continue;
             }
             SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &destBrick);
         }
     }
 }
-
 
 void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, char *label, int startX, int startY)
 {
@@ -731,6 +733,7 @@ void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, cha
     renderString(win_surf, asciiSprites, string, startX, startY);
     free(string);
 }
+
 /// @brief Cette fonction est un test d'affichage des laser
 /// @param gameSprites
 /// @param srcLaser
@@ -768,14 +771,14 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
             {
                 switch (event.key.keysym.sym)
                 {
-                case SDLK_1:
-                    inMenu = false;
-                    break;
-                case SDLK_2:
-                    exit(EXIT_SUCCESS);
-                    break;
-                default:
-                    break;
+                    case SDLK_1:
+                        inMenu = false;
+                        break;
+                    case SDLK_2:
+                        exit(EXIT_SUCCESS);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -802,7 +805,7 @@ void nextLevel()
     initializeBalls();
     initializeLasers();
     initializeBonuses();
-    max_speed = max_speed + 2.0;
+    max_speed = max_speed * 1.2;
     loadCurrentLevel();
 }
 
@@ -967,31 +970,31 @@ void handleBonusCollision()
                 // Appliquer l'effet du bonus
                 switch (bonuses[i].type)
                 {
-                case 1:
-                    printf("Bonus S pris\n");
-                    // Slow down ball
-                    slowDownBall();
-                    break;
-                case 2:
-                    CatchAndFire();
-                    break;
-                case 3:
-                    isLaserBeam = true;
-                    break;
-                case 4:
-                    enlargeVault();
-                    break;
-                case 5:
-                    splitBall();
-                    break;
-                case 6:
-                    wraplevel();
-                    break;
-                case 7:
-                    addLife();
-                    break;
-                default:
-                    break;
+                    case 1:
+                        printf("Bonus S pris\n");
+                        // Slow down ball
+                        slowDownBall();
+                        break;
+                    case 2:
+                        CatchAndFire();
+                        break;
+                    case 3:
+                        isLaserBeam = true;
+                        break;
+                    case 4:
+                        enlargeVault();
+                        break;
+                    case 5:
+                        splitBall();
+                        break;
+                    case 6:
+                        wraplevel();
+                        break;
+                    case 7:
+                        addLife();
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -1010,6 +1013,7 @@ void renderAllWalls()
     renderWall(rightWallSprites, &srcEdgeWall, win_surf, win_surf->w - srcEdgeWall.w, Y_WALLS, srcEdgeWall.w, srcEdgeWall.h);
     renderWall(topWallSprites, &srcTopWall, win_surf, srcEdgeWall.w, Y_WALLS, srcTopWall.w, srcTopWall.h);
 }
+
 void render()
 {
     renderBackground(gameSprites, &srcBackground, win_surf);
@@ -1029,11 +1033,11 @@ void render()
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
     moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
-    renderAllWalls();    
+    renderAllWalls();
 }
+
 void processInput(bool *quit)
 {
-
     SDL_Event event;
     SDL_PumpEvents();
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
@@ -1048,43 +1052,7 @@ void processInput(bool *quit)
         balls[0].vy = -5;
         balls[0].vx = -1;
     }
-    // // BONUS SPLIT BALL (D_BONUS)
-    // if (keys[SDL_SCANCODE_B] && !ballIsAttached && activeBallCount == 1)
-    // {
-    //     splitBall();
-    // }
-    // if (keys[SDL_SCANCODE_N] == 0)
-    // {
-    //     nwasPressed = false;
-    // }
-    // BONUS WRAP LEVEL (B_BONUS)
-    // if (keys[SDL_SCANCODE_N])
-    // {
-    //     if (!nwasPressed)
-    //     {
-    //         wraplevel();
-    //     }
-    // }
-    // BONUS ADD LIFE (P_BONUS)
-    // if (keys[SDL_SCANCODE_V])
-    // {
-    //     if (!vWasPressed)
-    //     {
-    //         addLife();
-    //         vWasPressed = true;
-    //     }
-    // }
 
-    // if (keys[SDL_SCANCODE_V] == 0)
-    // {
-    //     vWasPressed = false;
-    // }
-    // BONUS SLOW DOWN BALL (S_BONUS)
-    // if (keys[SDL_SCANCODE_C])
-    // {
-    //     slowDownBall();
-    // }
-    // BONUS FIRE LASER (L_BONUS)
     if (keys[SDL_SCANCODE_M])
     {
         if (!mWasPressed && isLaserBeam)
@@ -1097,16 +1065,6 @@ void processInput(bool *quit)
     {
         mWasPressed = false;
     }
-    // BONUS CATCH AND FIRE (C_BONUS)
-    // if (keys[SDL_SCANCODE_X])
-    // {
-    //     CatchAndFire();
-    // }
-    // BONUS ENLARGE VAULT (E_BONUS)
-    // if (keys[SDL_SCANCODE_Z])
-    // {
-    //     enlargeVault();
-    // }
 
     if (ballIsAttached && (SDL_GetPerformanceCounter() - attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
     {
