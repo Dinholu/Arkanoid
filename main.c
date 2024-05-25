@@ -970,11 +970,9 @@ void handleBonusCollision()
                     splitBall();
                     break;
                 case 6:
-                    // Wrap level
                     wraplevel();
                     break;
                 case 7:
-                    // Add life
                     addLife();
                     break;
                 default:
@@ -1054,10 +1052,10 @@ void processInput(bool *quit)
     //     vWasPressed = false;
     // }
     // BONUS SLOW DOWN BALL (S_BONUS)
-    if (keys[SDL_SCANCODE_C])
-    {
-        slowDownBall();
-    }
+    // if (keys[SDL_SCANCODE_C])
+    // {
+    //     slowDownBall();
+    // }
     // BONUS FIRE LASER (L_BONUS)
     if (keys[SDL_SCANCODE_M])
     {
