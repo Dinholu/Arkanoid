@@ -32,8 +32,6 @@
 #define GREY_BRICK (SDL_Rect) BRICK(0, 32)
 #define GOLD_BRICK (SDL_Rect) BRICK(0, 48)
 
-// passer de 32 sur x pour animer le bonus <-----
-
 // slow down ball
 #define S_BONUS (SDL_Rect) BRICK(256, 0) // pour animer ca doit faire (288, 0) puis (320, 0) puis (352, 0) et cela 8 x puis reprendre a (256, 0)
 // catch and fire
@@ -427,9 +425,9 @@ void brickCollision(struct Ball *ball)
                 printf("Score: %d\n", currentScore);
 
                 // Génération de bonus
-                int randValue = rand() % 10; // Générer un nombre aléatoire entre 0 et 9
-                if (randValue < 2)
-                { // 20% de chance de générer un bonus
+                int randValue = rand() % 9; // Générer un nombre aléatoire entre 0 et 9
+                if (randValue < 6)
+                {
                     for (int j = 0; j < MAX_BONUSES; j++)
                     {
                         if (!bonuses[j].isActive)
@@ -437,7 +435,7 @@ void brickCollision(struct Ball *ball)
                             bonuses[j].x = brick[i].x + BRICK_WIDTH / 2;
                             bonuses[j].y = brick[i].y + BRICK_HEIGHT / 2;
                             bonuses[j].isActive = true;
-                            bonuses[j].type = rand() % 7 + 1; // Générer un type de bonus entre 1 et 7
+                            bonuses[j].type = rand() % 7 + 1;
                             break;
                         }
                     }
@@ -457,7 +455,6 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             bonuses[i].y += bonuses[i].vy * delta_t; // Mise à jour de la position en fonction de delta_t
             bonuses[i].animationTime += delta_t;     // Mise à jour du temps d'animation
 
-            // Mise à jour de l'animation toutes les 0.1 secondes
             if (bonuses[i].animationTime >= 0.1)
             {
                 bonuses[i].animationFrame = (bonuses[i].animationFrame + 1) % 8; // Boucler sur 8 frames d'animation
@@ -474,10 +471,11 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             if (bonuses[i].isActive)
             {
                 SDL_Rect srcBonus;
-                int frameOffset = bonuses[i].animationFrame * 32; // Décalage pour chaque frame
+                int frameOffset = bonuses[i].animationFrame * 32;
                 switch (bonuses[i].type)
                 {
                 case 1:
+                    printf("Bonus S\n");
                     srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
                     break;
                 case 2:
@@ -500,7 +498,7 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                     break;
                 default:
                     srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
-                    break; // Default to slow down ball
+                    break;
                 }
                 SDL_Rect destBonus = {bonuses[i].x, bonuses[i].y, srcBonus.w, srcBonus.h};
                 SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
@@ -868,20 +866,16 @@ void updateVaultEnlargement()
 
         if (currentStep == enlargeSteps)
         {
-            isEnlarging = false;
             isVaultEnlarged = true;
             enlargeStartTime = SDL_GetPerformanceCounter(); // Démarrer la minuterie pour la durée de maintien
         }
     }
-    else if (isVaultEnlarged)
+    else if (isVaultEnlarged && !isEnlarging)
     {
-        if (elapsed >= enlargedHoldDuration)
-        {
-            isVaultEnlarged = false;
-            isShrinking = true;
-            currentStep = 0;
-            enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la réduction
-        }
+        isVaultEnlarged = false;
+        isShrinking = true;
+        currentStep = 0;
+        enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la réduction
     }
     else if (isShrinking)
     {
@@ -920,12 +914,13 @@ void wraplevel()
 
 void slowDownBall()
 {
+    printf("Ralentir la balle!\n");
     for (int i = 0; i < MAX_BALLS; i++)
     {
         if (balls[i].isActive)
         {
-            balls[i].vx /= 1.15;
-            balls[i].vy /= 1.15;
+            balls[i].vx /= 2;
+            balls[i].vy /= 2;
         }
     }
 }
@@ -934,11 +929,15 @@ void CatchAndFire()
 {
     releaseCount = 5;
 }
-
+void resetAllBonuses()
+{
+    isLaserBeam = false;
+    isEnlarging = false;
+    releaseCount = 0;
+}
 void handleBonusCollision()
 {
     SDL_Rect vaultRect = {x_vault, win_surf->h - 32, vault_width, srcVaisseau.h};
-
     for (int i = 0; i < MAX_BONUSES; i++)
     {
         if (bonuses[i].isActive)
@@ -947,12 +946,14 @@ void handleBonusCollision()
 
             if (isCollision(vaultRect, bonusRect))
             {
+                resetAllBonuses();
                 bonuses[i].isActive = false;
 
                 // Appliquer l'effet du bonus
                 switch (bonuses[i].type)
                 {
                 case 1:
+                    printf("Bonus S pris\n");
                     // Slow down ball
                     slowDownBall();
                     break;
@@ -966,7 +967,6 @@ void handleBonusCollision()
                     enlargeVault();
                     break;
                 case 5:
-                    // Split ball
                     splitBall();
                     break;
                 case 6:
@@ -984,6 +984,7 @@ void handleBonusCollision()
         }
     }
 }
+
 void render()
 {
     renderBackground(gameSprites, &srcBackground, win_surf);
@@ -1021,37 +1022,37 @@ void processInput(bool *quit)
         balls[0].vy = -5;
         balls[0].vx = -1;
     }
-    // BONUS SPLIT BALL (D_BONUS)
-    if (keys[SDL_SCANCODE_B] && !ballIsAttached && activeBallCount == 1)
-    {
-        splitBall();
-    }
-    if (keys[SDL_SCANCODE_N] == 0)
-    {
-        nwasPressed = false;
-    }
+    // // BONUS SPLIT BALL (D_BONUS)
+    // if (keys[SDL_SCANCODE_B] && !ballIsAttached && activeBallCount == 1)
+    // {
+    //     splitBall();
+    // }
+    // if (keys[SDL_SCANCODE_N] == 0)
+    // {
+    //     nwasPressed = false;
+    // }
     // BONUS WRAP LEVEL (B_BONUS)
-    if (keys[SDL_SCANCODE_N])
-    {
-        if (!nwasPressed)
-        {
-            wraplevel();
-        }
-    }
+    // if (keys[SDL_SCANCODE_N])
+    // {
+    //     if (!nwasPressed)
+    //     {
+    //         wraplevel();
+    //     }
+    // }
     // BONUS ADD LIFE (P_BONUS)
-    if (keys[SDL_SCANCODE_V])
-    {
-        if (!vWasPressed)
-        {
-            addLife();
-            vWasPressed = true;
-        }
-    }
+    // if (keys[SDL_SCANCODE_V])
+    // {
+    //     if (!vWasPressed)
+    //     {
+    //         addLife();
+    //         vWasPressed = true;
+    //     }
+    // }
 
-    if (keys[SDL_SCANCODE_V] == 0)
-    {
-        vWasPressed = false;
-    }
+    // if (keys[SDL_SCANCODE_V] == 0)
+    // {
+    //     vWasPressed = false;
+    // }
     // BONUS SLOW DOWN BALL (S_BONUS)
     if (keys[SDL_SCANCODE_C])
     {
@@ -1071,15 +1072,15 @@ void processInput(bool *quit)
         mWasPressed = false;
     }
     // BONUS CATCH AND FIRE (C_BONUS)
-    if (keys[SDL_SCANCODE_X])
-    {
-        CatchAndFire();
-    }
+    // if (keys[SDL_SCANCODE_X])
+    // {
+    //     CatchAndFire();
+    // }
     // BONUS ENLARGE VAULT (E_BONUS)
-    if (keys[SDL_SCANCODE_Z])
-    {
-        enlargeVault();
-    }
+    // if (keys[SDL_SCANCODE_Z])
+    // {
+    //     enlargeVault();
+    // }
 
     if (ballIsAttached && (SDL_GetPerformanceCounter() - attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
     {
