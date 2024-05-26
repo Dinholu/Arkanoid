@@ -53,6 +53,7 @@
 #define VIE_MAX 5
 #define MAX_LASERS 10
 #define MAX_BONUSES 10
+#define MAX_NAME_LENGTH 3
 
 struct Bonus
 {
@@ -138,6 +139,15 @@ int x_vault;
 int vault_width;
 int currentLevel = 0;
 int currentScore = 0;
+
+// test gameOver
+
+char playerName[MAX_NAME_LENGTH + 1] = "";
+bool enteringName = false;
+bool isGameOver = false;
+bool showMenu = true;
+int nameIndex = 0;
+// ---------------
 
 // bonus enlarge le vaisseau
 bool isVaultEnlarged = false;
@@ -362,6 +372,12 @@ void vaultCollision(struct Ball *ball)
         }
     }
 }
+void resetAllBonuses()
+{
+    isLaserBeam = false;
+    isEnlarging = false;
+    releaseCount = 0;
+}
 
 void defeatCollision(struct Ball *ball)
 {
@@ -372,6 +388,10 @@ void defeatCollision(struct Ball *ball)
         if (activeBallCount == 0)
         {
             currentLife--;
+            resetAllBonuses();
+            printf("Vies r
+            
+            estantes: %d\n", currentLife);
             ballIsAttached = true;
             attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
             balls[0].isActive = true;
@@ -562,7 +582,6 @@ void loadLevelFromFile(const char *filename)
     fclose(file);
 }
 
-
 void moveVault(const Uint8 *keys)
 {
     if (keys[SDL_SCANCODE_LEFT])
@@ -613,6 +632,45 @@ void renderString(SDL_Surface *surface, SDL_Surface *sprites, const char *string
 
         x += srcRect.w + spacing;
         string++;
+    }
+}
+
+void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
+{
+    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
+    dest.x = (win_surf->w - srcLogo->w) / 2;
+
+    SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
+
+    renderString(win_surf, asciiSprites, "GAME OVER", (win_surf->w - 128) / 2, 300);
+    renderString(win_surf, asciiSprites, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
+    renderString(win_surf, asciiSprites, playerName, (win_surf->w - 160) / 2, 400);
+}
+
+void processNameInput(SDL_Event *event)
+{
+    if (event->type == SDL_KEYDOWN)
+    {
+        if (event->key.keysym.sym == SDLK_RETURN)
+        {
+            enteringName = false;
+            showMenu = true;
+            // Save the player's name and score here if needed
+            printf("Player Name: %s, Score: %d\n", playerName, currentScore);
+        }
+        else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0)
+        {
+            playerName[--nameIndex] = '\0';
+        }
+        else if (nameIndex < MAX_NAME_LENGTH)
+        {
+            char key = (char)event->key.keysym.sym;
+            if ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z'))
+            {
+                playerName[nameIndex++] = key;
+                playerName[nameIndex] = '\0';
+            }
+        }
     }
 }
 
@@ -718,7 +776,6 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
     }
 }
 
-
 void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, char *label, int startX, int startY)
 {
     char *string = malloc(sizeof(*string) * 256);
@@ -801,6 +858,21 @@ void nextLevel()
     loadCurrentLevel();
 }
 
+void resetGame()
+{
+    currentLife = 3;
+    currentScore = 0;
+    currentLevel = 0;
+    max_speed = 8.0;
+    ballSpeedIncrement = BALL_SPEED_INCREMENT;
+    ballIsAttached = true;
+    attachTime = SDL_GetPerformanceCounter();
+    initializeBalls();
+    initializeLasers();
+    initializeBonuses();
+    loadCurrentLevel();
+}
+
 void initializeSDL()
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
@@ -851,7 +923,7 @@ void enlargeVault()
         printf("Agrandissement du vaisseau!\n");
         isEnlarging = true;
         currentStep = 0;
-        enlargeStartTime = SDL_GetPerformanceCounter(); // Démarrer la minuterie
+        enlargeStartTime = SDL_GetPerformanceCounter();
     }
 }
 
@@ -939,12 +1011,7 @@ void CatchAndFire()
 {
     releaseCount = 5;
 }
-void resetAllBonuses()
-{
-    isLaserBeam = false;
-    isEnlarging = false;
-    releaseCount = 0;
-}
+
 void handleBonusCollision()
 {
     SDL_Rect vaultRect = {x_vault, win_surf->h - 32, vault_width, srcVaisseau.h};
@@ -1118,39 +1185,74 @@ void updateDeltaTime()
     prev = SDL_GetPerformanceCounter();
 }
 
-int main(int argc, char **argv)
+void mainGameLoop()
 {
-    initializeSDL();
-    showOptionsMenu(pWindow, win_surf);
-    ballIsAttached = true;
-    attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
-    initializeBalls();
-    initializeLasers();
-    initializeBonuses();
-    loadCurrentLevel();
-
     bool quit = false;
     prev = SDL_GetPerformanceCounter();
 
     while (!quit)
     {
-        processInput(&quit);
-        updateVaultEnlargement();
-        if (allBricksInvisible())
+        if (showMenu)
         {
-            nextLevel();
+            showOptionsMenu(pWindow, win_surf);
+            resetGame();
+            showMenu = false;
+            isGameOver = false;
+            enteringName = false;
+            nameIndex = 0;
+            playerName[0] = '\0';
         }
 
-        if (currentLife <= 0)
+        if (!isGameOver)
         {
-            printf("Life: 0, GAME OVER!\n");
-            quit = true;
+            processInput(&quit);
+            updateVaultEnlargement();
+
+            if (allBricksInvisible())
+            {
+                nextLevel();
+            }
+
+            if (currentLife <= 0)
+            {
+                printf("Life: 0, GAME OVER!\n");
+                isGameOver = true;
+                enteringName = true;
+            }
+
+            render();
         }
 
-        render();
+        if (enteringName)
+        {
+            SDL_Event event;
+            while (SDL_PollEvent(&event))
+            {
+                if (event.type == SDL_QUIT)
+                {
+                    quit = true;
+                }
+                else
+                {
+                    processNameInput(&event);
+                }
+            }
+
+            renderGameOverScreen(menuSprites, &srcLogo, win_surf);
+        }
+
         SDL_UpdateWindowSurface(pWindow);
         updateDeltaTime();
     }
+}
+
+int main(int argc, char **argv)
+{
+    initializeSDL();
+    showOptionsMenu(pWindow, win_surf);
+    resetGame();
+
+    mainGameLoop();
 
     SDL_Quit();
     return 0;
