@@ -8,7 +8,7 @@
 #define NUM_BRICKS_PER_ROW 16
 #define BRICK_WIDTH 32
 #define BRICK_HEIGHT 16
-#define NUM_ROWS 16
+#define NUM_ROWS 20
 #define FIRST_LINE 1
 #define NUM_BRICKS (NUM_BRICKS_PER_ROW * NUM_ROWS)
 
@@ -47,7 +47,7 @@
 // add life
 #define P_BONUS (SDL_Rect) BRICK(256, 96)
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
-#define NUM_LEVELS 2
+#define NUM_LEVELS 33
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
 #define MAX_BALLS 3
 #define VIE_MAX 5
@@ -994,8 +994,6 @@ void handleBonusCollision()
                 switch (bonuses[i].type)
                 {
                     case 1:
-                        printf("Bonus S pris\n");
-                        // Slow down ball
                         slowDownBall();
                         break;
                     case 2:
