@@ -289,17 +289,6 @@ void initializeLasers()
     }
 }
 
-void initializeBalls()
-{
-    for (int i = 0; i < MAX_BALLS; i++)
-    {
-        balls[i].vx = 0;
-        balls[i].vy = 0;
-        balls[i].isActive = false;
-    }
-    balls[0].isActive = true;
-}
-
 void splitBall()
 {
     if (activeBallCount == 1)
@@ -607,9 +596,9 @@ void moveVault(const Uint8 *keys)
         x_vault = wallWidth;
     }
 
-    if (x_vault > win_surf->w - srcVault.w - wallWidth)
+    if (x_vault > win_surf->w - vault_width - wallWidth)
     {
-        x_vault = win_surf->w - srcVault.w - wallWidth;
+        x_vault = win_surf->w - vault_width - wallWidth;
     }
 }
 
@@ -705,6 +694,19 @@ void attachBallToVault(struct Ball *ball, int x_vault)
 {
     ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2);
     ball->y = destVault.y - srcBall.h;
+}
+
+void initializeBalls()
+{
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
+        balls[i].x = 0;
+        balls[i].y = win_surf->h - srcVault.h - 50;
+        balls[i].vx = 0;
+        balls[i].vy = 0;
+        balls[i].isActive = false;
+    }
+    balls[0].isActive = true;
 }
 
 void renderBricks(SDL_Surface *sprites, struct Brick bricks[], int num_bricks)
@@ -1059,7 +1061,6 @@ void render()
     handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
     moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
     renderAllWalls();
-
 }
 
 
@@ -1125,6 +1126,7 @@ int main(int argc, char **argv)
 {
     initializeSDL();
     showOptionsMenu();
+    ballIsAttached = true;
     attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
     initializeLasers();
