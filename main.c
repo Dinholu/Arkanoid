@@ -91,7 +91,7 @@ struct Brick
 {
     double x;
     double y;
-    int type;
+    char type;
     int touched;
     int score;
     bool isVisible;
