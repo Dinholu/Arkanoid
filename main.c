@@ -293,15 +293,11 @@ void initializeBalls()
 {
     for (int i = 0; i < MAX_BALLS; i++)
     {
-        balls[i].x = 0;
-        balls[i].y = 0;
         balls[i].vx = 0;
         balls[i].vy = 0;
         balls[i].isActive = false;
     }
     balls[0].isActive = true;
-    balls[0].x = x_vault + (vault_width / 2) - (srcBall.w / 2);
-    balls[0].y = destVault.y - srcBall.h;
 }
 
 void splitBall()
@@ -621,7 +617,7 @@ SDL_Rect charToSDLRect(char character)
     return rect;
 }
 
-void renderString(SDL_Surface *surface, SDL_Surface *sprites, const char *string, int startX, int startY)
+void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string, int startX, int startY)
 {
     int x = startX;
     int y = startY;
@@ -665,35 +661,24 @@ void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface
     }
 }
 
-void debugPrintBallPositions()
-{
-    for (int i = 0; i < MAX_BALLS; i++)
-    {
-        if (balls[i].isActive)
-        {
-            printf("Ball %d: Position (x, y) = (%f, %f)\n", i, balls[i].x, balls[i].y);
-        }
-    }
-}
-
-void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf, struct Ball *ball)
+void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_BALLS; i++)
     {
         if (balls[i].isActive)
         {
             SDL_Rect destBall = {balls[i].x, balls[i].y, 0, 0};
-            SDL_BlitSurface(plancheSprites, srcBall, win_surf, &destBall);
+            SDL_BlitSurface(sprites, srcBall, win_surf, &destBall);
             balls[i].x += balls[i].vx;
             balls[i].y += balls[i].vy;
         }
     }
 }
 
-void renderVault(SDL_Surface *gameSprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault)
+void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault)
 {
     destVault = (SDL_Rect){x_vault, win_surf->h - 32, 0, 0};
-    SDL_BlitSurface(gameSprites, srcVault, win_surf, &destVault);
+    SDL_BlitSurface(sprites, srcVault, win_surf, &destVault);
 }
 
 // TODO: remplacer 52 par la moitie de la taille du vaisseau pour que la balle se positionne au centre du vaisseau
@@ -704,14 +689,13 @@ void attachBallToVault(struct Ball *ball, int x_vault)
     ball->y = destVault.y - srcBall.h;
 }
 
-void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick bricks[], int num_bricks)
+void renderBricks(SDL_Surface *sprites, struct Brick bricks[], int num_bricks)
 {
     for (int i = 0; i < num_bricks; i++)
     {
         if (bricks[i].isVisible)
         {
             SDL_Rect destBrick = {bricks[i].x + srcEdgeWall.w, bricks[i].y + srcTopWall.h + Y_WALLS, 0, 0};
-            SDL_Rect srcBrick;
 
             switch (bricks[i].type)
             {
@@ -751,20 +735,20 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
                 default:
                     continue;
             }
-            SDL_BlitSurface(gameSprites, &srcBrick, win_surf, &destBrick);
+            SDL_BlitSurface(sprites, &srcBrick, win_surf, &destBrick);
         }
     }
 }
 
-void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, char *label, int startX, int startY)
+void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY)
 {
     char *string = malloc(sizeof(*string) * 256);
     sprintf(string, "%s%d", label, value);
-    renderString(win_surf, asciiSprites, string, startX, startY);
+    renderString(sprites, win_surf, string, startX, startY);
     free(string);
 }
 
-void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
+void showOptionsMenu()
 {
     bool inMenu = true;
     SDL_Event event;
@@ -776,8 +760,8 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     {
         renderMenu(menuSprites, &srcLogo, win_surf);
 
-        renderString(win_surf, asciiSprites, "1. START", startOptionX, srcLogo.h + 320);
-        renderString(win_surf, asciiSprites, "2. QUIT ", startOptionX, srcLogo.h + 384);
+        renderString(asciiSprites, win_surf, "1. START", startOptionX, srcLogo.h + 320);
+        renderString(asciiSprites, win_surf, "2. QUIT ", startOptionX, srcLogo.h + 384);
 
         SDL_UpdateWindowSurface(pWindow);
 
@@ -1022,7 +1006,7 @@ void handleBonusCollision()
     }
 }
 
-void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, SDL_Surface *win_surf, int positionX, int positionY, int width, int height)
+void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, int positionX, int positionY, int width, int height)
 {
     SDL_Rect destWall = {positionX, positionY, width, height};
     SDL_BlitSurface(sprites, srcWall, win_surf, &destWall);
@@ -1030,9 +1014,9 @@ void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, SDL_Surface *win_surf, 
 
 void renderAllWalls()
 {
-    renderWall(leftWallSprites, &srcEdgeWall, win_surf, 0, Y_WALLS, srcEdgeWall.w, srcEdgeWall.h);
-    renderWall(rightWallSprites, &srcEdgeWall, win_surf, win_surf->w - srcEdgeWall.w, Y_WALLS, srcEdgeWall.w, srcEdgeWall.h);
-    renderWall(topWallSprites, &srcTopWall, win_surf, srcEdgeWall.w, Y_WALLS, srcTopWall.w, srcTopWall.h);
+    renderWall(leftWallSprites, &srcEdgeWall, 0, Y_WALLS, srcEdgeWall.w, srcEdgeWall.h);
+    renderWall(rightWallSprites, &srcEdgeWall, win_surf->w - srcEdgeWall.w, Y_WALLS, srcEdgeWall.w, srcEdgeWall.h);
+    renderWall(topWallSprites, &srcTopWall, srcEdgeWall.w, Y_WALLS, srcTopWall.w, srcTopWall.h);
 }
 
 void render()
@@ -1049,11 +1033,11 @@ void render()
         attachBallToVault(&balls[0], x_vault);
     }
 
-    renderBalls(plancheSprites, &srcBall, win_surf, &ball);
-    renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
-    renderInfo(win_surf, asciiSprites, currentScore, "", 16, 10);
-    renderInfo(win_surf, asciiSprites, currentLife, "HP ", win_surf->w - 116, 10);
-    renderInfo(win_surf, asciiSprites, currentLevel, "LEVEL ", win_surf->w /2 - 80, 10);
+    renderBalls(plancheSprites, &srcBall, win_surf);
+    renderBricks(gameSprites, brick, NUM_BRICKS);
+    renderInfo(asciiSprites, currentScore, "", 16, 10);
+    renderInfo(asciiSprites, currentLife, "HP ", win_surf->w - 116, 10);
+    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w /2 - 80, 10);
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
     moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
@@ -1123,8 +1107,7 @@ void updateDeltaTime()
 int main(int argc, char **argv)
 {
     initializeSDL();
-    showOptionsMenu(pWindow, win_surf);
-    ballIsAttached = true;
+    showOptionsMenu();
     attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
     initializeLasers();
