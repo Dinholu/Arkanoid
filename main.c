@@ -207,7 +207,7 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
                 if (brick[j].isVisible)
                 {
                     SDL_Rect laserRect = {lasers[i].x, lasers[i].y, srcLeftLaser->w, srcLeftLaser->h};
-                    SDL_Rect brickRect = {brick[j].x, brick[j].y, BRICK_WIDTH, BRICK_HEIGHT};
+                    SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
                     if (isCollision(laserRect, brickRect))
                     {
@@ -419,8 +419,8 @@ void brickCollision(struct Ball *ball)
                 printf("Score: %d\n", currentScore);
 
                 // Generate bonus
-                int randValue = rand() % 10;
-                if (randValue == 1)
+                int randValue = rand() % 9;
+                if (randValue < 6)
                 {
                     for (int j = 0; j < MAX_BONUSES; j++)
                     {
@@ -690,15 +690,15 @@ void initializeBalls()
     balls[0].isActive = true;
 }
 
-void renderBricks(SDL_Surface *sprites, struct Brick bricks[], int num_bricks)
+void renderBricks(SDL_Surface *sprites, int num_bricks)
 {
     for (int i = 0; i < num_bricks; i++)
     {
-        if (bricks[i].isVisible)
+        if (brick[i].isVisible)
         {
-            SDL_Rect destBrick = {bricks[i].x + srcEdgeWall.w, bricks[i].y + srcTopWall.h + Y_WALLS, 0, 0};
+            SDL_Rect destBrick = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, 0, 0};
 
-            switch (bricks[i].type)
+            switch (brick[i].type)
             {
                 case 'W': // White
                     srcBrick = WHITE_BRICK;
@@ -1031,7 +1031,7 @@ void render()
 
     renderAllWalls();
     renderBalls(plancheSprites, &srcBall, win_surf);
-    renderBricks(gameSprites, brick, NUM_BRICKS);
+    renderBricks(gameSprites, NUM_BRICKS);
     renderInfo(asciiSprites, currentScore, "", 16, 10);
     renderInfo(asciiSprites, currentLife, "HP ", win_surf->w - 96, 10);
     renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w /2 - 64, 10);
