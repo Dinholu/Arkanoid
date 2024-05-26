@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -294,7 +294,7 @@ void initializeBalls()
     for (int i = 0; i < MAX_BALLS; i++)
     {
         balls[i].vx = 0;
-        balls[i].vy = 0;
+        balls[i].vy = -1;
         balls[i].isActive = false;
     }
     balls[0].isActive = true;
@@ -641,7 +641,7 @@ void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
     SDL_Rect dest = {0, 256, srcLogo->w, srcLogo->h};
     dest.x = (win_surf->w - srcLogo->w) / 2;
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
-    
+
     int vausOffset = 128;
     SDL_Rect destVaus = {(win_surf->w - srcVaus.w) / 2, win_surf->h - srcVaus.h - vausOffset, srcVaus.w, srcVaus.h};
     SDL_BlitSurface(sprites, &srcVaus, win_surf, &destVaus);
@@ -1036,8 +1036,8 @@ void render()
     renderBalls(plancheSprites, &srcBall, win_surf);
     renderBricks(gameSprites, brick, NUM_BRICKS);
     renderInfo(asciiSprites, currentScore, "", 16, 10);
-    renderInfo(asciiSprites, currentLife, "HP ", win_surf->w - 116, 10);
-    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w /2 - 80, 10);
+    renderInfo(asciiSprites, currentLife, "HP ", win_surf->w - 96, 10);
+    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w /2 - 64, 10);
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
     moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
