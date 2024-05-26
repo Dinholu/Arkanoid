@@ -5,9 +5,9 @@ import threading
 
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 640
-BRICK_WIDTH = 32
-BRICK_HEIGHT = 16
-NUM_BRICKS_PER_ROW = 13
+BRICK_WIDTH = 40
+BRICK_HEIGHT = 24
+NUM_BRICKS_PER_ROW = 16
 NUM_ROWS = 16
 MARGIN = 2
 
@@ -57,8 +57,7 @@ custom_font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ret
 font = pygame.font.Font(custom_font_path, 10)
 title_font = pygame.font.Font(custom_font_path, 24)
 
-# Current theme (starts with light)
-current_theme = 'light'
+current_theme = 'dark'
 
 def apply_theme(theme):
     if theme == 'light':
@@ -91,8 +90,9 @@ def draw_palette(selected_brick_type, palette_border, text_color):
 def draw_buttons(button_color, button_hover_color, text_color):
     buttons = {
         "save": pygame.Rect(SCREEN_WIDTH - 200, 100, 150, 50),
-        "clear": pygame.Rect(SCREEN_WIDTH - 200, 170, 150, 50),
-        "toggle_theme": pygame.Rect(SCREEN_WIDTH - 200, 240, 150, 50),
+        "load": pygame.Rect(SCREEN_WIDTH - 200, 170, 150, 50),
+        "clear": pygame.Rect(SCREEN_WIDTH - 200, 240, 150, 50),
+        "toggle_theme": pygame.Rect(SCREEN_WIDTH - 200, 310, 150, 50),
     }
     for name, rect in buttons.items():
         color = button_hover_color if rect.collidepoint(pygame.mouse.get_pos()) else button_color
@@ -136,6 +136,8 @@ def main():
                 else:
                     if buttons["save"].collidepoint(x, y):
                         threading.Thread(target=SaveLevel, args=(grid,)).start()
+                    elif buttons["load"].collidepoint(x, y):
+                        threading.Thread(target=LoadLevel, args=(grid,)).start()
                     elif buttons["clear"].collidepoint(x, y):
                         grid = [[0 for _ in range(NUM_BRICKS_PER_ROW)] for _ in range(NUM_ROWS)]
                     elif buttons["toggle_theme"].collidepoint(x, y):
@@ -150,14 +152,40 @@ def SaveLevel(grid):
     levels_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'levels')
     if not os.path.exists(levels_dir):
         os.makedirs(levels_dir)
-    
+
     filename = input("Enter the filename to save the level (without extension): ") + ".txt"
     filepath = os.path.join(levels_dir, filename)
-    
+
     with open(filepath, 'w') as f:
         for row in grid:
             f.write(''.join([BRICK_CHARS[brick] for brick in row]) + '\n')
     print(f"Level saved to {filepath}")
+
+def LoadLevel(grid):
+    levels_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'levels')
+    filenames = [f for f in os.listdir(levels_dir) if f.endswith('.txt')]
+    if not filenames:
+        print("No level files found.")
+        return
+
+    print("Available levels:")
+    for idx, filename in enumerate(filenames, start=1):
+        print(f"{idx}: {filename}")
+
+    choice = int(input("Enter the number of the level to load: "))
+    if not 1 <= choice <= len(filenames):
+        print("Invalid choice.")
+        return
+
+    filepath = os.path.join(levels_dir, filenames[choice - 1])
+    with open(filepath, 'r') as f:
+        for row_idx, line in enumerate(f):
+            for col_idx, char in enumerate(line.strip()):
+                if char in BRICK_CHARS:
+                    grid[row_idx][col_idx] = BRICK_CHARS.index(char)
+                else:
+                    grid[row_idx][col_idx] = 0
+    print(f"Level loaded from {filepath}")
 
 if __name__ == '__main__':
     main()
