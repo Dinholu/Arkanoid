@@ -294,7 +294,7 @@ void initializeBalls()
     for (int i = 0; i < MAX_BALLS; i++)
     {
         balls[i].vx = 0;
-        balls[i].vy = -1;
+        balls[i].vy = 0;
         balls[i].isActive = false;
     }
     balls[0].isActive = true;
@@ -389,25 +389,42 @@ void defeatCollision(struct Ball *ball)
     }
 }
 
-void handleBallProperty(struct Ball *ball, int brickIndex)
+void handleBallProperty(struct Ball *ball, SDL_Rect brickRect)
 {
     double ballCenterX = ball->x + srcBall.w / 2;
     double ballCenterY = ball->y + srcBall.h / 2;
-
-    double brickCenterX = brick[brickIndex].x + (BRICK_WIDTH / 2);
-    double brickCenterY = brick[brickIndex].y + (BRICK_HEIGHT / 2);
+    double brickCenterX = brickRect.x + (brickRect.w / 2);
+    double brickCenterY = brickRect.y + (brickRect.h / 2);
 
     double dx = ballCenterX - brickCenterX;
     double dy = ballCenterY - brickCenterY;
 
-    double reflectionAngle = atan2(dy, dx);
-    double speed = sqrt(ball->vx * ball->vx + ball->vy * ball->vy);
+    double absDX = fabs(dx);
+    double absDY = fabs(dy);
 
-    ball->vx = speed * cos(reflectionAngle);
-    ball->vy = speed * sin(reflectionAngle);
-
-    if (speed <= max_speed)
+    if (absDX > absDY) 
     {
+        if (dx > 0) {
+            ball->x = brickRect.x + brickRect.w;
+            ball->vx = fabs(ball->vx);
+        } else {
+            ball->x = brickRect.x - srcBall.w;
+            ball->vx = -fabs(ball->vx);
+        }
+    } 
+    else 
+    {
+        if (dy > 0) {
+            ball->y = brickRect.y + brickRect.h;
+            ball->vy = fabs(ball->vy);
+        } else {
+            ball->y = brickRect.y - srcBall.h;
+            ball->vy = -fabs(ball->vy);
+        }
+    }
+
+    double speed = sqrt(ball->vx * ball->vx + ball->vy * ball->vy);
+    if (speed <= max_speed) {
         ball->vx += (ball->vx > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
         ball->vy += (ball->vy > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
     }
@@ -429,12 +446,12 @@ void brickCollision(struct Ball *ball)
                 brick[i].isVisible = false;
                 currentScore += 10;
 
-                handleBallProperty(ball, i);
+                handleBallProperty(ball, brickRect);
                 printf("Score: %d\n", currentScore);
 
-                // Génération de bonus
-                int randValue = rand() % 9; // Générer un nombre aléatoire entre 0 et 9
-                if (randValue < 6)
+                // Generate bonus
+                int randValue = rand() % 10;
+                if (randValue == 1)
                 {
                     for (int j = 0; j < MAX_BONUSES; j++)
                     {
@@ -453,6 +470,7 @@ void brickCollision(struct Ball *ball)
         }
     }
 }
+
 
 void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 {
@@ -804,7 +822,6 @@ void nextLevel()
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
         exit(EXIT_SUCCESS);
     }
-    ballIsAttached = true;
     attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
     initializeLasers();
