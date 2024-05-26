@@ -8,7 +8,7 @@
 #define NUM_BRICKS_PER_ROW 16
 #define BRICK_WIDTH 32
 #define BRICK_HEIGHT 16
-#define NUM_ROWS 20
+#define NUM_ROWS 16
 #define FIRST_LINE 1
 #define NUM_BRICKS (NUM_BRICKS_PER_ROW * NUM_ROWS)
 
@@ -382,38 +382,18 @@ void handleBallProperty(struct Ball *ball, SDL_Rect brickRect)
 {
     double ballCenterX = ball->x + srcBall.w / 2;
     double ballCenterY = ball->y + srcBall.h / 2;
-    double brickCenterX = brickRect.x + (brickRect.w / 2);
-    double brickCenterY = brickRect.y + (brickRect.h / 2);
-
+    double brickCenterX = brickRect.x + (BRICK_WIDTH / 2);
+    double brickCenterY = brickRect.y + (BRICK_HEIGHT / 2);
     double dx = ballCenterX - brickCenterX;
     double dy = ballCenterY - brickCenterY;
-
-    double absDX = fabs(dx);
-    double absDY = fabs(dy);
-
-    if (absDX > absDY) 
-    {
-        if (dx > 0) {
-            ball->x = brickRect.x + brickRect.w;
-            ball->vx = fabs(ball->vx);
-        } else {
-            ball->x = brickRect.x - srcBall.w;
-            ball->vx = -fabs(ball->vx);
-        }
-    } 
-    else 
-    {
-        if (dy > 0) {
-            ball->y = brickRect.y + brickRect.h;
-            ball->vy = fabs(ball->vy);
-        } else {
-            ball->y = brickRect.y - srcBall.h;
-            ball->vy = -fabs(ball->vy);
-        }
-    }
-
+    double reflectionAngle = atan2(dy, dx);
     double speed = sqrt(ball->vx * ball->vx + ball->vy * ball->vy);
-    if (speed <= max_speed) {
+
+    ball->vx = speed * cos(reflectionAngle);
+    ball->vy = speed * sin(reflectionAngle);
+
+    if (speed <= max_speed)
+    {
         ball->vx += (ball->vx > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
         ball->vy += (ball->vy > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
     }
@@ -560,6 +540,7 @@ void loadLevelFromFile(const char *filename)
         brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
         brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
 
+        printf("Loaded brick at (%d, %d) - Type: %c\n", brick[row * NUM_BRICKS_PER_ROW + col].x, brick[row * NUM_BRICKS_PER_ROW + col].y, brick[row * NUM_BRICKS_PER_ROW + col].type);
 
         col++;
         if (col == NUM_BRICKS_PER_ROW)
@@ -701,7 +682,7 @@ void initializeBalls()
     for (int i = 0; i < MAX_BALLS; i++)
     {
         balls[i].x = 0;
-        balls[i].y = win_surf->h - srcVault.h - 50;
+        balls[i].y = destVault.y - srcBall.h;
         balls[i].vx = 0;
         balls[i].vy = 0;
         balls[i].isActive = false;
@@ -956,7 +937,6 @@ void wraplevel()
 
 void slowDownBall()
 {
-    printf("Ralentir la balle!\n");
     for (int i = 0; i < MAX_BALLS; i++)
     {
         if (balls[i].isActive)
@@ -1041,26 +1021,24 @@ void renderAllWalls()
 void render()
 {
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
-
     renderBackground(gameSprites, &srcBackground, win_surf);
-
-    handleCollisions();
-
     renderVault(gameSprites, &srcVault, win_surf, x_vault);
+
     if (ballIsAttached)
     {
         attachBallToVault(&balls[0], x_vault);
     }
 
+    renderAllWalls();
     renderBalls(plancheSprites, &srcBall, win_surf);
     renderBricks(gameSprites, brick, NUM_BRICKS);
     renderInfo(asciiSprites, currentScore, "", 16, 10);
     renderInfo(asciiSprites, currentLife, "HP ", win_surf->w - 96, 10);
     renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w /2 - 64, 10);
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
-    handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
-    moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
-    renderAllWalls();
+    moveAndRenderBonuses(gameSprites, win_surf);
+    handleCollisions();
+    handleBonusCollision();
 }
 
 
