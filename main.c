@@ -90,7 +90,7 @@ struct Brick
 {
     double x;
     double y;
-    int type;
+    char type;
     int touched;
     int score;
     bool isVisible;
@@ -136,7 +136,7 @@ const int Y_WALLS = 144;
 
 int x_vault;
 int vault_width;
-int currentLevel = 0;
+int currentLevel = 1;
 int currentScore = 0;
 int activeBallCount = 1;
 
@@ -486,8 +486,7 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                 switch (bonuses[i].type)
                 {
                     case 1:
-                        printf("Bonus S\n");
-                        srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
+                        srcBonus = S_BONUS;
                         break;
                     case 2:
                         srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
@@ -756,7 +755,7 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
 void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, char *label, int startX, int startY)
 {
     char *string = malloc(sizeof(*string) * 256);
-    sprintf(string, "%s:%d", label, value);
+    sprintf(string, "%s%d", label, value);
     renderString(win_surf, asciiSprites, string, startX, startY);
     free(string);
 }
@@ -805,14 +804,14 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
 void loadCurrentLevel()
 {
     char filename[20];
-    sprintf(filename, "level%d.txt", currentLevel + 1);
+    sprintf(filename, "level%d.txt", currentLevel);
     loadLevelFromFile(filename);
 }
 
 void nextLevel()
 {
     currentLevel++;
-    if (currentLevel >= NUM_LEVELS)
+    if (currentLevel > NUM_LEVELS)
     {
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
         exit(EXIT_SUCCESS);
@@ -1050,8 +1049,9 @@ void render()
 
     renderBalls(plancheSprites, &srcBall, win_surf, &ball);
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
-    renderInfo(win_surf, asciiSprites, currentScore, "SCORE", 16, 10);
-    renderInfo(win_surf, asciiSprites, currentLife, "LIFE", win_surf->w - 116, 10);
+    renderInfo(win_surf, asciiSprites, currentScore, "", 16, 10);
+    renderInfo(win_surf, asciiSprites, currentLife, "HP:", win_surf->w - 116, 10);
+    renderInfo(win_surf, asciiSprites, currentLevel, "LEVEL ", win_surf->w /2 - 80, 10);
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
     moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
