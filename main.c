@@ -262,26 +262,28 @@ void fireLaser()
         }
     }
 }
+
 void initializeBonuses()
 {
     for (int i = 0; i < MAX_BONUSES; i++)
     {
         bonuses[i].x = 0;
         bonuses[i].y = 0;
-        bonuses[i].vy = 200; // Vitesse de descente des bonus
+        bonuses[i].vy = 200;
         bonuses[i].isActive = false;
         bonuses[i].type = 0;
         bonuses[i].animationFrame = 0;
         bonuses[i].animationTime = 0;
     }
 }
+
 void initializeLasers()
 {
     for (int i = 0; i < MAX_LASERS; i++)
     {
         lasers[i].x = 0;
         lasers[i].y = 0;
-        lasers[i].vy = -10; // Les lasers se déplacent vers le haut
+        lasers[i].vy = -10;
         lasers[i].isActive = false;
     }
 }
@@ -290,14 +292,19 @@ void initializeBalls()
 {
     for (int i = 0; i < MAX_BALLS; i++)
     {
-        balls[i].x = 0;
-        balls[i].y = 0;
+        balls[i].x = -100;  // Set to an off-screen position initially
+        balls[i].y = -100;  // Set to an off-screen position initially
         balls[i].vx = 0;
         balls[i].vy = 0;
         balls[i].isActive = false;
     }
+    balls[0].x = x_vault + (vault_width / 2) - (srcBall.w / 2);
+    balls[0].y = destVaisseau.y - srcBall.h;
     balls[0].isActive = true;
 }
+
+
+
 void splitBall()
 {
     if (activeBallCount == 1)
@@ -336,10 +343,9 @@ void wallCollision(struct Ball *ball)
     }
 }
 
-
 // TODO: remplacer les nombres magiques pour que cette fonction soit applicable peu importe la taille des vaisseaux.
 // 24 correspond à la largeur de la balle en SDL_Rect
-// 32 correspond à la position qu'on vouudrait positionner le vaisseau
+// 32 correspond à la position qu'on voudrait positionner le vaisseau
 // 128 correspond à la taille du vaisseau
 // Ici x_vault nous indique la position relative du vaisseau sur l'affichage
 void vaultCollision(struct Ball *ball)
@@ -388,7 +394,6 @@ void defeatCollision(struct Ball *ball)
     }
 }
 
-
 void handleBallProperty(struct Ball *ball, int brickIndex)
 {
     double ballCenterX = ball->x + srcBall.w / 2;
@@ -423,9 +428,6 @@ void brickCollision(struct Ball *ball)
 
             if (isCollision(ballRect, brickRect))
             {
-                // Debug print to verify collision detection
-                printf("Collision detected! Ball at (%f, %f), Brick at (%f, %f)\n", ball->x, ball->y, brickRect.x, brickRect.y);
-
                 brick[i].isVisible = false;
                 currentScore += 10;
 
@@ -529,6 +531,7 @@ void handleCollisions()
     }
 }
 
+
 void loadLevelFromFile(const char *filename)
 {
     FILE *file = fopen(filename, "r");
@@ -549,11 +552,10 @@ void loadLevelFromFile(const char *filename)
             continue; // Skip newline characters
         }
         brick[row * NUM_BRICKS_PER_ROW + col].type = brickType;
-        brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH ; // Adjusted to consider the left wall width
-        brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT; // Adjusted to consider the top wall height and offset
+        brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH;
+        brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
         brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
 
-        printf("Loaded brick at (%f, %f) - Type: %c\n", brick[row * NUM_BRICKS_PER_ROW + col].x, brick[row * NUM_BRICKS_PER_ROW + col].y, brick[row * NUM_BRICKS_PER_ROW + col].type);
 
         col++;
         if (col == NUM_BRICKS_PER_ROW)
@@ -635,13 +637,24 @@ void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
 void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface *win_surf)
 {
     SDL_Rect dest = {0, 0, 0, 0};
-    for (int j = 0; j < win_surf->h; j += 64)
+    for (int j = Y_WALLS + srcTopWall.h; j < win_surf->h; j += 64)
     {
-        for (int i = 0; i < win_surf->w; i += 64)
+        for (int i = srcEdgeWall.w; i < win_surf->w; i += 64)
         {
             dest.x = i;
             dest.y = j;
             SDL_BlitSurface(sprites, srcBackground, win_surf, &dest);
+        }
+    }
+}
+
+void debugPrintBallPositions()
+{
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
+        if (balls[i].isActive)
+        {
+            printf("Ball %d: Position (x, y) = (%f, %f)\n", i, balls[i].x, balls[i].y);
         }
     }
 }
@@ -734,16 +747,6 @@ void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, cha
     free(string);
 }
 
-/// @brief Cette fonction est un test d'affichage des laser
-/// @param gameSprites
-/// @param srcLaser
-/// @param win_surf
-void renderLaser(SDL_Surface *gameSprites, SDL_Rect *srcLaser, SDL_Surface *win_surf, int positionX)
-{
-    SDL_Rect destLaser = {positionX, win_surf->h / 2, 0, 0};
-    SDL_BlitSurface(gameSprites, srcLaser, win_surf, &destLaser);
-}
-
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
 {
     bool inMenu = true;
@@ -805,7 +808,7 @@ void nextLevel()
     initializeBalls();
     initializeLasers();
     initializeBonuses();
-    max_speed = max_speed * 1.2;
+    max_speed = max_speed + 2.0;
     loadCurrentLevel();
 }
 
@@ -852,6 +855,7 @@ void initializeSDL()
     x_vault = (win_surf->w - srcVaisseau.w) / 2;
     vault_width = srcVaisseau.w;
 }
+
 void enlargeVault()
 {
     if (!isEnlarging && !isVaultEnlarged && !isShrinking)
@@ -947,12 +951,14 @@ void CatchAndFire()
 {
     releaseCount = 5;
 }
+
 void resetAllBonuses()
 {
     isLaserBeam = false;
     isEnlarging = false;
     releaseCount = 0;
 }
+
 void handleBonusCollision()
 {
     SDL_Rect vaultRect = {x_vault, win_surf->h - 32, vault_width, srcVaisseau.h};
@@ -1003,7 +1009,7 @@ void handleBonusCollision()
 
 void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, SDL_Surface *win_surf, int positionX, int positionY, int width, int height)
 {
-    SDL_Rect destWall = {positionX, positionY, width, height} ;
+    SDL_Rect destWall = {positionX, positionY, width, height};
     SDL_BlitSurface(sprites, srcWall, win_surf, &destWall);
 }
 
@@ -1016,6 +1022,8 @@ void renderAllWalls()
 
 void render()
 {
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+
     renderBackground(gameSprites, &srcBackground, win_surf);
 
     handleCollisions();
@@ -1034,7 +1042,9 @@ void render()
     handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus
     moveAndRenderBonuses(gameSprites, win_surf); // Ajouté pour gérer et rendre les bonus
     renderAllWalls();
+
 }
+
 
 void processInput(bool *quit)
 {
