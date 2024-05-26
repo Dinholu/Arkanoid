@@ -576,16 +576,29 @@ void loadLevelFromFile(const char *filename)
 
 void moveVault(const Uint8 *keys)
 {
-    if (keys[SDL_SCANCODE_LEFT])
-        x_vault -= 10;
-    if (keys[SDL_SCANCODE_RIGHT])
-        x_vault += 10;
+    const int wallWidth = srcEdgeWall.w;
+    const int vaultSpeed = 10;
 
-    if (x_vault < 0)
-        x_vault = 0;
-    if (x_vault > win_surf->w - srcVaisseau.w)
-        x_vault = win_surf->w - srcVaisseau.w;
+    if (keys[SDL_SCANCODE_LEFT])
+    {
+        x_vault -= vaultSpeed;
+    }
+    if (keys[SDL_SCANCODE_RIGHT])
+    {
+        x_vault += vaultSpeed;
+    }
+
+    if (x_vault < wallWidth)
+    {
+        x_vault = wallWidth;
+    }
+
+    if (x_vault > win_surf->w - srcVaisseau.w - wallWidth)
+    {
+        x_vault = win_surf->w - srcVaisseau.w - wallWidth;
+    }
 }
+
 
 SDL_Rect charToSDLRect(char character)
 {
