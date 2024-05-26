@@ -168,6 +168,7 @@ def LoadLevel(grid):
         print("No level files found.")
         return
 
+    filenames.sort()
     print("Available levels:")
     for idx, filename in enumerate(filenames, start=1):
         print(f"{idx}: {filename}")
