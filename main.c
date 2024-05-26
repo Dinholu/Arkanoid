@@ -292,18 +292,16 @@ void initializeBalls()
 {
     for (int i = 0; i < MAX_BALLS; i++)
     {
-        balls[i].x = -100;  // Set to an off-screen position initially
-        balls[i].y = -100;  // Set to an off-screen position initially
+        balls[i].x = 0;
+        balls[i].y = 0;
         balls[i].vx = 0;
         balls[i].vy = 0;
         balls[i].isActive = false;
     }
+    balls[0].isActive = true;
     balls[0].x = x_vault + (vault_width / 2) - (srcBall.w / 2);
     balls[0].y = destVaisseau.y - srcBall.h;
-    balls[0].isActive = true;
 }
-
-
 
 void splitBall()
 {
@@ -398,13 +396,16 @@ void handleBallProperty(struct Ball *ball, int brickIndex)
 {
     double ballCenterX = ball->x + srcBall.w / 2;
     double ballCenterY = ball->y + srcBall.h / 2;
+
     double brickCenterX = brick[brickIndex].x + (BRICK_WIDTH / 2);
     double brickCenterY = brick[brickIndex].y + (BRICK_HEIGHT / 2);
+
     double dx = ballCenterX - brickCenterX;
     double dy = ballCenterY - brickCenterY;
 
     double reflectionAngle = atan2(dy, dx);
     double speed = sqrt(ball->vx * ball->vx + ball->vy * ball->vy);
+
     ball->vx = speed * cos(reflectionAngle);
     ball->vy = speed * sin(reflectionAngle);
 
@@ -681,7 +682,7 @@ void renderVault(SDL_Surface *gameSprites, SDL_Rect *srcVaisseau, SDL_Surface *w
 
 // TODO: remplacer 52 par la moitie de la taille du vaisseau pour que la balle se positionne au centre du vaisseau
 // 58 correspond à la hauteur ou le vaisseeau est positionné + largeur de la balle
-void attachBallToVault(struct Ball *ball, int x_vault, int win_surf_height)
+void attachBallToVault(struct Ball *ball, int x_vault)
 {
     ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2);
     ball->y = destVaisseau.y - srcBall.h;
@@ -1031,7 +1032,7 @@ void render()
     renderVault(gameSprites, &srcVaisseau, win_surf, x_vault);
     if (ballIsAttached)
     {
-        attachBallToVault(&balls[0], x_vault, win_surf->h);
+        attachBallToVault(&balls[0], x_vault);
     }
 
     renderBalls(plancheSprites, &srcBall, win_surf, &ball);
