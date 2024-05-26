@@ -119,13 +119,14 @@ SDL_Surface *leftWallSprites = NULL;
 SDL_Surface *rightWallSprites = NULL;
 // ici, la variable x permet de changer le fond en commençant par 64 jusqu'a 320 en incrémentant a chaque fois par 64
 // Pour l'ecran gameOver, incrémenter la variable y par 64 (version sombre du sprite actuel)
-SDL_Rect srcBackground = {320, 128, 64, 64};
+SDL_Rect srcBackground = {0, 128, 48, 64};
 // ------------------------------------------------------------------------------------------------------------------
 SDL_Rect srcBall = {0, 96, 24, 24};
-SDL_Rect srcVaisseau = {384, 160, 82, 16};
+SDL_Rect srcVault = {384, 160, 82, 16};
 SDL_Rect srcBrick;
-SDL_Rect destVaisseau;
-SDL_Rect srcLogo = {0, 0, 400, 144};
+SDL_Rect destVault;
+SDL_Rect srcLogo = {0, 0, 192, 42};
+SDL_Rect srcVaus = {0, 50, 192, 90};
 SDL_Rect srcLeftLaser = {0, 80, 16, 20};
 SDL_Rect srcRightLaser = {16, 80, 16, 20};
 
@@ -250,12 +251,12 @@ void fireLaser()
         {
             // Laser gauche
             lasers[i].x = x_vault + 10;        // Positionner le laser sur le côté gauche du vaisseau
-            lasers[i].y = destVaisseau.y - 20; // Positionner le laser juste au-dessus du vaisseau
+            lasers[i].y = destVault.y - 20; // Positionner le laser juste au-dessus du vaisseau
             lasers[i].isActive = true;
 
             // Laser droit
             lasers[i + 1].x = x_vault + vault_width - 26; // Positionner le laser sur le côté droit du vaisseau
-            lasers[i + 1].y = destVaisseau.y - 20;        // Positionner le laser juste au-dessus du vaisseau
+            lasers[i + 1].y = destVault.y - 20;        // Positionner le laser juste au-dessus du vaisseau
             lasers[i + 1].isActive = true;
 
             break;
@@ -300,7 +301,7 @@ void initializeBalls()
     }
     balls[0].isActive = true;
     balls[0].x = x_vault + (vault_width / 2) - (srcBall.w / 2);
-    balls[0].y = destVaisseau.y - srcBall.h;
+    balls[0].y = destVault.y - srcBall.h;
 }
 
 void splitBall()
@@ -384,7 +385,7 @@ void defeatCollision(struct Ball *ball)
             attachTime = SDL_GetPerformanceCounter(); // Define attachment time
             balls[0].isActive = true;
             balls[0].x = x_vault + (vault_width / 2) - (srcBall.w / 2);
-            balls[0].y = destVaisseau.y - srcBall.h;
+            balls[0].y = destVault.y - srcBall.h;
             balls[0].vy = 0;
             balls[0].vx = 0;
             activeBallCount = 1;
@@ -592,9 +593,9 @@ void moveVault(const Uint8 *keys)
         x_vault = wallWidth;
     }
 
-    if (x_vault > win_surf->w - srcVaisseau.w - wallWidth)
+    if (x_vault > win_surf->w - srcVault.w - wallWidth)
     {
-        x_vault = win_surf->w - srcVaisseau.w - wallWidth;
+        x_vault = win_surf->w - srcVault.w - wallWidth;
     }
 }
 
@@ -641,18 +642,21 @@ void renderString(SDL_Surface *surface, SDL_Surface *sprites, const char *string
 
 void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
 {
-    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
+    SDL_Rect dest = {0, 256, srcLogo->w, srcLogo->h};
     dest.x = (win_surf->w - srcLogo->w) / 2;
-
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
+    
+    int vausOffset = 128;
+    SDL_Rect destVaus = {(win_surf->w - srcVaus.w) / 2, win_surf->h - srcVaus.h - vausOffset, srcVaus.w, srcVaus.h};
+    SDL_BlitSurface(sprites, &srcVaus, win_surf, &destVaus);
 }
 
 void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface *win_surf)
 {
     SDL_Rect dest = {0, 0, 0, 0};
-    for (int j = Y_WALLS + srcTopWall.h; j < win_surf->h; j += 64)
+    for (int j = Y_WALLS + srcTopWall.h; j < win_surf->h; j += srcBackground->h)
     {
-        for (int i = srcEdgeWall.w; i < win_surf->w; i += 64)
+        for (int i = srcEdgeWall.w; i < win_surf->w; i += srcBackground->w)
         {
             dest.x = i;
             dest.y = j;
@@ -686,10 +690,10 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf,
     }
 }
 
-void renderVault(SDL_Surface *gameSprites, SDL_Rect *srcVaisseau, SDL_Surface *win_surf, int x_vault)
+void renderVault(SDL_Surface *gameSprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault)
 {
-    destVaisseau = (SDL_Rect){x_vault, win_surf->h - 32, 0, 0};
-    SDL_BlitSurface(gameSprites, srcVaisseau, win_surf, &destVaisseau);
+    destVault = (SDL_Rect){x_vault, win_surf->h - 32, 0, 0};
+    SDL_BlitSurface(gameSprites, srcVault, win_surf, &destVault);
 }
 
 // TODO: remplacer 52 par la moitie de la taille du vaisseau pour que la balle se positionne au centre du vaisseau
@@ -697,7 +701,7 @@ void renderVault(SDL_Surface *gameSprites, SDL_Rect *srcVaisseau, SDL_Surface *w
 void attachBallToVault(struct Ball *ball, int x_vault)
 {
     ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2);
-    ball->y = destVaisseau.y - srcBall.h;
+    ball->y = destVault.y - srcBall.h;
 }
 
 void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick bricks[], int num_bricks)
@@ -772,8 +776,8 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     {
         renderMenu(menuSprites, &srcLogo, win_surf);
 
-        renderString(win_surf, asciiSprites, "1. START", startOptionX, srcLogo.h + 192);
-        renderString(win_surf, asciiSprites, "2. QUIT ", startOptionX, srcLogo.h + 256);
+        renderString(win_surf, asciiSprites, "1. START", startOptionX, srcLogo.h + 320);
+        renderString(win_surf, asciiSprites, "2. QUIT ", startOptionX, srcLogo.h + 384);
 
         SDL_UpdateWindowSurface(pWindow);
 
@@ -845,7 +849,7 @@ void initializeSDL()
     plancheSprites = SDL_LoadBMP("./sprites.bmp");
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
     asciiSprites = SDL_LoadBMP("./Arkanoid_ascii.bmp");
-    menuSprites = SDL_LoadBMP("./logo.bmp");
+    menuSprites = SDL_LoadBMP("./Arkanoid_menu_sprites.bmp");
     topWallSprites = SDL_LoadBMP("./edge_top.bmp");
     leftWallSprites = SDL_LoadBMP("./edge_left.bmp");
     rightWallSprites = SDL_LoadBMP("./edge_right.bmp");
@@ -865,8 +869,8 @@ void initializeSDL()
     SDL_SetColorKey(leftWallSprites, SDL_TRUE, 0);
     SDL_SetColorKey(rightWallSprites, SDL_TRUE, 0);
 
-    x_vault = (win_surf->w - srcVaisseau.w) / 2;
-    vault_width = srcVaisseau.w;
+    x_vault = (win_surf->w - srcVault.w) / 2;
+    vault_width = srcVault.w;
 }
 
 void enlargeVault()
@@ -892,9 +896,9 @@ void updateVaultEnlargement()
 
         if (t >= 1.0 && currentStep < enlargeSteps)
         {
-            srcVaisseau.y += 16;         // Déplacer vers la ligne du sprite agrandi
-            srcVaisseau.w += 16;         // Augmenter la largeur du sprite
-            vault_width = srcVaisseau.w; // Mettre à jour la largeur du vaisseau
+            srcVault.y += 16;         // Déplacer vers la ligne du sprite agrandi
+            srcVault.w += 16;         // Augmenter la largeur du sprite
+            vault_width = srcVault.w; // Mettre à jour la largeur du vaisseau
             currentStep++;
             enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la prochaine étape
         }
@@ -919,9 +923,9 @@ void updateVaultEnlargement()
 
         if (t >= 1.0 && currentStep < enlargeSteps)
         {
-            srcVaisseau.y -= 16;         // Revenir à la ligne du sprite original
-            srcVaisseau.w -= 16;         // Réduire la largeur du sprite
-            vault_width = srcVaisseau.w; // Mettre à jour la largeur du vaisseau
+            srcVault.y -= 16;         // Revenir à la ligne du sprite original
+            srcVault.w -= 16;         // Réduire la largeur du sprite
+            vault_width = srcVault.w; // Mettre à jour la largeur du vaisseau
             currentStep++;
             enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la prochaine étape
         }
@@ -974,7 +978,7 @@ void resetAllBonuses()
 
 void handleBonusCollision()
 {
-    SDL_Rect vaultRect = {x_vault, win_surf->h - 32, vault_width, srcVaisseau.h};
+    SDL_Rect vaultRect = {x_vault, win_surf->h - 32, vault_width, srcVault.h};
     for (int i = 0; i < MAX_BONUSES; i++)
     {
         if (bonuses[i].isActive)
@@ -1041,7 +1045,7 @@ void render()
 
     handleCollisions();
 
-    renderVault(gameSprites, &srcVaisseau, win_surf, x_vault);
+    renderVault(gameSprites, &srcVault, win_surf, x_vault);
     if (ballIsAttached)
     {
         attachBallToVault(&balls[0], x_vault);
@@ -1050,7 +1054,7 @@ void render()
     renderBalls(plancheSprites, &srcBall, win_surf, &ball);
     renderBricks(gameSprites, win_surf, brick, NUM_BRICKS);
     renderInfo(win_surf, asciiSprites, currentScore, "", 16, 10);
-    renderInfo(win_surf, asciiSprites, currentLife, "HP:", win_surf->w - 116, 10);
+    renderInfo(win_surf, asciiSprites, currentLife, "HP ", win_surf->w - 116, 10);
     renderInfo(win_surf, asciiSprites, currentLevel, "LEVEL ", win_surf->w /2 - 80, 10);
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     handleBonusCollision();                      // Ajouté pour gérer les collisions entre le vaisseau et les bonus

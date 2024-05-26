@@ -32,7 +32,7 @@ file(COPY
         resources/sprites/edge_right.bmp
         resources/levels/level1.txt
         resources/levels/level2.txt
-        resources/sprites/logo.bmp
+        resources/sprites/Arkanoid_menu_sprites.bmp
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 
 add_custom_target(generate_levels
