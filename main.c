@@ -135,6 +135,9 @@ SDL_Rect srcTopWall = {22, 0, 512, 22};
 SDL_Rect srcEdgeWall = {0, 0, 22, 650};
 const int Y_WALLS = 144;
 
+
+// variable pour la brique grise
+int touched = 2;
 int x_vault;
 int vault_width;
 int currentLevel = 1;
@@ -522,7 +525,7 @@ void handleCollisions()
 }
 
 
-void loadLevelFromFile(const char *filename)
+void loadLevelFromFile(const char *filename, bool isEigth)
 {
     FILE *file = fopen(filename, "r");
     if (file == NULL)
@@ -535,8 +538,14 @@ void loadLevelFromFile(const char *filename)
     int col = 0;
     char brickType;
 
+    if (isEigth) {
+        touched++;
+    }
+    printf("Touched:%i\n", touched);
+
     while (fscanf(file, "%1c", &brickType) != EOF)
     {
+
         if (brickType == '\n')
         {
             continue; // Skip newline characters
@@ -546,7 +555,8 @@ void loadLevelFromFile(const char *filename)
         brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
         brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
         brick[row * NUM_BRICKS_PER_ROW + col].isDestructible = (brickType != 'D');
-        brick[row * NUM_BRICKS_PER_ROW + col].touched = (brickType == 'E') ? 2 : 1;
+        brick[row * NUM_BRICKS_PER_ROW + col].touched = (brickType == 'E') ? touched : 1;
+
 
         col++;
         if (col == NUM_BRICKS_PER_ROW)
@@ -804,17 +814,18 @@ void showOptionsMenu()
     }
 }
 
-void loadCurrentLevel()
+void loadCurrentLevel(bool isEigth)
 {
     char filename[20];
     sprintf(filename, "level%d.txt", currentLevel);
-    loadLevelFromFile(filename);
+    loadLevelFromFile(filename, isEigth);
 }
 
 void nextLevel()
 {
     currentLevel++;
-    // TODO : Redonner les valeurs de touched à toutes les briques, et donner à valeur currentLevel%8 = 0, on incrémente la valeur de touched de grise, on incrémente la vitesse
+// TODO : Redonner les valeurs de touched à toutes les briques, et donner à valeur currentLevel%8 = 0, on incrémente la valeur de touched de grise, on incrémente la vitesse
+
     ballIsAttached = true;
     if (currentLevel > NUM_LEVELS)
     {
@@ -826,7 +837,7 @@ void nextLevel()
     initializeLasers();
     initializeBonuses();
     max_speed = max_speed * 1.05;
-    loadCurrentLevel();
+    loadCurrentLevel(((currentLevel-1)%8 == 0));
 }
 
 void initializeSDL()
@@ -1173,7 +1184,7 @@ int main(int argc, char **argv)
     initializeBalls();
     initializeLasers();
     initializeBonuses();
-    loadCurrentLevel();
+    loadCurrentLevel(false);
 
     bool quit = false;
     prev = SDL_GetPerformanceCounter();
