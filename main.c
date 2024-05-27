@@ -54,6 +54,7 @@
 #define MAX_LASERS 10
 #define MAX_BONUSES 10
 #define MAX_NAME_LENGTH 3
+#define MAX_HIGHSCORE 10
 
 struct Bonus
 {
@@ -65,6 +66,12 @@ struct Bonus
     int animationFrame;   // Frame actuelle de l'animation
     double animationTime; // Temps écoulé depuis la dernière frame
 };
+
+typedef struct
+{
+    char name[MAX_NAME_LENGTH + 1];
+    int score;
+} HighScore;
 
 struct Bonus bonuses[MAX_BONUSES];
 
@@ -180,7 +187,17 @@ bool nwasPressed = false;
 // Variable pour savoir si la touche M a été pressée donc a enlever quand ca sera fait par collision avec le bonus
 bool mWasPressed = false;
 // -------------------------------
+int compareHighScores(const void *a, const void *b)
+{
+    HighScore *scoreA = (HighScore *)a;
+    HighScore *scoreB = (HighScore *)b;
+    return scoreB->score - scoreA->score;
+}
 
+void sortHighScores(HighScore highScores[], int count)
+{
+    qsort(highScores, count, sizeof(HighScore), compareHighScores);
+}
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
     return !(rect1.x + rect1.w < rect2.x ||
@@ -393,7 +410,7 @@ void defeatCollision(struct Ball *ball)
             ballIsAttached = true;
             attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
             balls[0].isActive = true;
-            balls[0].x = x_vault + (vault_width / 2) - 12;
+            balls[0].x = x_vault + (vault_width / 2) - (srcBall.w / 2);
             balls[0].y = win_surf->h - 58;
             balls[0].vy = 0;
             balls[0].vx = 0;
@@ -645,6 +662,67 @@ void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *
     renderString(win_surf, asciiSprites, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
     renderString(win_surf, asciiSprites, playerName, (win_surf->w - 160) / 2, 400);
 }
+void writeHighScores(HighScore highScores[], int count)
+{
+    FILE *file = fopen("highscores.txt", "w");
+    if (file == NULL)
+    {
+        printf("Unable to open highscores.txt for writing.\n");
+        return;
+    }
+
+    for (int i = 0; i < count; i++)
+    {
+        fprintf(file, "%s %d\n", highScores[i].name, highScores[i].score);
+    }
+
+    fclose(file);
+}
+void readHighScores(HighScore highScores[], int *count)
+{
+    FILE *file = fopen("highscores.txt", "r");
+    if (file == NULL)
+    {
+        printf("Unable to open highscores.txt for reading.\n");
+        *count = 0;
+        return;
+    }
+
+    *count = 0;
+    while (fscanf(file, "%s %d", highScores[*count].name, &highScores[*count].score) != EOF)
+    {
+        (*count)++;
+        if (*count >= MAX_HIGHSCORE)
+        {
+            break;
+        }
+    }
+
+    fclose(file);
+}
+void saveHighScore(const char *playerName, int score)
+{
+    HighScore highScores[MAX_HIGHSCORE + 1];
+    int count;
+    readHighScores(highScores, &count);
+
+    // Ajouter le nouveau score
+    strcpy(highScores[count].name, playerName);
+    highScores[count].score = score;
+    count++;
+
+    // Trier les scores
+    sortHighScores(highScores, count);
+
+    // Limiter à MAX_HIGH_SCORES
+    if (count > MAX_HIGHSCORE)
+    {
+        count = MAX_HIGHSCORE;
+    }
+
+    // Écrire les scores dans le fichier
+    writeHighScores(highScores, count);
+}
 
 void processNameInput(SDL_Event *event)
 {
@@ -654,7 +732,7 @@ void processNameInput(SDL_Event *event)
         {
             enteringName = false;
             showMenu = true;
-            // Save the player's name and score here if needed
+            saveHighScore(playerName, currentScore);
             printf("Player Name: %s, Score: %d\n", playerName, currentScore);
         }
         else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0)
@@ -792,6 +870,45 @@ void renderLaser(SDL_Surface *gameSprites, SDL_Rect *srcLaser, SDL_Surface *win_
     SDL_BlitSurface(gameSprites, srcLaser, win_surf, &destLaser);
 }
 
+void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
+{
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+
+    HighScore highScores[MAX_HIGHSCORE];
+    int count;
+    readHighScores(highScores, &count);
+
+    renderString(win_surf, asciiSprites, "HIGH SCORES", (win_surf->w - 160) / 2, 100);
+
+    for (int i = 0; i < count; i++)
+    {
+        char scoreText[256];
+        sprintf(scoreText, "%s %d", highScores[i].name, highScores[i].score);
+        renderString(win_surf, asciiSprites, scoreText, 50, 150 + i * 40);
+    }
+
+    SDL_UpdateWindowSurface(pWindow);
+
+    // Wait for a key press to return to the menu
+    bool waiting = true;
+    SDL_Event event;
+    while (waiting)
+    {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
+                exit(EXIT_SUCCESS);
+            }
+            if (event.type == SDL_KEYDOWN)
+            {
+                SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+                waiting = false;
+            }
+        }
+    }
+}
+
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
 {
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
@@ -806,7 +923,8 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
         renderMenu(menuSprites, &srcLogo, win_surf);
 
         renderString(win_surf, asciiSprites, "1. START", startOptionX, srcLogo.h + 192);
-        renderString(win_surf, asciiSprites, "2. QUIT ", startOptionX, srcLogo.h + 256);
+        renderString(win_surf, asciiSprites, "2. HIGH SCORES", startOptionX, srcLogo.h + 256);
+        renderString(win_surf, asciiSprites, "3. QUIT", startOptionX, srcLogo.h + 320);
 
         SDL_UpdateWindowSurface(pWindow);
 
@@ -824,6 +942,9 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
                     inMenu = false;
                     break;
                 case SDLK_2:
+                    showHighScores(win_surf, asciiSprites);
+                    break;
+                case SDLK_3:
                     exit(EXIT_SUCCESS);
                     break;
                 default:
@@ -1026,7 +1147,7 @@ void handleBonusCollision()
             {
                 resetAllBonuses();
                 bonuses[i].isActive = false;
-
+                currentScore += 100;
                 // Appliquer l'effet du bonus
                 switch (bonuses[i].type)
                 {
