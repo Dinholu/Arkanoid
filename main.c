@@ -389,9 +389,7 @@ void defeatCollision(struct Ball *ball)
         {
             currentLife--;
             resetAllBonuses();
-            printf("Vies r
-            
-            estantes: %d\n", currentLife);
+            printf("Vies restantes: %d\n", currentLife);
             ballIsAttached = true;
             attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
             balls[0].isActive = true;
@@ -637,6 +635,7 @@ void renderString(SDL_Surface *surface, SDL_Surface *sprites, const char *string
 
 void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
 {
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
     dest.x = (win_surf->w - srcLogo->w) / 2;
 
@@ -795,6 +794,7 @@ void renderLaser(SDL_Surface *gameSprites, SDL_Rect *srcLaser, SDL_Surface *win_
 
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
 {
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     bool inMenu = true;
     SDL_Event event;
 
@@ -1062,8 +1062,8 @@ void handleBonusCollision()
 
 void render()
 {
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     renderBackground(gameSprites, &srcBackground, win_surf);
-
     handleCollisions();
 
     renderVault(gameSprites, &srcVaisseau, win_surf, x_vault);
