@@ -700,6 +700,7 @@ void readHighScores(HighScore highScores[], int *count)
 
     fclose(file);
 }
+
 void saveHighScore(const char *playerName, int score)
 {
     HighScore highScores[MAX_HIGHSCORE + 1];
@@ -749,6 +750,18 @@ void processNameInput(SDL_Event *event)
             }
         }
     }
+}
+void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
+{
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
+    dest.x = (win_surf->w - srcLogo->w) / 2;
+
+    SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
+
+    renderString(win_surf, asciiSprites, "CONGRATULATIONS!", (win_surf->w - 256) / 2, 300);
+    renderString(win_surf, asciiSprites, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
+    renderString(win_surf, asciiSprites, playerName, (win_surf->w - 160) / 2, 400);
 }
 
 void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
@@ -961,6 +974,32 @@ void loadCurrentLevel()
     sprintf(filename, "level%d.txt", currentLevel + 1);
     loadLevelFromFile(filename);
 }
+void processCongratulationsInput(SDL_Event *event)
+{
+    if (event->type == SDL_KEYDOWN)
+    {
+        if (event->key.keysym.sym == SDLK_RETURN)
+        {
+            enteringName = false;
+            showMenu = true;
+            saveHighScore(playerName, currentScore);
+            printf("Player Name: %s, Score: %d\n", playerName, currentScore);
+        }
+        else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0)
+        {
+            playerName[--nameIndex] = '\0';
+        }
+        else if (nameIndex < MAX_NAME_LENGTH)
+        {
+            char key = (char)event->key.keysym.sym;
+            if ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z'))
+            {
+                playerName[nameIndex++] = key;
+                playerName[nameIndex] = '\0';
+            }
+        }
+    }
+}
 
 void nextLevel()
 {
@@ -969,10 +1008,13 @@ void nextLevel()
     if (currentLevel >= NUM_LEVELS)
     {
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
-        exit(EXIT_SUCCESS);
+        enteringName = true;
+        showMenu = false;
+        isGameOver = true;
+        return;
     }
     ballIsAttached = true;
-    attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
+    attachTime = SDL_GetPerformanceCounter();
     initializeBalls();
     initializeLasers();
     initializeBonuses();
@@ -1359,7 +1401,14 @@ void mainGameLoop()
                 }
             }
 
-            renderGameOverScreen(menuSprites, &srcLogo, win_surf);
+            if (currentLevel >= NUM_LEVELS)
+            {
+                renderCongratulationsScreen(menuSprites, &srcLogo, win_surf);
+            }
+            else
+            {
+                renderGameOverScreen(menuSprites, &srcLogo, win_surf);
+            }
         }
 
         SDL_UpdateWindowSurface(pWindow);
