@@ -840,12 +840,7 @@ void loadCurrentLevel()
     sprintf(filename, "level%d.txt", currentLevel + 1);
     loadLevelFromFile(filename);
 }
-void resetAllBonuses()
-{
-    isLaserBeam = false;
-    isEnlarging = false;
-    releaseCount = 0;
-}
+
 void nextLevel()
 {
     resetAllBonuses();
