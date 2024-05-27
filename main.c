@@ -53,6 +53,8 @@
 #define VIE_MAX 5
 #define MAX_LASERS 10
 #define MAX_BONUSES 10
+#define MAX_NAME_LENGTH 3
+#define MAX_HIGHSCORE 10
 
 struct Bonus
 {
@@ -64,6 +66,12 @@ struct Bonus
     int animationFrame;   // Frame actuelle de l'animation
     double animationTime; // Temps écoulé depuis la dernière frame
 };
+
+typedef struct
+{
+    char name[MAX_NAME_LENGTH + 1];
+    int score;
+} HighScore;
 
 struct Bonus bonuses[MAX_BONUSES];
 
@@ -144,6 +152,15 @@ int currentLevel = 1;
 int currentScore = 0;
 int activeBallCount = 1;
 
+// test gameOver
+
+char playerName[MAX_NAME_LENGTH + 1] = "";
+bool enteringName = false;
+bool isGameOver = false;
+bool showMenu = true;
+int nameIndex = 0;
+// ---------------
+
 // bonus enlarge le vaisseau
 bool isVaultEnlarged = false;
 bool isEnlarging = false;
@@ -175,7 +192,17 @@ bool nwasPressed = false;
 // Variable pour savoir si la touche M a été pressée donc a enlever quand ca sera fait par collision avec le bonus
 bool mWasPressed = false;
 // -------------------------------
+int compareHighScores(const void *a, const void *b)
+{
+    HighScore *scoreA = (HighScore *)a;
+    HighScore *scoreB = (HighScore *)b;
+    return scoreB->score - scoreA->score;
+}
 
+void sortHighScores(HighScore highScores[], int count)
+{
+    qsort(highScores, count, sizeof(HighScore), compareHighScores);
+}
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
     return !(rect1.x + rect1.w < rect2.x ||
@@ -359,6 +386,12 @@ void vaultCollision(struct Ball *ball)
         }
     }
 }
+void resetAllBonuses()
+{
+    isLaserBeam = false;
+    isEnlarging = false;
+    releaseCount = 0;
+}
 
 void defeatCollision(struct Ball *ball)
 {
@@ -369,6 +402,8 @@ void defeatCollision(struct Ball *ball)
         if (activeBallCount == 0)
         {
             currentLife--;
+            resetAllBonuses();
+            printf("Vies restantes: %d\n", currentLife);
             ballIsAttached = true;
             attachTime = SDL_GetPerformanceCounter(); // Define attachment time
             balls[0].isActive = true;
@@ -640,6 +675,120 @@ void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string
     }
 }
 
+void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
+{
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
+    dest.x = (win_surf->w - srcLogo->w) / 2;
+
+    SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
+
+    renderString(win_surf, asciiSprites, "GAME OVER", (win_surf->w - 128) / 2, 300);
+    renderString(win_surf, asciiSprites, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
+    renderString(win_surf, asciiSprites, playerName, (win_surf->w - 160) / 2, 400);
+}
+void writeHighScores(HighScore highScores[], int count)
+{
+    FILE *file = fopen("highscores.txt", "w");
+    if (file == NULL)
+    {
+        printf("Unable to open highscores.txt for writing.\n");
+        return;
+    }
+
+    for (int i = 0; i < count; i++)
+    {
+        fprintf(file, "%s %d\n", highScores[i].name, highScores[i].score);
+    }
+
+    fclose(file);
+}
+void readHighScores(HighScore highScores[], int *count)
+{
+    FILE *file = fopen("highscores.txt", "r");
+    if (file == NULL)
+    {
+        printf("Unable to open highscores.txt for reading.\n");
+        *count = 0;
+        return;
+    }
+
+    *count = 0;
+    while (fscanf(file, "%s %d", highScores[*count].name, &highScores[*count].score) != EOF)
+    {
+        (*count)++;
+        if (*count >= MAX_HIGHSCORE)
+        {
+            break;
+        }
+    }
+
+    fclose(file);
+}
+
+void saveHighScore(const char *playerName, int score)
+{
+    HighScore highScores[MAX_HIGHSCORE + 1];
+    int count;
+    readHighScores(highScores, &count);
+
+    // Ajouter le nouveau score
+    strcpy(highScores[count].name, playerName);
+    highScores[count].score = score;
+    count++;
+
+    // Trier les scores
+    sortHighScores(highScores, count);
+
+    // Limiter à MAX_HIGH_SCORES
+    if (count > MAX_HIGHSCORE)
+    {
+        count = MAX_HIGHSCORE;
+    }
+
+    // Écrire les scores dans le fichier
+    writeHighScores(highScores, count);
+}
+
+void processNameInput(SDL_Event *event)
+{
+    if (event->type == SDL_KEYDOWN)
+    {
+        if (event->key.keysym.sym == SDLK_RETURN)
+        {
+            enteringName = false;
+            showMenu = true;
+            saveHighScore(playerName, currentScore);
+            printf("Player Name: %s, Score: %d\n", playerName, currentScore);
+        }
+        else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0)
+        {
+            playerName[--nameIndex] = '\0';
+        }
+        else if (nameIndex < MAX_NAME_LENGTH)
+        {
+            char key = (char)event->key.keysym.sym;
+            if ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z'))
+            {
+                playerName[nameIndex++] = key;
+                playerName[nameIndex] = '\0';
+            }
+        }
+    }
+}
+void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
+{
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
+    dest.x = (win_surf->w - srcLogo->w) / 2;
+
+    SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
+
+    renderString(win_surf, asciiSprites, "CONGRATULATIONS!", (win_surf->w - 256) / 2, 300);
+    renderString(win_surf, asciiSprites, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
+    renderString(win_surf, asciiSprites, playerName, (win_surf->w - 160) / 2, 400);
+}
+
 void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
 {
     SDL_Rect dest = {0, 256, srcLogo->w, srcLogo->h};
@@ -773,8 +922,49 @@ void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int st
     free(string);
 }
 
-void showOptionsMenu()
+
+void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
 {
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+
+    HighScore highScores[MAX_HIGHSCORE];
+    int count;
+    readHighScores(highScores, &count);
+
+    renderString(win_surf, asciiSprites, "HIGH SCORES", (win_surf->w - 160) / 2, 100);
+
+    for (int i = 0; i < count; i++)
+    {
+        char scoreText[256];
+        sprintf(scoreText, "%s %d", highScores[i].name, highScores[i].score);
+        renderString(win_surf, asciiSprites, scoreText, 50, 150 + i * 40);
+    }
+
+    SDL_UpdateWindowSurface(pWindow);
+
+    // Wait for a key press to return to the menu
+    bool waiting = true;
+    SDL_Event event;
+    while (waiting)
+    {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
+                exit(EXIT_SUCCESS);
+            }
+            if (event.type == SDL_KEYDOWN)
+            {
+                SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+                waiting = false;
+            }
+        }
+    }
+}
+
+void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
+{
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     bool inMenu = true;
     SDL_Event event;
 
@@ -784,9 +974,9 @@ void showOptionsMenu()
     while (inMenu)
     {
         renderMenu(menuSprites, &srcLogo, win_surf);
-
-        renderString(asciiSprites, win_surf, "1. START", startOptionX, srcLogo.h + 320);
-        renderString(asciiSprites, win_surf, "2. QUIT ", startOptionX, srcLogo.h + 384);
+        renderString(win_surf, asciiSprites, "1. START", startOptionX, srcLogo.h + 192);
+        renderString(win_surf, asciiSprites, "2. HIGH SCORES", startOptionX, srcLogo.h + 256);
+        renderString(win_surf, asciiSprites, "3. QUIT", startOptionX, srcLogo.h + 320);
 
         SDL_UpdateWindowSurface(pWindow);
 
@@ -800,14 +990,17 @@ void showOptionsMenu()
             {
                 switch (event.key.keysym.sym)
                 {
-                    case SDLK_1:
-                        inMenu = false;
-                        break;
-                    case SDLK_2:
-                        exit(EXIT_SUCCESS);
-                        break;
-                    default:
-                        break;
+                case SDLK_1:
+                    inMenu = false;
+                    break;
+                case SDLK_2:
+                    showHighScores(win_surf, asciiSprites);
+                    break;
+                case SDLK_3:
+                    exit(EXIT_SUCCESS);
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -820,9 +1013,36 @@ void loadCurrentLevel(bool isEigth)
     sprintf(filename, "level%d.txt", currentLevel);
     loadLevelFromFile(filename, isEigth);
 }
+void processCongratulationsInput(SDL_Event *event)
+{
+    if (event->type == SDL_KEYDOWN)
+    {
+        if (event->key.keysym.sym == SDLK_RETURN)
+        {
+            enteringName = false;
+            showMenu = true;
+            saveHighScore(playerName, currentScore);
+            printf("Player Name: %s, Score: %d\n", playerName, currentScore);
+        }
+        else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0)
+        {
+            playerName[--nameIndex] = '\0';
+        }
+        else if (nameIndex < MAX_NAME_LENGTH)
+        {
+            char key = (char)event->key.keysym.sym;
+            if ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z'))
+            {
+                playerName[nameIndex++] = key;
+                playerName[nameIndex] = '\0';
+            }
+        }
+    }
+}
 
 void nextLevel()
 {
+    resetAllBonuses();
     currentLevel++;
 // TODO : Redonner les valeurs de touched à toutes les briques, et donner à valeur currentLevel%8 = 0, on incrémente la valeur de touched de grise, on incrémente la vitesse
 
@@ -830,14 +1050,31 @@ void nextLevel()
     if (currentLevel > NUM_LEVELS)
     {
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
-        exit(EXIT_SUCCESS);
+        enteringName = true;
+        showMenu = false;
+        isGameOver = true;
+        return;
     }
-    attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
     initializeBalls();
     initializeLasers();
     initializeBonuses();
     max_speed = max_speed * 1.05;
     loadCurrentLevel(((currentLevel-1)%8 == 0));
+}
+
+void resetGame()
+{
+    currentLife = 3;
+    currentScore = 0;
+    currentLevel = 0;
+    max_speed = 8.0;
+    ballSpeedIncrement = BALL_SPEED_INCREMENT;
+    ballIsAttached = true;
+    attachTime = SDL_GetPerformanceCounter();
+    initializeBalls();
+    initializeLasers();
+    initializeBonuses();
+    loadCurrentLevel();
 }
 
 void initializeSDL()
@@ -891,7 +1128,7 @@ void enlargeVault()
         printf("Agrandissement du vaisseau!\n");
         isEnlarging = true;
         currentStep = 0;
-        enlargeStartTime = SDL_GetPerformanceCounter(); // Démarrer la minuterie
+        enlargeStartTime = SDL_GetPerformanceCounter();
     }
 }
 
@@ -999,7 +1236,7 @@ void handleBonusCollision()
             {
                 resetAllBonuses();
                 bonuses[i].isActive = false;
-
+                currentScore += 100;
                 // Appliquer l'effet du bonus
                 switch (bonuses[i].type)
                 {
@@ -1050,7 +1287,6 @@ void render()
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     renderBackground(gameSprites, &srcBackground, win_surf);
     renderVault(gameSprites, &srcVault, win_surf, x_vault);
-
     if (ballIsAttached)
     {
         attachBallToVault(&balls[0], x_vault);
@@ -1175,39 +1411,81 @@ void updateDeltaTime()
     prev = SDL_GetPerformanceCounter();
 }
 
-int main(int argc, char **argv)
+void mainGameLoop()
 {
-    initializeSDL();
-    showOptionsMenu();
-    ballIsAttached = true;
-    attachTime = SDL_GetPerformanceCounter(); // Définir le temps d'attachement
-    initializeBalls();
-    initializeLasers();
-    initializeBonuses();
-    loadCurrentLevel(false);
-
     bool quit = false;
     prev = SDL_GetPerformanceCounter();
 
     while (!quit)
     {
-        processInput(&quit);
-        updateVaultEnlargement();
-        if (allBricksInvisible())
+        if (showMenu)
         {
-            nextLevel();
+            showOptionsMenu(pWindow, win_surf);
+            resetGame();
+            showMenu = false;
+            isGameOver = false;
+            enteringName = false;
+            nameIndex = 0;
+            playerName[0] = '\0';
         }
 
-        if (currentLife <= 0)
+        if (!isGameOver)
         {
-            printf("Life: 0, GAME OVER!\n");
-            quit = true;
+            processInput(&quit);
+            updateVaultEnlargement();
+
+            if (allBricksInvisible())
+            {
+                nextLevel();
+            }
+
+            if (currentLife <= 0)
+            {
+                printf("Life: 0, GAME OVER!\n");
+                isGameOver = true;
+                enteringName = true;
+            }
+
+            render();
         }
 
-        render();
+        if (enteringName)
+        {
+            SDL_Event event;
+            while (SDL_PollEvent(&event))
+            {
+                if (event.type == SDL_QUIT)
+                {
+                    quit = true;
+                }
+                else
+                {
+                    processNameInput(&event);
+                }
+            }
+
+            if (currentLevel >= NUM_LEVELS)
+            {
+                renderCongratulationsScreen(menuSprites, &srcLogo, win_surf);
+            }
+            else
+            {
+                renderGameOverScreen(menuSprites, &srcLogo, win_surf);
+            }
+        }
+
         SDL_UpdateWindowSurface(pWindow);
         updateDeltaTime();
     }
+}
+
+int main(int argc, char **argv)
+{
+    initializeSDL();
+    showOptionsMenu(pWindow, win_surf);
+    resetGame();
+
+    mainGameLoop();
 
     SDL_Quit();
     return 0;
