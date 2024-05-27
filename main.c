@@ -92,7 +92,7 @@ struct Brick
     double y;
     char type;
     int touched;
-    int score;
+    int scoreValue;
     bool isVisible;
     bool isDestructible;
 };
@@ -412,29 +412,35 @@ void brickCollision(struct Ball *ball)
 
             if (isCollision(ballRect, brickRect))
             {
-                brick[i].isVisible = false;
-                currentScore += 10;
-
                 handleBallProperty(ball, brickRect);
-                printf("Score: %d\n", currentScore);
-
-                // Generate bonus
-                int randValue = rand() % 9;
-                if (randValue < 6)
+                if (brick[i].isDestructible)
                 {
-                    for (int j = 0; j < MAX_BONUSES; j++)
+                    brick[i].touched--;
+                    if (brick[i].touched == 0)
                     {
-                        if (!bonuses[j].isActive)
+                        brick[i].isVisible = false;
+                        currentScore += brick[i].scoreValue;
+                        printf("Score: %d\n", currentScore);
+
+                        // Generate bonus
+                        int randValue = rand() % 9;
+                        if (randValue < 6)
                         {
-                            bonuses[j].x = brick[i].x + BRICK_WIDTH / 2;
-                            bonuses[j].y = brick[i].y + BRICK_HEIGHT / 2;
-                            bonuses[j].isActive = true;
-                            bonuses[j].type = rand() % 7 + 1;
-                            break;
+                            for (int j = 0; j < MAX_BONUSES; j++)
+                            {
+                                if (!bonuses[j].isActive)
+                                {
+                                    bonuses[j].x = brick[i].x + BRICK_WIDTH / 2;
+                                    bonuses[j].y = brick[i].y + BRICK_HEIGHT / 2;
+                                    bonuses[j].isActive = true;
+                                    bonuses[j].type = rand() % 7 + 1;
+                                    break;
+                                }
+                            }
                         }
+                        break;
                     }
-                }
-                break;
+                } 
             }
         }
     }
@@ -539,6 +545,8 @@ void loadLevelFromFile(const char *filename)
         brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH;
         brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
         brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
+        brick[row * NUM_BRICKS_PER_ROW + col].isDestructible = (brickType != 'D');
+        brick[row * NUM_BRICKS_PER_ROW + col].touched = (brickType == 'E') ? 2 : 1;
 
         col++;
         if (col == NUM_BRICKS_PER_ROW)
@@ -667,8 +675,6 @@ void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf
     SDL_BlitSurface(sprites, srcVault, win_surf, &destVault);
 }
 
-// TODO: remplacer 52 par la moitie de la taille du vaisseau pour que la balle se positionne au centre du vaisseau
-// 58 correspond à la hauteur ou le vaisseeau est positionné + largeur de la balle
 void attachBallToVault(struct Ball *ball, int x_vault)
 {
     ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2);
@@ -700,36 +706,46 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
             {
                 case 'W': // White
                     srcBrick = WHITE_BRICK;
+                    brick[i].scoreValue = 50;
                     break;
                 case 'Y': // Yellow
                     srcBrick = YELLOW_BRICK;
+                    brick[i].scoreValue = 120;
                     break;
                 case 'B': // Blue1
                     srcBrick = BLUE1_BRICK;
+                    brick[i].scoreValue = 70;
                     break;
                 case 'G': // Green1
                     srcBrick = GREEN1_BRICK;
+                    brick[i].scoreValue = 80;
                     break;
                 case 'b': // Blue2
                     srcBrick = BLUE2_BRICK;
+                    brick[i].scoreValue = 100;
                     break;
                 case 'O': // Orange
                     srcBrick = ORANGE_BRICK;
+                    brick[i].scoreValue = 60;
                     break;
                 case 'R': // Red
                     srcBrick = RED_BRICK;
+                    brick[i].scoreValue = 90;
                     break;
                 case 'L': // bLue3
                     srcBrick = BLUE3_BRICK;
+                    brick[i].scoreValue = 120;
                     break;
                 case 'P': // Pink
                     srcBrick = PINK_BRICK;
+                    brick[i].scoreValue = 110;
                     break;
                 case 'E': // grEy
                     srcBrick = GREY_BRICK;
+                    brick[i].scoreValue = 50 * currentLevel;
                     break;
                 case 'D': // golD
-                    srcBrick = GOLD_BRICK;
+                    srcBrick = GOLD_BRICK;  
                     break;
                 default:
                     continue;
@@ -798,6 +814,7 @@ void loadCurrentLevel()
 void nextLevel()
 {
     currentLevel++;
+    // TODO : Redonner les valeurs de touched à toutes les briques, et donner à valeur currentLevel%8 = 0, on incrémente la valeur de touched de grise, on incrémente la vitesse
     ballIsAttached = true;
     if (currentLevel > NUM_LEVELS)
     {
@@ -808,7 +825,7 @@ void nextLevel()
     initializeBalls();
     initializeLasers();
     initializeBonuses();
-    max_speed = max_speed + 2.0;
+    max_speed = max_speed * 1.05;
     loadCurrentLevel();
 }
 
@@ -1058,6 +1075,43 @@ void processInput(bool *quit)
         balls[0].vx = -1;
     }
 
+    // // BONUS SPLIT BALL (D_BONUS)
+    // if (keys[SDL_SCANCODE_B] && !ballIsAttached && activeBallCount == 1)
+    // {
+    //     splitBall();
+    // }
+    if (keys[SDL_SCANCODE_N] == 0)
+    {
+        nwasPressed = false;
+    }
+    //BONUS WRAP LEVEL (B_BONUS)
+    if (keys[SDL_SCANCODE_N])
+    {
+        if (!nwasPressed)
+        {
+            wraplevel();
+        }
+    }
+    // BONUS ADD LIFE (P_BONUS)
+    // if (keys[SDL_SCANCODE_V])
+    // {
+    //     if (!vWasPressed)
+    //     {
+    //         addLife();
+    //         vWasPressed = true;
+    //     }
+    // }
+
+    // if (keys[SDL_SCANCODE_V] == 0)
+    // {
+    //     vWasPressed = false;
+    // }
+    // BONUS SLOW DOWN BALL (S_BONUS)
+    // if (keys[SDL_SCANCODE_C])
+    // {
+    //     slowDownBall();
+    // }
+    // BONUS FIRE LASER (L_BONUS)
     if (keys[SDL_SCANCODE_M])
     {
         if (!mWasPressed && isLaserBeam)
@@ -1070,6 +1124,17 @@ void processInput(bool *quit)
     {
         mWasPressed = false;
     }
+    // BONUS CATCH AND FIRE (C_BONUS)
+    // if (keys[SDL_SCANCODE_X])
+    // {
+    //     CatchAndFire();
+    // }
+    // BONUS ENLARGE VAULT (E_BONUS)
+    // if (keys[SDL_SCANCODE_Z])
+    // {
+    //     enlargeVault();
+    // }
+
 
     if (ballIsAttached && (SDL_GetPerformanceCounter() - attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
     {
