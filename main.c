@@ -562,7 +562,6 @@ void loadLevelFromFile(const char *filename)
     fclose(file);
 }
 
-
 void moveVault(const Uint8 *keys)
 {
     if (keys[SDL_SCANCODE_LEFT])
@@ -718,7 +717,6 @@ void renderBricks(SDL_Surface *gameSprites, SDL_Surface *win_surf, struct Brick 
     }
 }
 
-
 void renderInfo(SDL_Surface *win_surf, SDL_Surface *asciiSprites, int value, char *label, int startX, int startY)
 {
     char *string = malloc(sizeof(*string) * 256);
@@ -786,6 +784,7 @@ void loadCurrentLevel()
 
 void nextLevel()
 {
+    resetAllBonuses();
     currentLevel++;
     if (currentLevel >= NUM_LEVELS)
     {
@@ -995,10 +994,9 @@ void handleBonusCollision()
 
 void render()
 {
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     renderBackground(gameSprites, &srcBackground, win_surf);
-
     handleCollisions();
-
     renderVault(gameSprites, &srcVaisseau, win_surf, x_vault);
     if (ballIsAttached)
     {
