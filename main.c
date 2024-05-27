@@ -781,7 +781,12 @@ void loadCurrentLevel()
     sprintf(filename, "level%d.txt", currentLevel + 1);
     loadLevelFromFile(filename);
 }
-
+void resetAllBonuses()
+{
+    isLaserBeam = false;
+    isEnlarging = false;
+    releaseCount = 0;
+}
 void nextLevel()
 {
     resetAllBonuses();
@@ -938,12 +943,7 @@ void CatchAndFire()
 {
     releaseCount = 5;
 }
-void resetAllBonuses()
-{
-    isLaserBeam = false;
-    isEnlarging = false;
-    releaseCount = 0;
-}
+
 void handleBonusCollision()
 {
     SDL_Rect vaultRect = {x_vault, win_surf->h - 32, vault_width, srcVaisseau.h};
