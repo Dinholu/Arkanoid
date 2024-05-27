@@ -683,9 +683,9 @@ void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *
 
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
 
-    renderString(win_surf, asciiSprites, "GAME OVER", (win_surf->w - 128) / 2, 300);
-    renderString(win_surf, asciiSprites, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
-    renderString(win_surf, asciiSprites, playerName, (win_surf->w - 160) / 2, 400);
+    renderString(asciiSprites, win_surf, "GAME OVER", (win_surf->w - 128) / 2, 300);
+    renderString(asciiSprites, win_surf, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
+    renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
 }
 void writeHighScores(HighScore highScores[], int count)
 {
@@ -784,14 +784,14 @@ void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Su
 
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
 
-    renderString(win_surf, asciiSprites, "CONGRATULATIONS!", (win_surf->w - 256) / 2, 300);
-    renderString(win_surf, asciiSprites, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
-    renderString(win_surf, asciiSprites, playerName, (win_surf->w - 160) / 2, 400);
+    renderString(asciiSprites, win_surf, "CONGRATULATIONS!", (win_surf->w - 256) / 2, 300);
+    renderString(asciiSprites, win_surf, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
+    renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
 }
 
 void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
 {
-    SDL_Rect dest = {0, 256, srcLogo->w, srcLogo->h};
+    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
     dest.x = (win_surf->w - srcLogo->w) / 2;
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
 
@@ -931,13 +931,13 @@ void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
     int count;
     readHighScores(highScores, &count);
 
-    renderString(win_surf, asciiSprites, "HIGH SCORES", (win_surf->w - 160) / 2, 100);
+    renderString(asciiSprites, win_surf, "HIGH SCORES", (win_surf->w - 160) / 2, 100);
 
     for (int i = 0; i < count; i++)
     {
         char scoreText[256];
         sprintf(scoreText, "%s %d", highScores[i].name, highScores[i].score);
-        renderString(win_surf, asciiSprites, scoreText, 50, 150 + i * 40);
+        renderString(asciiSprites, win_surf, scoreText, 50, 150 + i * 40);
     }
 
     SDL_UpdateWindowSurface(pWindow);
@@ -974,9 +974,9 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     while (inMenu)
     {
         renderMenu(menuSprites, &srcLogo, win_surf);
-        renderString(win_surf, asciiSprites, "1. START", startOptionX, srcLogo.h + 192);
-        renderString(win_surf, asciiSprites, "2. HIGH SCORES", startOptionX, srcLogo.h + 256);
-        renderString(win_surf, asciiSprites, "3. QUIT", startOptionX, srcLogo.h + 320);
+        renderString(asciiSprites, win_surf, "1. START", startOptionX, srcLogo.h + 192);
+        renderString(asciiSprites, win_surf, "2. HIGH SCORES", startOptionX, srcLogo.h + 256);
+        renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, srcLogo.h + 320);
 
         SDL_UpdateWindowSurface(pWindow);
 
@@ -1044,10 +1044,7 @@ void nextLevel()
 {
     resetAllBonuses();
     currentLevel++;
-// TODO : Redonner les valeurs de touched à toutes les briques, et donner à valeur currentLevel%8 = 0, on incrémente la valeur de touched de grise, on incrémente la vitesse
-
-    ballIsAttached = true;
-    if (currentLevel > NUM_LEVELS)
+    if (currentLevel >= NUM_LEVELS)
     {
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
         enteringName = true;
@@ -1055,18 +1052,20 @@ void nextLevel()
         isGameOver = true;
         return;
     }
+    ballIsAttached = true;
+    attachTime = SDL_GetPerformanceCounter();
     initializeBalls();
     initializeLasers();
     initializeBonuses();
-    max_speed = max_speed * 1.05;
-    loadCurrentLevel(((currentLevel-1)%8 == 0));
+    max_speed = max_speed + 2.0;
+    loadCurrentLevel(((currentLevel) % 8 == 0));
 }
 
 void resetGame()
 {
     currentLife = 3;
     currentScore = 0;
-    currentLevel = 0;
+    currentLevel = 1;
     max_speed = 8.0;
     ballSpeedIncrement = BALL_SPEED_INCREMENT;
     ballIsAttached = true;
@@ -1074,7 +1073,7 @@ void resetGame()
     initializeBalls();
     initializeLasers();
     initializeBonuses();
-    loadCurrentLevel();
+    loadCurrentLevel(((currentLevel)%8 == 0));
 }
 
 void initializeSDL()
@@ -1214,13 +1213,6 @@ void slowDownBall()
 void CatchAndFire()
 {
     releaseCount = 5;
-}
-
-void resetAllBonuses()
-{
-    isLaserBeam = false;
-    isEnlarging = false;
-    releaseCount = 0;
 }
 
 void handleBonusCollision()

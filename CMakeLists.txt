@@ -30,23 +30,19 @@ file(COPY
         resources/sprites/edge_top.bmp
         resources/sprites/edge_left.bmp
         resources/sprites/edge_right.bmp
-        resources/sprites/Arkanoid_menu_sprites.bmp
+        resources/levels/level1.txt
+        resources/levels/level2.txt
+        resources/sprites/logo.bmp
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 
-# Automatically update when there are changes in resources/levels directory
-file(GLOB LEVEL_FILES resources/levels/*)
-
-add_custom_target(generate_levels ALL
-        COMMENT "Copying level files to build directory if they are different"
+add_custom_target(generate_levels
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources/levels/level1.txt
+        ${CMAKE_CURRENT_BINARY_DIR}/level1.txt
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources/levels/level2.txt
+        ${CMAKE_CURRENT_BINARY_DIR}/level2.txt
+        COMMENT "Copying level files to build directory"
 )
-
-foreach(level_file ${LEVEL_FILES})
-    get_filename_component(level_filename ${level_file} NAME)
-    add_custom_command(TARGET generate_levels POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${level_file} ${CMAKE_CURRENT_BINARY_DIR}/${level_filename}
-            COMMENT "Copying ${level_filename} to build directory if different"
-    )
-endforeach()
 
 add_dependencies(${PROJECT_NAME} generate_levels)
