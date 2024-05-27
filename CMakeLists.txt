@@ -30,19 +30,30 @@ file(COPY
         resources/sprites/edge_top.bmp
         resources/sprites/edge_left.bmp
         resources/sprites/edge_right.bmp
-        resources/levels/level1.txt
-        resources/levels/level2.txt
-        resources/sprites/logo.bmp
+        resources/sprites/Arkanoid_menu_sprites.bmp
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 
-add_custom_target(generate_levels
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources/levels/level1.txt
-        ${CMAKE_CURRENT_BINARY_DIR}/level1.txt
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources/levels/level2.txt
-        ${CMAKE_CURRENT_BINARY_DIR}/level2.txt
-        COMMENT "Copying level files to build directory"
+# Ensure the dummy file exists to avoid configuration errors
+file(WRITE ${CMAKE_BINARY_DIR}/dummy.txt "")
+
+# List level files and touch the dummy file to trigger reconfiguration
+file(GLOB LEVEL_FILES resources/levels/*)
+
+add_custom_target(generate_levels ALL
+        COMMAND ${CMAKE_COMMAND} -E echo "Level files change detected" > ${CMAKE_BINARY_DIR}/dummy.txt
+        COMMENT "Checking and copying level files"
 )
 
+foreach(level_file ${LEVEL_FILES})
+    get_filename_component(level_filename ${level_file} NAME)
+    add_custom_command(TARGET generate_levels POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${level_file} ${CMAKE_CURRENT_BINARY_DIR}/${level_filename}
+            COMMENT "Copying ${level_filename} to build directory if different"
+    )
+endforeach()
+
 add_dependencies(${PROJECT_NAME} generate_levels)
+
+# Touch the dummy file to trigger reconfiguration if level files change
+configure_file(${CMAKE_BINARY_DIR}/dummy.txt ${CMAKE_BINARY_DIR}/dummy.txt COPYONLY)
