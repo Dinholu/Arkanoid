@@ -220,7 +220,7 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
             }
 
             // Désactiver le laser s'il sort de l'écran
-            if (lasers[i].y < 0)
+            if (lasers[i].y < Y_WALLS + srcTopWall.h)
             {
                 lasers[i].isActive = false;
             }
@@ -470,7 +470,7 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                 switch (bonuses[i].type)
                 {
                     case 1:
-                        srcBonus = S_BONUS;
+                        srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
                         break;
                     case 2:
                         srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
@@ -494,7 +494,7 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                         srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
                         break;
                 }
-                SDL_Rect destBonus = {bonuses[i].x, bonuses[i].y, srcBonus.w, srcBonus.h};
+                SDL_Rect destBonus = {bonuses[i].x + srcEdgeWall.w, bonuses[i].y  + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
                 SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
             }
         }
@@ -539,8 +539,6 @@ void loadLevelFromFile(const char *filename)
         brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH;
         brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
         brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
-
-        printf("Loaded brick at (%d, %d) - Type: %c\n", brick[row * NUM_BRICKS_PER_ROW + col].x, brick[row * NUM_BRICKS_PER_ROW + col].y, brick[row * NUM_BRICKS_PER_ROW + col].type);
 
         col++;
         if (col == NUM_BRICKS_PER_ROW)
@@ -800,6 +798,7 @@ void loadCurrentLevel()
 void nextLevel()
 {
     currentLevel++;
+    ballIsAttached = true;
     if (currentLevel > NUM_LEVELS)
     {
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
@@ -966,7 +965,7 @@ void handleBonusCollision()
     {
         if (bonuses[i].isActive)
         {
-            SDL_Rect bonusRect = {bonuses[i].x, bonuses[i].y, 32, 16}; // Assurez-vous que la taille est correcte
+            SDL_Rect bonusRect = {bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, 32, 16}; // Assurez-vous que la taille est correcte
 
             if (isCollision(vaultRect, bonusRect))
             {
