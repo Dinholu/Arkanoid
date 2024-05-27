@@ -33,46 +33,6 @@
  - Si on touche quelque-chose d’horizontal, la coordonnée y de la vitesse s’inverse.
  - Vous prendrez en compte la vitesse (horizontale) du vaisseau pour changer la direction du rebond.
 
-### BONUS 
--  deux joueurs,
--   ombres,
--  traces derrière la balle,
--   disparition progressive des briques.
--   distribution bonus/malus non aléatoire, etc ...
-
-## CheckList
-### Jeu de base
-- [x] Balle touche la barre
-- [ ] Ajouter les 3 types de briques :
-	- [x] Brique simple
-	- [ ] Brique dure :
-		- [ ] 2 fois : Lvl 1 - 8
-		- [ ] 3 fois : Lvl 9 - 16
-		- [ ] 4 fois : Lvl 17 - 24
-		- [ ] 5 fois : Lvl 25 - 32
-		- [ ] Points bonus pour briser les mur : 100 x LvL
-	- [ ] Brique indestructible
-- [x] Collision avec les briques
-	- [x] Collision horizontal et vertical
- 	- [x] Une brique par collision (break)
-  	- [x] Collision en angle  
-- [ ] Power-up aléatoire dans briques
-- [x] Affichage du score
-
-### Design Level
-- [x] Des fichiers textes qui modélisent les différents niveaux
-	- [x] Test avec briques alignés
-- [x] Récupérer les coordonnées sur le sprites
-	- [x] Brique couleur fade
- 	- [ ] Power-Up
-  	- [x] Map
-  	- [x] Vaisseau 
-### Cas de test
-- [ ] Balle en trajectoire verticale constante
-	- [ ] Briques traversées ? 
-
-
-
 
 ### Aide pour la compréhension 
 
