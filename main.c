@@ -46,10 +46,14 @@
 #define B_BONUS (SDL_Rect) BRICK(256, 80)
 // add life
 #define P_BONUS (SDL_Rect) BRICK(256, 96)
-#define HARMFUL_2 (SDL_Rect){0, 256, 32, 32}
-#define HARMFUL_3 (SDL_Rect){0, 288, 32, 32}
-#define HARMFUL_5 (SDL_Rect){0, 320, 32, 32}
-#define HARMFUL_EXPLOSITION (SDL_Rect) {0, 384, 32, 32}
+#define HARMFUL_2 \
+    (SDL_Rect) { 0, 256, 32, 32 }
+#define HARMFUL_3 \
+    (SDL_Rect) { 0, 288, 32, 32 }
+#define HARMFUL_5 \
+    (SDL_Rect) { 0, 320, 32, 32 }
+#define HARMFUL_EXPLOSITION \
+    (SDL_Rect) { 0, 384, 32, 32 }
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 33
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
@@ -1000,6 +1004,7 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
                 {
                 case SDLK_1:
                     inMenu = false;
+                    showMenu = false;
                     break;
                 case SDLK_2:
                     showHighScores(win_surf, asciiSprites);
