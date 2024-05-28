@@ -1154,11 +1154,12 @@ void updateVaultEnlargement()
     {
         double stepDuration = enlargeDuration / enlargeSteps;
         double t = elapsed / stepDuration;
-
         if (t >= 1.0 && currentStep < enlargeSteps)
         {
+            vault_width = srcVault.w;
+
             srcVault.y += 16;         // Déplacer vers la ligne du sprite agrandi
-            srcVault.w += 16;         // Augmenter la largeur du sprite
+            srcVault.w += 9;          // Augmenter la largeur du sprite
             vault_width = srcVault.w; // Mettre à jour la largeur du vaisseau
             currentStep++;
             enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la prochaine étape
@@ -1185,7 +1186,7 @@ void updateVaultEnlargement()
         if (t >= 1.0 && currentStep < enlargeSteps)
         {
             srcVault.y -= 16;         // Revenir à la ligne du sprite original
-            srcVault.w -= 16;         // Réduire la largeur du sprite
+            srcVault.w -= 9;          // Réduire la largeur du sprite
             vault_width = srcVault.w; // Mettre à jour la largeur du vaisseau
             currentStep++;
             enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la prochaine étape
@@ -1381,11 +1382,11 @@ void processInput(bool *quit)
     // {
     //     CatchAndFire();
     // }
-    // BONUS ENLARGE VAULT (E_BONUS)
-    // if (keys[SDL_SCANCODE_Z])
-    // {
-    //     enlargeVault();
-    // }
+    // BONUS ENLARGE VAULT(E_BONUS)
+    if (keys[SDL_SCANCODE_Z])
+    {
+        enlargeVault();
+    }
 
     if (ballIsAttached && (SDL_GetPerformanceCounter() - attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
     {
