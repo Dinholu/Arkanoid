@@ -1199,8 +1199,7 @@ void initializeSDL()
         exit(EXIT_FAILURE);
     }
 
-    pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 556, 800,
-                               SDL_WINDOW_SHOWN);
+    pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 556, 800, SDL_WINDOW_SHOWN);
     if (!pWindow)
     {
         fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
@@ -1211,7 +1210,7 @@ void initializeSDL()
     win_surf = SDL_GetWindowSurface(pWindow);
     plancheSprites = SDL_LoadBMP("./sprites.bmp");
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
-    asciiSprites = SDL_LoadBMP("./Arkanoid_ascii.bmp");
+    asciiSprites = SDL_LoadBMP("./ascii_sprites.bmp");
     menuSprites = SDL_LoadBMP("./Arkanoid_menu_sprites.bmp");
     topWallSprites = SDL_LoadBMP("./edge_top.bmp");
     leftWallSprites = SDL_LoadBMP("./edge_left.bmp");
