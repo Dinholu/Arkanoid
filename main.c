@@ -1210,7 +1210,7 @@ void initializeSDL()
     win_surf = SDL_GetWindowSurface(pWindow);
     plancheSprites = SDL_LoadBMP("./sprites.bmp");
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
-    asciiSprites = SDL_LoadBMP("./ascii_sprites.bmp");
+    asciiSprites = SDL_LoadBMP("./Arkanoid_ascii_sprites.bmp");
     menuSprites = SDL_LoadBMP("./Arkanoid_menu_sprites.bmp");
     topWallSprites = SDL_LoadBMP("./edge_top.bmp");
     leftWallSprites = SDL_LoadBMP("./edge_left.bmp");

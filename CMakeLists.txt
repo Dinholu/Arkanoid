@@ -26,7 +26,7 @@ endif ()
 file(COPY
         resources/sprites/sprites.bmp
         resources/sprites/Arkanoid_sprites.bmp
-        resources/sprites/ascii_sprites.bmp
+        resources/sprites/Arkanoid_ascii_sprites.bmp
         resources/sprites/Arkanoid_ascii.bmp
         resources/sprites/edge_top.bmp
         resources/sprites/edge_left.bmp
