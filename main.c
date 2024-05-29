@@ -612,7 +612,7 @@ void generateHarmfuls()
             harmfuls[i].vy = 0;
             harmfuls[i].isActive = true;
             harmfuls[i].type = rand() % 3 + 2;
-            harmfuls[i].isFalling = false;
+            harmfuls[i].isFalling = true;
             harmfuls[i].amplitude = 20; // Réinitialiser l'amplitude
             harmfuls[i].time = 0;       // Réinitialiser le temps
             break;
@@ -635,8 +635,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                     harmfuls[i].vx *= -1; // Changer de direction en cas de collision avec les bords
                 }
 
-                // Vérifier les collisions avec les briques
-                bool canFall = true;
+                // Vérifier les collisions avec les briques pendant le déplacement horizontal
                 for (int j = 0; j < NUM_BRICKS; j++)
                 {
                     if (brick[j].isVisible)
@@ -646,31 +645,19 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 
                         if (isCollision(harmfulRect, brickRect))
                         {
-                            harmfuls[i].vx *= -1; // Changer de direction en cas de collision avec une brique
-                            canFall = false;
-                            break;
-                        }
-
-                        // Vérifier si le harmful peut tomber
-                        SDL_Rect belowRect = {harmfuls[i].x, harmfuls[i].y + 32, 32, 30};
-                        if (isCollision(belowRect, brickRect))
-                        {
-                            canFall = false;
+                            if ((harmfulRect.x < brickRect.x + brickRect.w && harmfulRect.x + harmfulRect.w > brickRect.x) &&
+                                (harmfulRect.y + harmfulRect.h > brickRect.y && harmfulRect.y < brickRect.y + brickRect.h))
+                            {
+                                harmfuls[i].vx *= -1; // Changer de direction en cas de collision latérale avec une brique
+                                break;
+                            }
                         }
                     }
-                }
-
-                // Si le harmful peut tomber, mettre à jour sa vitesse verticale
-                if (canFall)
-                {
-                    harmfuls[i].isFalling = true;
-                    harmfuls[i].vx = 0;
-                    harmfuls[i].vy = 2;
                 }
             }
             else
             {
-                harmfuls[i].y += harmfuls[i].vy;
+                harmfuls[i].y += 2;
 
                 // Vérifier les collisions avec les briques pendant la chute
                 for (int j = 0; j < NUM_BRICKS; j++)
