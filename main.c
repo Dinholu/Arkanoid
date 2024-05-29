@@ -619,63 +619,76 @@ void generateHarmfuls()
         }
     }
 }
-
 void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_HARMFULS; i++)
     {
         if (harmfuls[i].isActive)
         {
-            harmfuls[i].time += 1.0 / FPS; // Mettre à jour le temps
-
-            // Mise à jour de la position en x
-            harmfuls[i].x += harmfuls[i].vx;
-
-            // Mise à jour de la position en y avec une trajectoire sinusoïdale
-            harmfuls[i].y = harmfuls[i].initialY + harmfuls[i].amplitude * sin(2 * M_PI * 0.5 * harmfuls[i].time);
-
-            // Vérifier les collisions avec les bords de l'écran
-            if (harmfuls[i].x < srcEdgeWall.w || harmfuls[i].x + 32 > win_surf->w - srcEdgeWall.w)
+            if (!harmfuls[i].isFalling)
             {
-                harmfuls[i].vx *= -1; // Changer de direction en cas de collision avec les bords
-            }
+                harmfuls[i].x += harmfuls[i].vx;
 
-            // Vérifier les collisions avec les briques
-            bool canFall = false;
-            for (int j = 0; j < NUM_BRICKS; j++)
-            {
-                if (brick[j].isVisible)
+                // Vérifier les collisions avec les bords de l'écran
+                if (harmfuls[i].x < srcEdgeWall.w || harmfuls[i].x + 32 > win_surf->w - srcEdgeWall.w)
                 {
-                    SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
-                    SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
-
-                    if (isCollision(harmfulRect, brickRect))
-                    {
-                        harmfuls[i].vx *= -1;
-                        harmfuls[i].vy *= -1; // Changer de direction en cas de collision avec une brique
-                        canFall = false;
-                        break;
-                    }
-
-                    // // Vérifier si le harmful peut tomber
-                    // SDL_Rect belowRect = {harmfuls[i].x, harmfuls[i].y + 32, 32, 32};
-                    // if (!isCollision(belowRect, brickRect))
-                    // {
-                    //     canFall = false;
-                    // }
+                    harmfuls[i].vx *= -1; // Changer de direction en cas de collision avec les bords
                 }
-            }
 
-            // Si le harmful peut tomber, augmenter l'amplitude de la sinusoïde pour simuler la gravité
-            if (canFall)
-            {
-                harmfuls[i].amplitude += 0.5; // Augmenter l'amplitude pour simuler la descente
-                harmfuls[i].initialY += 1.0;  // Ajouter un effet de gravité
+                // Vérifier les collisions avec les briques
+                bool canFall = true;
+                for (int j = 0; j < NUM_BRICKS; j++)
+                {
+                    if (brick[j].isVisible)
+                    {
+                        SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
+                        SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+
+                        if (isCollision(harmfulRect, brickRect))
+                        {
+                            harmfuls[i].vx *= -1; // Changer de direction en cas de collision avec une brique
+                            canFall = false;
+                            break;
+                        }
+
+                        // Vérifier si le harmful peut tomber
+                        SDL_Rect belowRect = {harmfuls[i].x, harmfuls[i].y + 32, 32, 30};
+                        if (isCollision(belowRect, brickRect))
+                        {
+                            canFall = false;
+                        }
+                    }
+                }
+
+                // Si le harmful peut tomber, mettre à jour sa vitesse verticale
+                if (canFall)
+                {
+                    harmfuls[i].isFalling = true;
+                    harmfuls[i].vx = 0;
+                    harmfuls[i].vy = 2;
+                }
             }
             else
             {
-                // Réduire l'amplitude lorsque le harmful ne peut pas tomber
-                harmfuls[i].amplitude = 20;
+                harmfuls[i].y += harmfuls[i].vy;
+
+                // Vérifier les collisions avec les briques pendant la chute
+                for (int j = 0; j < NUM_BRICKS; j++)
+                {
+                    if (brick[j].isVisible)
+                    {
+                        SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
+                        SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+
+                        if (isCollision(harmfulRect, brickRect))
+                        {
+                            harmfuls[i].y = brickRect.y - 32;            // Ajuster la position pour rester au-dessus de la brique
+                            harmfuls[i].isFalling = false;               // Recommencer le déplacement horizontal
+                            harmfuls[i].vx = (rand() % 2 == 0) ? 2 : -2; // Déplacement aléatoire gauche/droite
+                            break;
+                        }
+                    }
+                }
             }
 
             // Vérifier si le harmful sort de l'écran
@@ -687,13 +700,15 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             // Rendre le harmful
             if (harmfuls[i].isActive)
             {
-                SDL_Rect srcHarmful = HARMFUL_2;
+                SDL_Rect srcHarmful = (harmfuls[i].type == 2) ? HARMFUL_2 : (harmfuls[i].type == 3) ? HARMFUL_3
+                                                                                                    : HARMFUL_5;
                 SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmful.w, srcHarmful.h};
                 SDL_BlitSurface(gameSprites, &srcHarmful, win_surf, &destHarmful);
             }
         }
     }
 }
+
 void addRandomHarmfuls()
 {
     if (rand() % 120 < 1) // Environ 0.83% de chance d'ajouter un harmful chaque frame
