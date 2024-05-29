@@ -99,6 +99,9 @@ struct Ball
     double vx;
     double vy;
     bool isActive;
+    bool isAttached;
+    Uint64 attachTime;
+    int relative;
 } ball;
 
 struct Ball balls[MAX_BALLS];
@@ -184,9 +187,7 @@ double shrinkDuration = 0.5;       // Durée de la réduction en secondes
 bool isLaserBeam = false;
 // bonus catch and fire
 Uint64 attachTime = 0;
-bool ballIsAttached = false;
 int releaseCount = 0;
-
 int currentLife = 3;
 double delta_t;
 double ballSpeedIncrement = BALL_SPEED_INCREMENT;
@@ -320,12 +321,17 @@ void initializeLasers()
 
 void splitBall()
 {
-    if (ballIsAttached)
+    for (int i = 0; i < MAX_BALLS; i++)
     {
-        ballIsAttached = false;
-        balls[0].vy = -5;
-        balls[0].vx = -1;
+        if (balls[i].isActive && balls[i].isAttached)
+        {
+            balls[i].isAttached = false;
+            releaseCount = 1;
+            balls[i].vy = -5;
+            balls[i].vx = -1;
+        }
     }
+
     if (activeBallCount == 1)
     {
         balls[1] = balls[0];
@@ -361,7 +367,6 @@ void wallCollision(struct Ball *ball)
         ball->vy *= -1;
     }
 }
-
 // TODO: remplacer les nombres magiques pour que cette fonction soit applicable peu importe la taille des vaisseaux.
 // 24 correspond à la largeur de la balle en SDL_Rect
 // 32 correspond à la position qu'on voudrait positionner le vaisseau
@@ -371,10 +376,12 @@ void vaultCollision(struct Ball *ball)
 {
     if ((ball->y + srcBall.h > win_surf->h - 32) && (ball->x + srcBall.w > x_vault) && (ball->x < x_vault + vault_width))
     {
+        ball->relative = (x_vault + (vault_width / 2) - (ball->x + (srcBall.w / 2)));
+
         if (releaseCount > 0)
         {
-            ballIsAttached = true;
-            attachTime = SDL_GetPerformanceCounter();
+            ball->isAttached = true;
+            ball->attachTime = SDL_GetPerformanceCounter();
             ball->vx = 0;
             ball->vy = 0;
         }
@@ -411,19 +418,19 @@ void defeatCollision(struct Ball *ball)
 {
     if (ball->y > (win_surf->h - 25))
     {
-        clearBonuses();
         ball->isActive = false;
+        ball->isAttached = false;
+        ball->relative = 0;
         activeBallCount--;
         if (activeBallCount == 0)
         {
+            clearBonuses();
             currentLife--;
             resetAllBonuses();
             printf("Vies restantes: %d\n", currentLife);
-            ballIsAttached = true;
-            attachTime = SDL_GetPerformanceCounter(); // Define attachment time
             balls[0].isActive = true;
-            balls[0].x = x_vault + (vault_width / 2) - (srcBall.w / 2);
-            balls[0].y = destVault.y - srcBall.h;
+            balls[0].isAttached = true;
+            balls[0].attachTime = SDL_GetPerformanceCounter();
             balls[0].vy = 0;
             balls[0].vx = 0;
             activeBallCount = 1;
@@ -880,7 +887,6 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
         }
     }
 }
-
 void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault)
 {
     destVault = (SDL_Rect){x_vault, win_surf->h - 32, 0, 0};
@@ -889,12 +895,14 @@ void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf
 
 void attachBallToVault(struct Ball *ball, int x_vault)
 {
-    ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2);
+    // Garder le x en fonction du vaisseau
+    ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2) - ball->relative;
     ball->y = destVault.y - srcBall.h;
 }
 
 void initializeBalls()
 {
+    activeBallCount = 1;
     for (int i = 0; i < MAX_BALLS; i++)
     {
         balls[i].x = 0;
@@ -902,8 +910,13 @@ void initializeBalls()
         balls[i].vx = 0;
         balls[i].vy = 0;
         balls[i].isActive = false;
+        balls[i].isAttached = false;
+        balls[i].relative = 0;
+        balls[i].attachTime = 0;
     }
     balls[0].isActive = true;
+    balls[0].isAttached = true;
+    balls[0].attachTime = SDL_GetPerformanceCounter();
 }
 
 void renderBricks(SDL_Surface *sprites, int num_bricks)
@@ -1107,8 +1120,6 @@ void nextLevel()
         isGameOver = true;
         return;
     }
-    ballIsAttached = true;
-    attachTime = SDL_GetPerformanceCounter();
     initializeBalls();
     initializeLasers();
     initializeBonuses();
@@ -1123,7 +1134,6 @@ void resetGame()
     currentLevel = 1;
     max_speed = 8.0;
     ballSpeedIncrement = BALL_SPEED_INCREMENT;
-    ballIsAttached = true;
     attachTime = SDL_GetPerformanceCounter();
     initializeBalls();
     initializeLasers();
@@ -1337,11 +1347,13 @@ void render()
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     renderBackground(gameSprites, &srcBackground, win_surf);
     renderVault(gameSprites, &srcVault, win_surf, x_vault);
-    if (ballIsAttached)
+    for (int i = 0; i < MAX_BALLS; i++)
     {
-        attachBallToVault(&balls[0], x_vault);
+        if (balls[i].isAttached)
+        {
+            attachBallToVault(&balls[i], x_vault);
+        }
     }
-
     renderAllWalls();
     renderBalls(plancheSprites, &srcBall, win_surf);
     renderBricks(gameSprites, NUM_BRICKS);
@@ -1361,16 +1373,19 @@ void processInput(bool *quit)
     SDL_PumpEvents();
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
-    if (keys[SDL_SCANCODE_SPACE] && ballIsAttached)
+    if (keys[SDL_SCANCODE_SPACE])
     {
-
-        if (releaseCount > 0)
+        for (int i = 0; i < MAX_BALLS; i++)
         {
-            releaseCount--;
+            if (balls[i].isAttached)
+            {
+                balls[i].isAttached = false;
+                balls[i].vy = -5;
+                balls[i].vx = -1;
+                releaseCount--;
+                break; // Libérer une seule balle à chaque appui
+            }
         }
-        ballIsAttached = false;
-        balls[0].vy = -5;
-        balls[0].vx = -1;
     }
 
     // BONUS SPLIT BALL (D_BONUS)
@@ -1433,11 +1448,14 @@ void processInput(bool *quit)
         enlargeVault();
     }
 
-    if (ballIsAttached && (SDL_GetPerformanceCounter() - attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
+    for (int i = 0; i < MAX_BALLS; i++)
     {
-        ballIsAttached = false;
-        balls[0].vy = -5;
-        balls[0].vx = -1;
+        if (balls[i].isAttached && (SDL_GetPerformanceCounter() - balls[i].attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
+        {
+            balls[i].isAttached = false;
+            balls[i].vy = -5;
+            balls[i].vx = -1;
+        }
     }
 
     moveVault(keys);
@@ -1478,7 +1496,8 @@ void mainGameLoop()
             nameIndex = 0;
             playerName[0] = '\0';
         }
-
+        printf("activeBallCount = %d\n", activeBallCount);
+        printf("current life = %d\n", currentLife);
         if (!isGameOver)
         {
             processInput(&quit);
