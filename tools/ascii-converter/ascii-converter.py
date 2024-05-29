@@ -5,7 +5,7 @@ import os
 pygame.init()
 
 # Define constants
-font_path = "retro.ttf"  # Ensure this is the correct path to your font file
+font_path = "retro.ttf" # Ensure this is the correct path to your font file
 font_size = 18
 sprite_width = 16
 sprite_height = 32

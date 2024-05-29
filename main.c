@@ -64,6 +64,7 @@
 #define MAX_BONUSES 10
 #define MAX_NAME_LENGTH 3
 #define MAX_HIGHSCORE 10
+#define MAX_BACKGROUND 5
 
 struct Bonus
 {
@@ -145,7 +146,7 @@ SDL_Surface *leftWallSprites = NULL;
 SDL_Surface *rightWallSprites = NULL;
 // ici, la variable x permet de changer le fond en commençant par 64 jusqu'a 320 en incrémentant a chaque fois par 64
 // Pour l'ecran gameOver, incrémenter la variable y par 64 (version sombre du sprite actuel)
-SDL_Rect srcBackground = {0, 128, 48, 64};
+SDL_Rect srcBackground = {0, 128, 64, 64};
 // ------------------------------------------------------------------------------------------------------------------
 SDL_Rect srcBall = {0, 96, 24, 24};
 SDL_Rect srcVault = {384, 160, 82, 16};
@@ -208,7 +209,8 @@ bool nwasPressed = false;
 bool mWasPressed = false;
 
 bool spaceWasPressed = false;
-// -------------------------------
+// test background
+int backgroundChange = 0;
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
     return !(rect1.x + rect1.w < rect2.x ||
@@ -927,6 +929,20 @@ void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface
     }
 }
 
+void changeBackground()
+{
+    if (backgroundChange < MAX_BACKGROUND)
+    {
+        srcBackground.x+= 64;
+        backgroundChange++;
+    }
+    else
+    {
+        srcBackground.x = 0;
+        backgroundChange = 0;
+    }
+}
+
 void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_BALLS; i++)
@@ -1192,6 +1208,7 @@ void processCongratulationsInput(SDL_Event *event)
 
 void nextLevel()
 {
+    changeBackground();
     clearBonuses();
     resetAllBonuses();
     currentLevel++;
