@@ -115,6 +115,9 @@ struct Brick
     int scoreValue;
     bool isVisible;
     bool isDestructible;
+    bool isAnimating;   // New field to track if the brick is animating
+    int animationFrame; // New field to track the current animation frame
+    Uint64 lastFrameTime;
 };
 
 typedef struct Level
@@ -473,6 +476,7 @@ void brickCollision(struct Ball *ball)
 
             if (isCollision(ballRect, brickRect))
             {
+                // si E cest grey OU D cest gold j'incrémente le srcBrick 5x vers la droite et je reviens a la valeur de base
                 handleBallProperty(ball, brickRect);
                 if (brick[i].isDestructible)
                 {
@@ -501,6 +505,18 @@ void brickCollision(struct Ball *ball)
                         }
                         break;
                     }
+                    else
+                    {
+                        brick[i].isAnimating = true;
+                        brick[i].animationFrame = 0;
+                        brick[i].lastFrameTime = SDL_GetPerformanceCounter();
+                    }
+                }
+                else
+                {
+                    brick[i].isAnimating = true;
+                    brick[i].animationFrame = 0;
+                    brick[i].lastFrameTime = SDL_GetPerformanceCounter();
                 }
             }
         }
@@ -613,6 +629,9 @@ void loadLevelFromFile(const char *filename, bool isEigth)
         brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
         brick[row * NUM_BRICKS_PER_ROW + col].isDestructible = (brickType != 'D');
         brick[row * NUM_BRICKS_PER_ROW + col].touched = (brickType == 'E') ? touched : 1;
+        brick[row * NUM_BRICKS_PER_ROW + col].isAnimating = false;
+        brick[row * NUM_BRICKS_PER_ROW + col].animationFrame = 0;
+        brick[row * NUM_BRICKS_PER_ROW + col].lastFrameTime = SDL_GetPerformanceCounter();
 
         col++;
         if (col == NUM_BRICKS_PER_ROW)
@@ -926,54 +945,85 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
         if (brick[i].isVisible)
         {
             SDL_Rect destBrick = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, 0, 0};
-
-            switch (brick[i].type)
+            if (brick[i].isAnimating)
             {
-            case 'W': // White
-                srcBrick = WHITE_BRICK;
-                brick[i].scoreValue = 50;
-                break;
-            case 'Y': // Yellow
-                srcBrick = YELLOW_BRICK;
-                brick[i].scoreValue = 120;
-                break;
-            case 'B': // Blue1
-                srcBrick = BLUE1_BRICK;
-                brick[i].scoreValue = 70;
-                break;
-            case 'G': // Green1
-                srcBrick = GREEN1_BRICK;
-                brick[i].scoreValue = 80;
-                break;
-            case 'b': // Blue2
-                srcBrick = BLUE2_BRICK;
-                brick[i].scoreValue = 100;
-                break;
-            case 'O': // Orange
-                srcBrick = ORANGE_BRICK;
-                brick[i].scoreValue = 60;
-                break;
-            case 'R': // Red
-                srcBrick = RED_BRICK;
-                brick[i].scoreValue = 90;
-                break;
-            case 'L': // bLue3
-                srcBrick = BLUE3_BRICK;
-                brick[i].scoreValue = 120;
-                break;
-            case 'P': // Pink
-                srcBrick = PINK_BRICK;
-                brick[i].scoreValue = 110;
-                break;
-            case 'E': // grEy
-                srcBrick = GREY_BRICK;
-                brick[i].scoreValue = 50 * currentLevel;
-                break;
-            case 'D': // golD
-                srcBrick = GOLD_BRICK;
-                break;
-            default:
-                continue;
+                double elapsed = (now - brick[i].lastFrameTime) / (double)SDL_GetPerformanceFrequency();
+                if (elapsed > 0.1)
+                {
+                    // Adjust the frame duration as needed
+                    brick[i].animationFrame = (brick[i].animationFrame + 1) % 5; // Assuming 8 frames of animation
+                    brick[i].lastFrameTime = now;
+                    if (brick[i].animationFrame == 0)
+                    {
+                        brick[i].isAnimating = false;
+                    }
+                }
+                int x = 0;
+                switch (brick[i].type)
+                {
+                case 'E':
+                    x = 32;
+                    break;
+                case 'D':
+                    x = 48;
+                    break;
+                default:
+                    break;
+                }
+                srcBrick = (SDL_Rect){(brick[i].animationFrame + 1) * BRICK_WIDTH, x, BRICK_WIDTH, BRICK_HEIGHT};
+            }
+            else
+            {
+
+                switch (brick[i].type)
+                {
+
+                case 'W': // White
+                    srcBrick = WHITE_BRICK;
+                    brick[i].scoreValue = 50;
+                    break;
+                case 'Y': // Yellow
+                    srcBrick = YELLOW_BRICK;
+                    brick[i].scoreValue = 120;
+                    break;
+                case 'B': // Blue1
+                    srcBrick = BLUE1_BRICK;
+                    brick[i].scoreValue = 70;
+                    break;
+                case 'G': // Green1
+                    srcBrick = GREEN1_BRICK;
+                    brick[i].scoreValue = 80;
+                    break;
+                case 'b': // Blue2
+                    srcBrick = BLUE2_BRICK;
+                    brick[i].scoreValue = 100;
+                    break;
+                case 'O': // Orange
+                    srcBrick = ORANGE_BRICK;
+                    brick[i].scoreValue = 60;
+                    break;
+                case 'R': // Red
+                    srcBrick = RED_BRICK;
+                    brick[i].scoreValue = 90;
+                    break;
+                case 'L': // bLue3
+                    srcBrick = BLUE3_BRICK;
+                    brick[i].scoreValue = 120;
+                    break;
+                case 'P': // Pink
+                    srcBrick = PINK_BRICK;
+                    brick[i].scoreValue = 110;
+                    break;
+                case 'E': // grEy
+                    srcBrick = GREY_BRICK;
+                    brick[i].scoreValue = 50 * currentLevel;
+                    break;
+                case 'D': // golD
+                    srcBrick = GOLD_BRICK;
+                    break;
+                default:
+                    continue;
+                }
             }
             SDL_BlitSurface(sprites, &srcBrick, win_surf, &destBrick);
         }
@@ -1496,8 +1546,6 @@ void mainGameLoop()
             nameIndex = 0;
             playerName[0] = '\0';
         }
-        printf("activeBallCount = %d\n", activeBallCount);
-        printf("current life = %d\n", currentLife);
         if (!isGameOver)
         {
             processInput(&quit);
