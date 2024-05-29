@@ -90,6 +90,9 @@ struct Laser
     double y;
     double vy;
     bool isActive;
+    bool isAnimating;
+    int animationFrame;
+    Uint64 lastFrameTime;
 } lasers[MAX_LASERS];
 
 struct Ball
@@ -203,6 +206,8 @@ bool vWasPressed = false;
 bool nwasPressed = false;
 // Variable pour savoir si la touche M a été pressée donc a enlever quand ca sera fait par collision avec le bonus
 bool mWasPressed = false;
+
+bool spaceWasPressed = false;
 // -------------------------------
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
@@ -224,8 +229,7 @@ bool allBricksInvisible()
     return true;
 }
 
-void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser,
-                         SDL_Surface *win_surf)
+void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser,SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_LASERS; i++)
     {
@@ -238,16 +242,46 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
             {
                 if (brick[j].isVisible)
                 {
+
                     SDL_Rect laserRect = {lasers[i].x, lasers[i].y, srcLeftLaser->w, srcLeftLaser->h};
-                    SDL_Rect brickRect = {
-                        brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+                    SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
                     if (isCollision(laserRect, brickRect))
                     {
-                        brick[j].isVisible = false;
-                        lasers[i].isActive = false;
-                        currentScore += 10;
-                        break;
+                        lasers[i].isAnimating = true;
+                        lasers[i].animationFrame = 0;
+                        lasers[i].lastFrameTime = SDL_GetPerformanceCounter();
+
+                        if (brick[j].isDestructible)
+                        {
+                            brick[j].touched--;
+                            lasers[i].isActive = false;
+                            if (brick[j].touched == 0)
+                            {
+                                brick[j].isVisible = false;
+                                currentScore += brick[j].scoreValue;
+                                break;
+                            }
+                            else
+                            {
+                                brick[j].isAnimating = true;
+                                brick[j].animationFrame = 0;
+                                brick[j].lastFrameTime = SDL_GetPerformanceCounter();
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            lasers[i].isActive = false;
+                            brick[j].isAnimating = true;
+                            brick[j].animationFrame = 0;
+                            brick[j].lastFrameTime = SDL_GetPerformanceCounter();
+                            break;
+                        }
+
+                        lasers[i].isAnimating = true;
+                        lasers[i].animationFrame = 0;
+                        lasers[i].lastFrameTime = SDL_GetPerformanceCounter();
                     }
                 }
             }
@@ -950,7 +984,6 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
                 double elapsed = (now - brick[i].lastFrameTime) / (double)SDL_GetPerformanceFrequency();
                 if (elapsed > 0.1)
                 {
-                    // Adjust the frame duration as needed
                     brick[i].animationFrame = (brick[i].animationFrame + 1) % 5; // Assuming 8 frames of animation
                     brick[i].lastFrameTime = now;
                     if (brick[i].animationFrame == 0)
@@ -1424,6 +1457,7 @@ void processInput(bool *quit)
 
     if (keys[SDL_SCANCODE_SPACE])
     {
+
         for (int i = 0; i < MAX_BALLS; i++)
         {
             if (balls[i].isAttached)
@@ -1434,6 +1468,7 @@ void processInput(bool *quit)
                 releaseCount--;
                 break; // Libérer une seule balle à chaque appui
             }
+            break;
         }
     }
 
@@ -1474,6 +1509,7 @@ void processInput(bool *quit)
     //     slowDownBall();
     // }
     // BONUS FIRE LASER (L_BONUS)
+    isLaserBeam = true;
     if (keys[SDL_SCANCODE_M])
     {
         if (!mWasPressed && isLaserBeam)
