@@ -229,8 +229,7 @@ bool allBricksInvisible()
     return true;
 }
 
-void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser,
-                         SDL_Surface *win_surf)
+void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser,SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_LASERS; i++)
     {
@@ -245,22 +244,22 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
                 {
 
                     SDL_Rect laserRect = {lasers[i].x, lasers[i].y, srcLeftLaser->w, srcLeftLaser->h};
-                    SDL_Rect brickRect = {
-                        brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+                    SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
                     if (isCollision(laserRect, brickRect))
                     {
                         lasers[i].isAnimating = true;
                         lasers[i].animationFrame = 0;
                         lasers[i].lastFrameTime = SDL_GetPerformanceCounter();
+
                         if (brick[j].isDestructible)
                         {
                             brick[j].touched--;
+                            lasers[i].isActive = false;
                             if (brick[j].touched == 0)
                             {
                                 brick[j].isVisible = false;
-                                lasers[i].isActive = false;
-                                currentScore += 10;
+                                currentScore += brick[j].scoreValue;
                                 break;
                             }
                             else
