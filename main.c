@@ -65,6 +65,21 @@
 #define MAX_NAME_LENGTH 3
 #define MAX_HIGHSCORE 10
 #define MAX_BACKGROUND 5
+#define MAX_HARMFULS 10
+
+struct Harmful
+{
+    double x;
+    double y;
+    double vx;
+    double vy;
+    bool isActive;
+    int type;
+    bool isFalling;
+    double time;
+    double initialY;
+    double amplitude;
+} harmfuls[MAX_HARMFULS];
 
 struct Bonus
 {
@@ -337,6 +352,23 @@ void fireLaser()
     }
 }
 
+void initializeHarmfuls()
+{
+    for (int i = 0; i < MAX_HARMFULS; i++)
+    {
+        harmfuls[i].x = 0;
+        harmfuls[i].y = 0;
+        harmfuls[i].vx = 0;
+        harmfuls[i].vy = 0;
+        harmfuls[i].isActive = false;
+        harmfuls[i].type = 0;
+        harmfuls[i].isFalling = false;
+        harmfuls[i].initialY = 0; // Nouvelle variable pour la position initiale en Y
+        harmfuls[i].time = 0;
+        harmfuls[i].amplitude = 20; // Amplitude initiale de la sinusoïde
+    }
+}
+
 void initializeBonuses()
 {
     for (int i = 0; i < MAX_BONUSES; i++)
@@ -567,6 +599,109 @@ void brickCollision(struct Ball *ball)
     }
 }
 
+void generateHarmfuls()
+{
+    for (int i = 0; i < MAX_HARMFULS; i++)
+    {
+        if (!harmfuls[i].isActive)
+        {
+            harmfuls[i].x = 355;
+            harmfuls[i].y = Y_WALLS + srcTopWall.h;
+            harmfuls[i].initialY = harmfuls[i].y; // Enregistrer la position initiale en Y
+            harmfuls[i].vx = 2;                   // Déplacement initial à droite
+            harmfuls[i].vy = 0;
+            harmfuls[i].isActive = true;
+            harmfuls[i].type = rand() % 3 + 2;
+            harmfuls[i].isFalling = false;
+            harmfuls[i].amplitude = 20; // Réinitialiser l'amplitude
+            harmfuls[i].time = 0;       // Réinitialiser le temps
+            break;
+        }
+    }
+}
+
+void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
+{
+    for (int i = 0; i < MAX_HARMFULS; i++)
+    {
+        if (harmfuls[i].isActive)
+        {
+            harmfuls[i].time += 1.0 / FPS; // Mettre à jour le temps
+
+            // Mise à jour de la position en x
+            harmfuls[i].x += harmfuls[i].vx;
+
+            // Mise à jour de la position en y avec une trajectoire sinusoïdale
+            harmfuls[i].y = harmfuls[i].initialY + harmfuls[i].amplitude * sin(2 * M_PI * 0.5 * harmfuls[i].time);
+
+            // Vérifier les collisions avec les bords de l'écran
+            if (harmfuls[i].x < srcEdgeWall.w || harmfuls[i].x + 32 > win_surf->w - srcEdgeWall.w)
+            {
+                harmfuls[i].vx *= -1; // Changer de direction en cas de collision avec les bords
+            }
+
+            // Vérifier les collisions avec les briques
+            bool canFall = false;
+            for (int j = 0; j < NUM_BRICKS; j++)
+            {
+                if (brick[j].isVisible)
+                {
+                    SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
+                    SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+
+                    if (isCollision(harmfulRect, brickRect))
+                    {
+                        harmfuls[i].vx *= -1;
+                        harmfuls[i].vy *= -1; // Changer de direction en cas de collision avec une brique
+                        canFall = false;
+                        break;
+                    }
+
+                    // // Vérifier si le harmful peut tomber
+                    // SDL_Rect belowRect = {harmfuls[i].x, harmfuls[i].y + 32, 32, 32};
+                    // if (!isCollision(belowRect, brickRect))
+                    // {
+                    //     canFall = false;
+                    // }
+                }
+            }
+
+            // Si le harmful peut tomber, augmenter l'amplitude de la sinusoïde pour simuler la gravité
+            if (canFall)
+            {
+                harmfuls[i].amplitude += 0.5; // Augmenter l'amplitude pour simuler la descente
+                harmfuls[i].initialY += 1.0;  // Ajouter un effet de gravité
+            }
+            else
+            {
+                // Réduire l'amplitude lorsque le harmful ne peut pas tomber
+                harmfuls[i].amplitude = 20;
+            }
+
+            // Vérifier si le harmful sort de l'écran
+            if (harmfuls[i].y > win_surf->h)
+            {
+                harmfuls[i].isActive = false;
+            }
+
+            // Rendre le harmful
+            if (harmfuls[i].isActive)
+            {
+                SDL_Rect srcHarmful = HARMFUL_2;
+                SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmful.w, srcHarmful.h};
+                SDL_BlitSurface(gameSprites, &srcHarmful, win_surf, &destHarmful);
+            }
+        }
+    }
+}
+void addRandomHarmfuls()
+{
+    if (rand() % 120 < 1) // Environ 0.83% de chance d'ajouter un harmful chaque frame
+    {
+        generateHarmfuls();
+    }
+}
+
 void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_BONUSES; i++)
@@ -638,6 +773,47 @@ void handleCollisions()
             vaultCollision(&balls[i]);
             brickCollision(&balls[i]);
             defeatCollision(&balls[i]);
+        }
+    }
+}
+void handleHarmfulCollisions()
+{
+    SDL_Rect vaultRect = {x_vault, win_surf->h - 32, vault_width, srcVault.h};
+    for (int i = 0; i < MAX_HARMFULS; i++)
+    {
+        if (harmfuls[i].isActive)
+        {
+            SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
+
+            // Collision avec le vaisseau
+            if (isCollision(vaultRect, harmfulRect))
+            {
+                currentScore += 1000;
+                harmfuls[i].isActive = false;
+            }
+
+            // si le harmful touche le mur du bas
+            if (harmfuls[i].y > win_surf->h)
+            {
+                harmfuls[i].isActive = false;
+            }
+
+            // Collision avec les balles
+            for (int j = 0; j < MAX_BALLS; j++)
+            {
+                if (balls[j].isActive)
+                {
+                    SDL_Rect ballRect = {balls[j].x, balls[j].y, srcBall.w, srcBall.h};
+                    if (isCollision(ballRect, harmfulRect))
+                    {
+                        currentScore += 100;
+                        balls[j].vx *= -1;
+                        balls[j].vy *= -1;
+                        harmfuls[i].isActive = false;
+                        break;
+                    }
+                }
+            }
         }
     }
 }
@@ -1231,6 +1407,7 @@ void nextLevel()
     initializeBalls();
     initializeLasers();
     initializeBonuses();
+    initializeHarmfuls();
     max_speed = max_speed + 2.0;
     loadCurrentLevel(((currentLevel) % 8 == 0));
 }
@@ -1470,7 +1647,9 @@ void render()
     renderInfo(asciiSprites, getHighestScore(), "HI-SCORE ", win_surf->w / 2 - 64, 92); // a clean
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     moveAndRenderBonuses(gameSprites, win_surf);
+    moveAndRenderHarmfuls(gameSprites, win_surf);
     handleCollisions();
+    handleHarmfulCollisions();
     handleBonusCollision();
 }
 
@@ -1621,7 +1800,7 @@ void mainGameLoop()
                 isGameOver = true;
                 enteringName = true;
             }
-
+            addRandomHarmfuls(); // Ajouter des harmfuls aléatoirement
             render();
         }
 
