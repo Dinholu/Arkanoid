@@ -941,7 +941,7 @@ void changeBackground()
 {
     if (backgroundChange < MAX_BACKGROUND)
     {
-        srcBackground.x+= 64;
+        srcBackground.x += 64;
         backgroundChange++;
     }
     else
@@ -1534,7 +1534,6 @@ void processInput(bool *quit)
     //     slowDownBall();
     // }
     // BONUS FIRE LASER (L_BONUS)
-    isLaserBeam = true;
     if (keys[SDL_SCANCODE_M])
     {
         if (!mWasPressed && isLaserBeam)
