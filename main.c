@@ -65,31 +65,35 @@
 #define MAX_NAME_LENGTH 3
 #define MAX_HIGHSCORE 10
 
-struct Bonus {
+struct Bonus
+{
     double x;
     double y;
     double vy;
     bool isActive;
     int type;
-    int animationFrame; // Frame actuelle de l'animation
+    int animationFrame;   // Frame actuelle de l'animation
     double animationTime; // Temps écoulé depuis la dernière frame
 };
 
-typedef struct {
+typedef struct
+{
     char name[MAX_NAME_LENGTH + 1];
     int score;
 } HighScore;
 
 struct Bonus bonuses[MAX_BONUSES];
 
-struct Laser {
+struct Laser
+{
     double x;
     double y;
     double vy;
     bool isActive;
 } lasers[MAX_LASERS];
 
-struct Ball {
+struct Ball
+{
     double x;
     double y;
     double vx;
@@ -99,7 +103,8 @@ struct Ball {
 
 struct Ball balls[MAX_BALLS];
 
-struct Brick {
+struct Brick
+{
     double x;
     double y;
     char type;
@@ -109,7 +114,8 @@ struct Brick {
     bool isDestructible;
 };
 
-typedef struct Level {
+typedef struct Level
+{
     int bricks[NUM_ROWS][NUM_BRICKS_PER_ROW];
 } Level;
 
@@ -170,9 +176,9 @@ bool isShrinking = false;
 int enlargeSteps = 5;
 int currentStep = 0;
 Uint64 enlargeStartTime = 0;
-double enlargeDuration = 0.5; // Durée de l'agrandissement en secondes
+double enlargeDuration = 0.5;      // Durée de l'agrandissement en secondes
 double enlargedHoldDuration = 5.0; // Durée pendant laquelle le vaisseau reste agrandi en secondes
-double shrinkDuration = 0.5; // Durée de la réduction en secondes
+double shrinkDuration = 0.5;       // Durée de la réduction en secondes
 
 // bonus laser beam
 bool isLaserBeam = false;
@@ -194,16 +200,20 @@ bool nwasPressed = false;
 // Variable pour savoir si la touche M a été pressée donc a enlever quand ca sera fait par collision avec le bonus
 bool mWasPressed = false;
 // -------------------------------
-bool isCollision(SDL_Rect rect1, SDL_Rect rect2) {
+bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
+{
     return !(rect1.x + rect1.w < rect2.x ||
              rect1.x > rect2.x + rect2.w ||
              rect1.y + rect1.h < rect2.y ||
              rect1.y > rect2.y + rect2.h);
 }
 
-bool allBricksInvisible() {
-    for (int i = 0; i < NUM_BRICKS; i++) {
-        if (brick[i].isVisible) {
+bool allBricksInvisible()
+{
+    for (int i = 0; i < NUM_BRICKS; i++)
+    {
+        if (brick[i].isVisible)
+        {
             return false;
         }
     }
@@ -211,20 +221,25 @@ bool allBricksInvisible() {
 }
 
 void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser,
-                         SDL_Surface *win_surf) {
-    for (int i = 0; i < MAX_LASERS; i++) {
-        if (lasers[i].isActive) {
+                         SDL_Surface *win_surf)
+{
+    for (int i = 0; i < MAX_LASERS; i++)
+    {
+        if (lasers[i].isActive)
+        {
             lasers[i].y += lasers[i].vy;
 
             // Vérifier les collisions avec les briques
-            for (int j = 0; j < NUM_BRICKS; j++) {
-                if (brick[j].isVisible) {
+            for (int j = 0; j < NUM_BRICKS; j++)
+            {
+                if (brick[j].isVisible)
+                {
                     SDL_Rect laserRect = {lasers[i].x, lasers[i].y, srcLeftLaser->w, srcLeftLaser->h};
                     SDL_Rect brickRect = {
-                        brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT
-                    };
+                        brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
-                    if (isCollision(laserRect, brickRect)) {
+                    if (isCollision(laserRect, brickRect))
+                    {
                         brick[j].isVisible = false;
                         lasers[i].isActive = false;
                         currentScore += 10;
@@ -234,16 +249,21 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
             }
 
             // Désactiver le laser s'il sort de l'écran
-            if (lasers[i].y < Y_WALLS + srcTopWall.h) {
+            if (lasers[i].y < Y_WALLS + srcTopWall.h)
+            {
                 lasers[i].isActive = false;
             }
 
             // Rendre le laser
-            if (lasers[i].isActive) {
+            if (lasers[i].isActive)
+            {
                 SDL_Rect destLaser = {lasers[i].x, lasers[i].y, 0, 0};
-                if (i % 2 == 0) {
+                if (i % 2 == 0)
+                {
                     SDL_BlitSurface(gameSprites, srcLeftLaser, win_surf, &destLaser);
-                } else {
+                }
+                else
+                {
                     SDL_BlitSurface(gameSprites, srcRightLaser, win_surf, &destLaser);
                 }
             }
@@ -251,18 +271,21 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
     }
 }
 
-void fireLaser() {
+void fireLaser()
+{
     mWasPressed = true;
-    for (int i = 0; i < MAX_LASERS; i += 2) {
-        if (!lasers[i].isActive && !lasers[i + 1].isActive) {
+    for (int i = 0; i < MAX_LASERS; i += 2)
+    {
+        if (!lasers[i].isActive && !lasers[i + 1].isActive)
+        {
             // Laser gauche
-            lasers[i].x = x_vault + 10; // Positionner le laser sur le côté gauche du vaisseau
+            lasers[i].x = x_vault + 10;     // Positionner le laser sur le côté gauche du vaisseau
             lasers[i].y = destVault.y - 20; // Positionner le laser juste au-dessus du vaisseau
             lasers[i].isActive = true;
 
             // Laser droit
             lasers[i + 1].x = x_vault + vault_width - 26; // Positionner le laser sur le côté droit du vaisseau
-            lasers[i + 1].y = destVault.y - 20; // Positionner le laser juste au-dessus du vaisseau
+            lasers[i + 1].y = destVault.y - 20;           // Positionner le laser juste au-dessus du vaisseau
             lasers[i + 1].isActive = true;
 
             break;
@@ -270,8 +293,10 @@ void fireLaser() {
     }
 }
 
-void initializeBonuses() {
-    for (int i = 0; i < MAX_BONUSES; i++) {
+void initializeBonuses()
+{
+    for (int i = 0; i < MAX_BONUSES; i++)
+    {
         bonuses[i].x = 0;
         bonuses[i].y = 0;
         bonuses[i].vy = 200;
@@ -282,8 +307,10 @@ void initializeBonuses() {
     }
 }
 
-void initializeLasers() {
-    for (int i = 0; i < MAX_LASERS; i++) {
+void initializeLasers()
+{
+    for (int i = 0; i < MAX_LASERS; i++)
+    {
         lasers[i].x = 0;
         lasers[i].y = 0;
         lasers[i].vy = -10;
@@ -291,8 +318,16 @@ void initializeLasers() {
     }
 }
 
-void splitBall() {
-    if (activeBallCount == 1) {
+void splitBall()
+{
+    if (ballIsAttached)
+    {
+        ballIsAttached = false;
+        balls[0].vy = -5;
+        balls[0].vx = -1;
+    }
+    if (activeBallCount == 1)
+    {
         balls[1] = balls[0];
         balls[2] = balls[0];
         balls[1].vx = balls[0].vx * cos(M_PI / 6) - balls[0].vy * sin(M_PI / 6);
@@ -305,18 +340,23 @@ void splitBall() {
     }
 }
 
-void wallCollision(struct Ball *ball) {
+void wallCollision(struct Ball *ball)
+{
     // Collision mur latéral
-    if (ball->x < srcEdgeWall.w) {
+    if (ball->x < srcEdgeWall.w)
+    {
         ball->x = srcEdgeWall.w; // Reset position to avoid getting stuck
         ball->vx *= -1;
-    } else if (ball->x + srcBall.w > win_surf->w - srcEdgeWall.w) {
+    }
+    else if (ball->x + srcBall.w > win_surf->w - srcEdgeWall.w)
+    {
         ball->x = win_surf->w - srcEdgeWall.w - srcBall.w;
         ball->vx *= -1;
     }
 
     // Collision mur top
-    if (ball->y < srcTopWall.h + Y_WALLS) {
+    if (ball->y < srcTopWall.h + Y_WALLS)
+    {
         ball->y = srcTopWall.h + Y_WALLS;
         ball->vy *= -1;
     }
@@ -327,15 +367,19 @@ void wallCollision(struct Ball *ball) {
 // 32 correspond à la position qu'on voudrait positionner le vaisseau
 // 128 correspond à la taille du vaisseau
 // Ici x_vault nous indique la position relative du vaisseau sur l'affichage
-void vaultCollision(struct Ball *ball) {
-    if ((ball->y + srcBall.h > win_surf->h - 32) && (ball->x + srcBall.w > x_vault) && (
-            ball->x < x_vault + vault_width)) {
-        if (releaseCount > 0) {
+void vaultCollision(struct Ball *ball)
+{
+    if ((ball->y + srcBall.h > win_surf->h - 32) && (ball->x + srcBall.w > x_vault) && (ball->x < x_vault + vault_width))
+    {
+        if (releaseCount > 0)
+        {
             ballIsAttached = true;
             attachTime = SDL_GetPerformanceCounter();
             ball->vx = 0;
             ball->vy = 0;
-        } else {
+        }
+        else
+        {
             double relativeCollisionX = (ball->x + 12) - (x_vault + vault_width / 2);
             double normalizedRelativeCollisionX = relativeCollisionX / (vault_width / 2);
 
@@ -348,24 +392,30 @@ void vaultCollision(struct Ball *ball) {
     }
 }
 
-void resetAllBonuses() {
+void resetAllBonuses()
+{
     isLaserBeam = false;
     isEnlarging = false;
     releaseCount = 0;
 }
 
-void clearBonuses() {
-    for (int i = 0; i < MAX_BONUSES; i++) {
+void clearBonuses()
+{
+    for (int i = 0; i < MAX_BONUSES; i++)
+    {
         bonuses[i].isActive = false;
     }
 }
 
-void defeatCollision(struct Ball *ball) {
-    if (ball->y > (win_surf->h - 25)) {
+void defeatCollision(struct Ball *ball)
+{
+    if (ball->y > (win_surf->h - 25))
+    {
         clearBonuses();
         ball->isActive = false;
         activeBallCount--;
-        if (activeBallCount == 0) {
+        if (activeBallCount == 0)
+        {
             currentLife--;
             resetAllBonuses();
             printf("Vies restantes: %d\n", currentLife);
@@ -381,7 +431,8 @@ void defeatCollision(struct Ball *ball) {
     }
 }
 
-void handleBallProperty(struct Ball *ball, SDL_Rect brickRect) {
+void handleBallProperty(struct Ball *ball, SDL_Rect brickRect)
+{
     double ballCenterX = ball->x + srcBall.w / 2;
     double ballCenterY = ball->y + srcBall.h / 2;
     double brickCenterX = brickRect.x + (BRICK_WIDTH / 2);
@@ -394,7 +445,8 @@ void handleBallProperty(struct Ball *ball, SDL_Rect brickRect) {
     ball->vx = speed * cos(reflectionAngle);
     ball->vy = speed * sin(reflectionAngle);
 
-    if (speed <= max_speed) {
+    if (speed <= max_speed)
+    {
         ball->vx += (ball->vx > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
         ball->vy += (ball->vy > 0) ? ballSpeedIncrement : -ballSpeedIncrement;
     }
@@ -402,28 +454,36 @@ void handleBallProperty(struct Ball *ball, SDL_Rect brickRect) {
     printf("Speed: %f\n", sqrt(ball->vx * ball->vx + ball->vy * ball->vy));
 }
 
-void brickCollision(struct Ball *ball) {
-    for (int i = 0; i < NUM_BRICKS; i++) {
-        if (brick[i].isVisible) {
+void brickCollision(struct Ball *ball)
+{
+    for (int i = 0; i < NUM_BRICKS; i++)
+    {
+        if (brick[i].isVisible)
+        {
             SDL_Rect ballRect = {ball->x, ball->y, srcBall.w, srcBall.h};
             SDL_Rect brickRect = {
-                brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT
-            };
+                brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
-            if (isCollision(ballRect, brickRect)) {
+            if (isCollision(ballRect, brickRect))
+            {
                 handleBallProperty(ball, brickRect);
-                if (brick[i].isDestructible) {
+                if (brick[i].isDestructible)
+                {
                     brick[i].touched--;
-                    if (brick[i].touched == 0) {
+                    if (brick[i].touched == 0)
+                    {
                         brick[i].isVisible = false;
                         currentScore += brick[i].scoreValue;
                         printf("Score: %d\n", currentScore);
 
                         // Generate bonus
                         int randValue = rand() % 9;
-                        if (randValue < 6) {
-                            for (int j = 0; j < MAX_BONUSES; j++) {
-                                if (!bonuses[j].isActive) {
+                        if (randValue < 6)
+                        {
+                            for (int j = 0; j < MAX_BONUSES; j++)
+                            {
+                                if (!bonuses[j].isActive)
+                                {
                                     bonuses[j].x = brick[i].x + BRICK_WIDTH / 2;
                                     bonuses[j].y = brick[i].y + BRICK_HEIGHT / 2;
                                     bonuses[j].isActive = true;
@@ -440,64 +500,73 @@ void brickCollision(struct Ball *ball) {
     }
 }
 
-void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf) {
-    for (int i = 0; i < MAX_BONUSES; i++) {
-        if (bonuses[i].isActive) {
+void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
+{
+    for (int i = 0; i < MAX_BONUSES; i++)
+    {
+        if (bonuses[i].isActive)
+        {
             bonuses[i].y += bonuses[i].vy * delta_t; // Mise à jour de la position en fonction de delta_t
-            bonuses[i].animationTime += delta_t; // Mise à jour du temps d'animation
+            bonuses[i].animationTime += delta_t;     // Mise à jour du temps d'animation
 
-            if (bonuses[i].animationTime >= 0.1) {
+            if (bonuses[i].animationTime >= 0.1)
+            {
                 bonuses[i].animationFrame = (bonuses[i].animationFrame + 1) % 8; // Boucler sur 8 frames d'animation
                 bonuses[i].animationTime = 0;
             }
 
             // Vérifier si le bonus sort de l'écran
-            if (bonuses[i].y > win_surf->h) {
+            if (bonuses[i].y > win_surf->h)
+            {
                 bonuses[i].isActive = false;
             }
 
             // Rendre le bonus
-            if (bonuses[i].isActive) {
+            if (bonuses[i].isActive)
+            {
                 SDL_Rect srcBonus;
                 int frameOffset = bonuses[i].animationFrame * 32;
-                switch (bonuses[i].type) {
-                    case 1:
-                        srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
-                        break;
-                    case 2:
-                        srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
-                        break;
-                    case 3:
-                        srcBonus = (SDL_Rect){256 + frameOffset, 32, 32, 16};
-                        break;
-                    case 4:
-                        srcBonus = (SDL_Rect){256 + frameOffset, 48, 32, 16};
-                        break;
-                    case 5:
-                        srcBonus = (SDL_Rect){256 + frameOffset, 64, 32, 16};
-                        break;
-                    case 6:
-                        srcBonus = (SDL_Rect){256 + frameOffset, 80, 32, 16};
-                        break;
-                    case 7:
-                        srcBonus = (SDL_Rect){256 + frameOffset, 96, 32, 16};
-                        break;
-                    default:
-                        srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
-                        break;
+                switch (bonuses[i].type)
+                {
+                case 1:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
+                    break;
+                case 2:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
+                    break;
+                case 3:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 32, 32, 16};
+                    break;
+                case 4:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 48, 32, 16};
+                    break;
+                case 5:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 64, 32, 16};
+                    break;
+                case 6:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 80, 32, 16};
+                    break;
+                case 7:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 96, 32, 16};
+                    break;
+                default:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
+                    break;
                 }
                 SDL_Rect destBonus = {
-                    bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h
-                };
+                    bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
                 SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
             }
         }
     }
 }
 
-void handleCollisions() {
-    for (int i = 0; i < MAX_BALLS; i++) {
-        if (balls[i].isActive) {
+void handleCollisions()
+{
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
+        if (balls[i].isActive)
+        {
             wallCollision(&balls[i]);
             vaultCollision(&balls[i]);
             brickCollision(&balls[i]);
@@ -506,9 +575,11 @@ void handleCollisions() {
     }
 }
 
-void loadLevelFromFile(const char *filename, bool isEigth) {
+void loadLevelFromFile(const char *filename, bool isEigth)
+{
     FILE *file = fopen(filename, "r");
-    if (file == NULL) {
+    if (file == NULL)
+    {
         fprintf(stderr, "Erreur lors de l'ouverture du fichier %s\n", filename);
         exit(EXIT_FAILURE);
     }
@@ -517,13 +588,16 @@ void loadLevelFromFile(const char *filename, bool isEigth) {
     int col = 0;
     char brickType;
 
-    if (isEigth) {
+    if (isEigth)
+    {
         touched++;
     }
     printf("Touched:%i\n", touched);
 
-    while (fscanf(file, "%1c", &brickType) != EOF) {
-        if (brickType == '\n') {
+    while (fscanf(file, "%1c", &brickType) != EOF)
+    {
+        if (brickType == '\n')
+        {
             continue; // Skip newline characters
         }
         brick[row * NUM_BRICKS_PER_ROW + col].type = brickType;
@@ -534,10 +608,12 @@ void loadLevelFromFile(const char *filename, bool isEigth) {
         brick[row * NUM_BRICKS_PER_ROW + col].touched = (brickType == 'E') ? touched : 1;
 
         col++;
-        if (col == NUM_BRICKS_PER_ROW) {
+        if (col == NUM_BRICKS_PER_ROW)
+        {
             col = 0;
             row++;
-            if (row == NUM_ROWS) {
+            if (row == NUM_ROWS)
+            {
                 fclose(file);
                 return;
             }
@@ -547,62 +623,76 @@ void loadLevelFromFile(const char *filename, bool isEigth) {
     fclose(file);
 }
 
-void moveVault(const Uint8 *keys) {
+void moveVault(const Uint8 *keys)
+{
     const int wallWidth = srcEdgeWall.w;
     const int vaultSpeed = 10;
 
-    if (keys[SDL_SCANCODE_LEFT]) {
+    if (keys[SDL_SCANCODE_LEFT])
+    {
         x_vault -= vaultSpeed;
     }
-    if (keys[SDL_SCANCODE_RIGHT]) {
+    if (keys[SDL_SCANCODE_RIGHT])
+    {
         x_vault += vaultSpeed;
     }
 
-    if (x_vault < wallWidth) {
+    if (x_vault < wallWidth)
+    {
         x_vault = wallWidth;
     }
 
-    if (x_vault > win_surf->w - vault_width - wallWidth) {
+    if (x_vault > win_surf->w - vault_width - wallWidth)
+    {
         x_vault = win_surf->w - vault_width - wallWidth;
     }
 }
 // ----------- SCORE --------------//
-int compareHighScores(const void *a, const void *b) {
-    HighScore *scoreA = (HighScore *) a;
-    HighScore *scoreB = (HighScore *) b;
+int compareHighScores(const void *a, const void *b)
+{
+    HighScore *scoreA = (HighScore *)a;
+    HighScore *scoreB = (HighScore *)b;
     return scoreB->score - scoreA->score;
 }
 
-void sortHighScores(HighScore highScores[], int count) {
+void sortHighScores(HighScore highScores[], int count)
+{
     qsort(highScores, count, sizeof(HighScore), compareHighScores);
 }
 
-void writeHighScores(HighScore highScores[], int count) {
+void writeHighScores(HighScore highScores[], int count)
+{
     FILE *file = fopen("highscores.txt", "w");
-    if (file == NULL) {
+    if (file == NULL)
+    {
         printf("Unable to open highscores.txt for writing.\n");
         return;
     }
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
+    {
         fprintf(file, "%s %d\n", highScores[i].name, highScores[i].score);
     }
 
     fclose(file);
 }
 
-void readHighScores(HighScore highScores[], int *count) {
+void readHighScores(HighScore highScores[], int *count)
+{
     FILE *file = fopen("highscores.txt", "r");
-    if (file == NULL) {
+    if (file == NULL)
+    {
         printf("Unable to open highscores.txt for reading.\n");
         *count = 0;
         return;
     }
 
     *count = 0;
-    while (fscanf(file, "%s %d", highScores[*count].name, &highScores[*count].score) != EOF) {
+    while (fscanf(file, "%s %d", highScores[*count].name, &highScores[*count].score) != EOF)
+    {
         (*count)++;
-        if (*count >= MAX_HIGHSCORE) {
+        if (*count >= MAX_HIGHSCORE)
+        {
             break;
         }
     }
@@ -610,7 +700,8 @@ void readHighScores(HighScore highScores[], int *count) {
     fclose(file);
 }
 
-void saveHighScore(const char *playerName, int score) {
+void saveHighScore(const char *playerName, int score)
+{
     HighScore highScores[MAX_HIGHSCORE + 1];
     int count;
     readHighScores(highScores, &count);
@@ -624,7 +715,8 @@ void saveHighScore(const char *playerName, int score) {
     sortHighScores(highScores, count);
 
     // Limiter à MAX_HIGH_SCORES
-    if (count > MAX_HIGHSCORE) {
+    if (count > MAX_HIGHSCORE)
+    {
         count = MAX_HIGHSCORE;
     }
 
@@ -632,38 +724,50 @@ void saveHighScore(const char *playerName, int score) {
     writeHighScores(highScores, count);
 }
 
-int getHighestScore() {
+int getHighestScore()
+{
     int highScore;
     int count;
     HighScore highScores[MAX_HIGHSCORE];
     readHighScores(highScores, &count);
 
-    if (count == 0) {
+    if (count == 0)
+    {
         highScore = 0;
     }
-    else {
+    else
+    {
         highScore = highScores[0].score;
     }
 
-    if (currentScore > highScore) {
+    if (currentScore > highScore)
+    {
         highScore = currentScore;
     }
 
     return highScore;
 }
 
-void processNameInput(SDL_Event *event) {
-    if (event->type == SDL_KEYDOWN) {
-        if (event->key.keysym.sym == SDLK_RETURN) {
+void processNameInput(SDL_Event *event)
+{
+    if (event->type == SDL_KEYDOWN)
+    {
+        if (event->key.keysym.sym == SDLK_RETURN)
+        {
             enteringName = false;
             showMenu = true;
             saveHighScore(playerName, currentScore);
             printf("Player Name: %s, Score: %d\n", playerName, currentScore);
-        } else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0) {
+        }
+        else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0)
+        {
             playerName[--nameIndex] = '\0';
-        } else if (nameIndex < MAX_NAME_LENGTH) {
-            char key = (char) event->key.keysym.sym;
-            if ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z')) {
+        }
+        else if (nameIndex < MAX_NAME_LENGTH)
+        {
+            char key = (char)event->key.keysym.sym;
+            if ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z'))
+            {
                 playerName[nameIndex++] = key;
                 playerName[nameIndex] = '\0';
             }
@@ -672,13 +776,15 @@ void processNameInput(SDL_Event *event) {
 }
 
 // ----- STRING -----//
-SDL_Rect charToSDLRect(char character) {
+SDL_Rect charToSDLRect(char character)
+{
     const int spriteWidth = 16;
     const int spriteHeight = 32;
     const int charsPerRow = 16;
     const int spriteSpacing = 32;
 
-    if (character < ' ' || character > '~') {
+    if (character < ' ' || character > '~')
+    {
         fprintf(stderr, "Character out of printable ASCII range: %d\n", character);
         return (SDL_Rect){0, 0, spriteWidth, spriteHeight};
     }
@@ -691,13 +797,15 @@ SDL_Rect charToSDLRect(char character) {
     return rect;
 }
 //------- RENDERING -------//
-void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string, int startX, int startY) {
+void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string, int startX, int startY)
+{
     int x = startX;
     int y = startY;
     const int spacing = 1;
 
     SDL_Rect srcRect, destRect;
-    while (*string) {
+    while (*string)
+    {
         srcRect = charToSDLRect(*string);
         destRect = (SDL_Rect){x, y, srcRect.w, srcRect.h};
 
@@ -708,7 +816,8 @@ void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string
     }
 }
 
-void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf) {
+void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
+{
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
     dest.x = (win_surf->w - srcLogo->w) / 2;
@@ -720,7 +829,8 @@ void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *
     renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
 }
 
-void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf) {
+void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
+{
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
     dest.x = (win_surf->w - srcLogo->w) / 2;
@@ -732,7 +842,8 @@ void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Su
     renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
 }
 
-void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf) {
+void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
+{
     SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
     dest.x = (win_surf->w - srcLogo->w) / 2;
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
@@ -742,10 +853,13 @@ void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf) 
     SDL_BlitSurface(sprites, &srcVaus, win_surf, &destVaus);
 }
 
-void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface *win_surf) {
+void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface *win_surf)
+{
     SDL_Rect dest = {0, 0, 0, 0};
-    for (int j = Y_WALLS + srcTopWall.h; j < win_surf->h; j += srcBackground->h) {
-        for (int i = srcEdgeWall.w; i < win_surf->w; i += srcBackground->w) {
+    for (int j = Y_WALLS + srcTopWall.h; j < win_surf->h; j += srcBackground->h)
+    {
+        for (int i = srcEdgeWall.w; i < win_surf->w; i += srcBackground->w)
+        {
             dest.x = i;
             dest.y = j;
             SDL_BlitSurface(sprites, srcBackground, win_surf, &dest);
@@ -753,9 +867,12 @@ void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface
     }
 }
 
-void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf) {
-    for (int i = 0; i < MAX_BALLS; i++) {
-        if (balls[i].isActive) {
+void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
+{
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
+        if (balls[i].isActive)
+        {
             SDL_Rect destBall = {balls[i].x, balls[i].y, 0, 0};
             SDL_BlitSurface(sprites, srcBall, win_surf, &destBall);
             balls[i].x += balls[i].vx;
@@ -764,18 +881,22 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
     }
 }
 
-void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault) {
+void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault)
+{
     destVault = (SDL_Rect){x_vault, win_surf->h - 32, 0, 0};
     SDL_BlitSurface(sprites, srcVault, win_surf, &destVault);
 }
 
-void attachBallToVault(struct Ball *ball, int x_vault) {
+void attachBallToVault(struct Ball *ball, int x_vault)
+{
     ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2);
     ball->y = destVault.y - srcBall.h;
 }
 
-void initializeBalls() {
-    for (int i = 0; i < MAX_BALLS; i++) {
+void initializeBalls()
+{
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
         balls[i].x = 0;
         balls[i].y = destVault.y - srcBall.h;
         balls[i].vx = 0;
@@ -785,71 +906,77 @@ void initializeBalls() {
     balls[0].isActive = true;
 }
 
-void renderBricks(SDL_Surface *sprites, int num_bricks) {
-    for (int i = 0; i < num_bricks; i++) {
-        if (brick[i].isVisible) {
+void renderBricks(SDL_Surface *sprites, int num_bricks)
+{
+    for (int i = 0; i < num_bricks; i++)
+    {
+        if (brick[i].isVisible)
+        {
             SDL_Rect destBrick = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, 0, 0};
 
-            switch (brick[i].type) {
-                case 'W': // White
-                    srcBrick = WHITE_BRICK;
-                    brick[i].scoreValue = 50;
-                    break;
-                case 'Y': // Yellow
-                    srcBrick = YELLOW_BRICK;
-                    brick[i].scoreValue = 120;
-                    break;
-                case 'B': // Blue1
-                    srcBrick = BLUE1_BRICK;
-                    brick[i].scoreValue = 70;
-                    break;
-                case 'G': // Green1
-                    srcBrick = GREEN1_BRICK;
-                    brick[i].scoreValue = 80;
-                    break;
-                case 'b': // Blue2
-                    srcBrick = BLUE2_BRICK;
-                    brick[i].scoreValue = 100;
-                    break;
-                case 'O': // Orange
-                    srcBrick = ORANGE_BRICK;
-                    brick[i].scoreValue = 60;
-                    break;
-                case 'R': // Red
-                    srcBrick = RED_BRICK;
-                    brick[i].scoreValue = 90;
-                    break;
-                case 'L': // bLue3
-                    srcBrick = BLUE3_BRICK;
-                    brick[i].scoreValue = 120;
-                    break;
-                case 'P': // Pink
-                    srcBrick = PINK_BRICK;
-                    brick[i].scoreValue = 110;
-                    break;
-                case 'E': // grEy
-                    srcBrick = GREY_BRICK;
-                    brick[i].scoreValue = 50 * currentLevel;
-                    break;
-                case 'D': // golD
-                    srcBrick = GOLD_BRICK;
-                    break;
-                default:
-                    continue;
+            switch (brick[i].type)
+            {
+            case 'W': // White
+                srcBrick = WHITE_BRICK;
+                brick[i].scoreValue = 50;
+                break;
+            case 'Y': // Yellow
+                srcBrick = YELLOW_BRICK;
+                brick[i].scoreValue = 120;
+                break;
+            case 'B': // Blue1
+                srcBrick = BLUE1_BRICK;
+                brick[i].scoreValue = 70;
+                break;
+            case 'G': // Green1
+                srcBrick = GREEN1_BRICK;
+                brick[i].scoreValue = 80;
+                break;
+            case 'b': // Blue2
+                srcBrick = BLUE2_BRICK;
+                brick[i].scoreValue = 100;
+                break;
+            case 'O': // Orange
+                srcBrick = ORANGE_BRICK;
+                brick[i].scoreValue = 60;
+                break;
+            case 'R': // Red
+                srcBrick = RED_BRICK;
+                brick[i].scoreValue = 90;
+                break;
+            case 'L': // bLue3
+                srcBrick = BLUE3_BRICK;
+                brick[i].scoreValue = 120;
+                break;
+            case 'P': // Pink
+                srcBrick = PINK_BRICK;
+                brick[i].scoreValue = 110;
+                break;
+            case 'E': // grEy
+                srcBrick = GREY_BRICK;
+                brick[i].scoreValue = 50 * currentLevel;
+                break;
+            case 'D': // golD
+                srcBrick = GOLD_BRICK;
+                break;
+            default:
+                continue;
             }
             SDL_BlitSurface(sprites, &srcBrick, win_surf, &destBrick);
         }
     }
 }
 
-void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY) {
+void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY)
+{
     char *string = malloc(sizeof(*string) * 256);
     sprintf(string, "%s%d", label, value);
     renderString(sprites, win_surf, string, startX, startY);
     free(string);
 }
 
-void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites) {
+void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
+{
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
 
     HighScore highScores[MAX_HIGHSCORE];
@@ -858,7 +985,8 @@ void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites) {
 
     renderString(asciiSprites, win_surf, "HIGH SCORES", (win_surf->w - 160) / 2, 100);
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
+    {
         char scoreText[256];
         sprintf(scoreText, "%s %d", highScores[i].name, highScores[i].score);
         renderString(asciiSprites, win_surf, scoreText, 50, 150 + i * 40);
@@ -869,12 +997,16 @@ void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites) {
     // Wait for a key press to return to the menu
     bool waiting = true;
     SDL_Event event;
-    while (waiting) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+    while (waiting)
+    {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
                 exit(EXIT_SUCCESS);
             }
-            if (event.type == SDL_KEYDOWN) {
+            if (event.type == SDL_KEYDOWN)
+            {
                 SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
                 waiting = false;
             }
@@ -882,7 +1014,8 @@ void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites) {
     }
 }
 
-void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf) {
+void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
+{
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     bool inMenu = true;
     SDL_Event event;
@@ -890,7 +1023,8 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf) {
     int optionWidth = 160;
     int startOptionX = (win_surf->w - optionWidth) / 2;
 
-    while (inMenu) {
+    while (inMenu)
+    {
         renderMenu(menuSprites, &srcLogo, win_surf);
         renderString(asciiSprites, win_surf, "1. START", startOptionX, srcLogo.h + 192);
         renderString(asciiSprites, win_surf, "2. HIGH SCORES", startOptionX, srcLogo.h + 256);
@@ -898,48 +1032,61 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf) {
 
         SDL_UpdateWindowSurface(pWindow);
 
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
                 exit(EXIT_SUCCESS);
             }
-            if (event.type == SDL_KEYDOWN) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_1:
-                        inMenu = false;
-                        showMenu = false;
-                        break;
-                    case SDLK_2:
-                        showHighScores(win_surf, asciiSprites);
-                        break;
-                    case SDLK_3:
-                        exit(EXIT_SUCCESS);
-                        break;
-                    default:
-                        break;
+            if (event.type == SDL_KEYDOWN)
+            {
+                switch (event.key.keysym.sym)
+                {
+                case SDLK_1:
+                    inMenu = false;
+                    showMenu = false;
+                    break;
+                case SDLK_2:
+                    showHighScores(win_surf, asciiSprites);
+                    break;
+                case SDLK_3:
+                    exit(EXIT_SUCCESS);
+                    break;
+                default:
+                    break;
                 }
             }
         }
     }
 }
 
-void loadCurrentLevel(bool isEigth) {
+void loadCurrentLevel(bool isEigth)
+{
     char filename[20];
     sprintf(filename, "level%d.txt", currentLevel);
     loadLevelFromFile(filename, isEigth);
 }
 
-void processCongratulationsInput(SDL_Event *event) {
-    if (event->type == SDL_KEYDOWN) {
-        if (event->key.keysym.sym == SDLK_RETURN) {
+void processCongratulationsInput(SDL_Event *event)
+{
+    if (event->type == SDL_KEYDOWN)
+    {
+        if (event->key.keysym.sym == SDLK_RETURN)
+        {
             enteringName = false;
             showMenu = true;
             saveHighScore(playerName, currentScore);
             printf("Player Name: %s, Score: %d\n", playerName, currentScore);
-        } else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0) {
+        }
+        else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0)
+        {
             playerName[--nameIndex] = '\0';
-        } else if (nameIndex < MAX_NAME_LENGTH) {
-            char key = (char) event->key.keysym.sym;
-            if ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z')) {
+        }
+        else if (nameIndex < MAX_NAME_LENGTH)
+        {
+            char key = (char)event->key.keysym.sym;
+            if ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z'))
+            {
                 playerName[nameIndex++] = key;
                 playerName[nameIndex] = '\0';
             }
@@ -947,11 +1094,13 @@ void processCongratulationsInput(SDL_Event *event) {
     }
 }
 
-void nextLevel() {
+void nextLevel()
+{
     clearBonuses();
     resetAllBonuses();
     currentLevel++;
-    if (currentLevel >= NUM_LEVELS) {
+    if (currentLevel >= NUM_LEVELS)
+    {
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
         enteringName = true;
         showMenu = false;
@@ -967,7 +1116,8 @@ void nextLevel() {
     loadCurrentLevel(((currentLevel) % 8 == 0));
 }
 
-void resetGame() {
+void resetGame()
+{
     currentLife = 3;
     currentScore = 0;
     currentLevel = 1;
@@ -981,15 +1131,18 @@ void resetGame() {
     loadCurrentLevel(((currentLevel) % 8 == 0));
 }
 
-void initializeSDL() {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
+void initializeSDL()
+{
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+    {
         fprintf(stderr, "SDL Initialization failed: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
 
     pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 556, 800,
                                SDL_WINDOW_SHOWN);
-    if (!pWindow) {
+    if (!pWindow)
+    {
         fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
         exit(EXIT_FAILURE);
@@ -1004,8 +1157,8 @@ void initializeSDL() {
     leftWallSprites = SDL_LoadBMP("./edge_left.bmp");
     rightWallSprites = SDL_LoadBMP("./edge_right.bmp");
 
-    if (!plancheSprites || !gameSprites || !asciiSprites || !menuSprites || !topWallSprites || !leftWallSprites || !
-        rightWallSprites) {
+    if (!plancheSprites || !gameSprites || !asciiSprites || !menuSprites || !topWallSprites || !leftWallSprites || !rightWallSprites)
+    {
         fprintf(stderr, "Sprite loading failed: %s\n", SDL_GetError());
         SDL_Quit();
         exit(EXIT_FAILURE);
@@ -1023,8 +1176,10 @@ void initializeSDL() {
     vault_width = srcVault.w;
 }
 
-void enlargeVault() {
-    if (!isEnlarging && !isVaultEnlarged && !isShrinking) {
+void enlargeVault()
+{
+    if (!isEnlarging && !isVaultEnlarged && !isShrinking)
+    {
         printf("Agrandissement du vaisseau!\n");
         isEnlarging = true;
         currentStep = 0;
@@ -1032,132 +1187,158 @@ void enlargeVault() {
     }
 }
 
-void updateVaultEnlargement() {
+void updateVaultEnlargement()
+{
     Uint64 now = SDL_GetPerformanceCounter();
-    double elapsed = (now - enlargeStartTime) / (double) SDL_GetPerformanceFrequency();
+    double elapsed = (now - enlargeStartTime) / (double)SDL_GetPerformanceFrequency();
 
-    if (isEnlarging) {
+    if (isEnlarging)
+    {
         double stepDuration = enlargeDuration / enlargeSteps;
         double t = elapsed / stepDuration;
-        if (t >= 1.0 && currentStep < enlargeSteps) {
+        if (t >= 1.0 && currentStep < enlargeSteps)
+        {
             vault_width = srcVault.w;
 
-            srcVault.y += 16; // Déplacer vers la ligne du sprite agrandi
-            srcVault.w += 9; // Augmenter la largeur du sprite
+            srcVault.y += 16;         // Déplacer vers la ligne du sprite agrandi
+            srcVault.w += 9;          // Augmenter la largeur du sprite
             vault_width = srcVault.w; // Mettre à jour la largeur du vaisseau
             currentStep++;
             enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la prochaine étape
         }
 
-        if (currentStep == enlargeSteps) {
+        if (currentStep == enlargeSteps)
+        {
             isVaultEnlarged = true;
             enlargeStartTime = SDL_GetPerformanceCounter(); // Démarrer la minuterie pour la durée de maintien
         }
-    } else if (isVaultEnlarged && !isEnlarging) {
+    }
+    else if (isVaultEnlarged && !isEnlarging)
+    {
         isVaultEnlarged = false;
         isShrinking = true;
         currentStep = 0;
         enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la réduction
-    } else if (isShrinking) {
+    }
+    else if (isShrinking)
+    {
         double stepDuration = shrinkDuration / enlargeSteps;
         double t = elapsed / stepDuration;
 
-        if (t >= 1.0 && currentStep < enlargeSteps) {
-            srcVault.y -= 16; // Revenir à la ligne du sprite original
-            srcVault.w -= 9; // Réduire la largeur du sprite
+        if (t >= 1.0 && currentStep < enlargeSteps)
+        {
+            srcVault.y -= 16;         // Revenir à la ligne du sprite original
+            srcVault.w -= 9;          // Réduire la largeur du sprite
             vault_width = srcVault.w; // Mettre à jour la largeur du vaisseau
             currentStep++;
             enlargeStartTime = SDL_GetPerformanceCounter(); // Redémarrer la minuterie pour la prochaine étape
         }
 
-        if (currentStep == enlargeSteps) {
+        if (currentStep == enlargeSteps)
+        {
             isShrinking = false;
         }
     }
 }
 
-void addLife() {
-    if (currentLife <= VIE_MAX) {
+void addLife()
+{
+    if (currentLife <= VIE_MAX)
+    {
         currentLife++;
     }
 }
 
-void wraplevel() {
+void wraplevel()
+{
     nwasPressed = true;
     nextLevel();
 }
 
-void slowDownBall() {
-    for (int i = 0; i < MAX_BALLS; i++) {
-        if (balls[i].isActive) {
+void slowDownBall()
+{
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
+        if (balls[i].isActive)
+        {
             balls[i].vx /= 2;
             balls[i].vy /= 2;
         }
     }
 }
 
-void CatchAndFire() {
+void CatchAndFire()
+{
     releaseCount = 5;
 }
 
-void handleBonusCollision() {
+void handleBonusCollision()
+{
     SDL_Rect vaultRect = {x_vault, win_surf->h - 32, vault_width, srcVault.h};
-    for (int i = 0; i < MAX_BONUSES; i++) {
-        if (bonuses[i].isActive) {
+    for (int i = 0; i < MAX_BONUSES; i++)
+    {
+        if (bonuses[i].isActive)
+        {
             SDL_Rect bonusRect = {bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, 32, 16};
             // Assurez-vous que la taille est correcte
 
-            if (isCollision(vaultRect, bonusRect)) {
+            if (isCollision(vaultRect, bonusRect))
+            {
                 resetAllBonuses();
                 bonuses[i].isActive = false;
                 currentScore += 100;
                 // Appliquer l'effet du bonus
-                switch (bonuses[i].type) {
-                    case 1:
-                        slowDownBall();
-                        break;
-                    case 2:
-                        CatchAndFire();
-                        break;
-                    case 3:
-                        isLaserBeam = true;
-                        break;
-                    case 4:
-                        enlargeVault();
-                        break;
-                    case 5:
-                        splitBall();
-                        break;
-                    case 6:
-                        wraplevel();
-                        break;
-                    case 7:
-                        addLife();
-                        break;
-                    default:
-                        break;
+                switch (bonuses[i].type)
+                {
+                case 1:
+                    slowDownBall();
+                    break;
+                case 2:
+                    CatchAndFire();
+                    break;
+                case 3:
+                    isLaserBeam = true;
+                    break;
+                case 4:
+                    enlargeVault();
+                    break;
+                case 5:
+                    splitBall();
+                    break;
+                case 6:
+                    wraplevel();
+                    break;
+                case 7:
+                    addLife();
+                    break;
+                default:
+                    break;
                 }
             }
         }
     }
 }
 
-void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, int positionX, int positionY, int width, int height) {
+void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, int positionX, int positionY, int width, int height)
+{
     SDL_Rect destWall = {positionX, positionY, width, height};
     SDL_BlitSurface(sprites, srcWall, win_surf, &destWall);
 }
 
-void renderAllWalls() {
+void renderAllWalls()
+{
     renderWall(leftWallSprites, &srcEdgeWall, 0, Y_WALLS, srcEdgeWall.w, srcEdgeWall.h);
     renderWall(rightWallSprites, &srcEdgeWall, win_surf->w - srcEdgeWall.w, Y_WALLS, srcEdgeWall.w, srcEdgeWall.h);
     renderWall(topWallSprites, &srcTopWall, srcEdgeWall.w, Y_WALLS, srcTopWall.w, srcTopWall.h);
 }
 
-void render() {
+void render()
+{
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     renderBackground(gameSprites, &srcBackground, win_surf);
     renderVault(gameSprites, &srcVault, win_surf, x_vault);
-    if (ballIsAttached) {
+    if (ballIsAttached)
+    {
         attachBallToVault(&balls[0], x_vault);
     }
 
@@ -1166,7 +1347,7 @@ void render() {
     renderBricks(gameSprites, NUM_BRICKS);
     renderInfo(asciiSprites, currentScore, "", 16, 10);
     renderInfo(asciiSprites, currentLife, "HP ", win_surf->w - 96, 10);
-    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 10); // a clean
+    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 10);         // a clean
     renderInfo(asciiSprites, getHighestScore(), "HI-SCORE ", win_surf->w / 2 - 64, 92); // a clean
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     moveAndRenderBonuses(gameSprites, win_surf);
@@ -1174,13 +1355,17 @@ void render() {
     handleBonusCollision();
 }
 
-void processInput(bool *quit) {
+void processInput(bool *quit)
+{
     SDL_Event event;
     SDL_PumpEvents();
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
-    if (keys[SDL_SCANCODE_SPACE] && ballIsAttached) {
-        if (releaseCount > 0) {
+    if (keys[SDL_SCANCODE_SPACE] && ballIsAttached)
+    {
+
+        if (releaseCount > 0)
+        {
             releaseCount--;
         }
         ballIsAttached = false;
@@ -1188,17 +1373,20 @@ void processInput(bool *quit) {
         balls[0].vx = -1;
     }
 
-    // // BONUS SPLIT BALL (D_BONUS)
-    // if (keys[SDL_SCANCODE_B] && !ballIsAttached && activeBallCount == 1)
-    // {
-    //     splitBall();
-    // }
-    if (keys[SDL_SCANCODE_N] == 0) {
+    // BONUS SPLIT BALL (D_BONUS)
+    if (keys[SDL_SCANCODE_B] && activeBallCount == 1)
+    {
+        splitBall();
+    }
+    if (keys[SDL_SCANCODE_N] == 0)
+    {
         nwasPressed = false;
     }
     // BONUS WRAP LEVEL (B_BONUS)
-    if (keys[SDL_SCANCODE_N]) {
-        if (!nwasPressed) {
+    if (keys[SDL_SCANCODE_N])
+    {
+        if (!nwasPressed)
+        {
             wraplevel();
         }
     }
@@ -1222,26 +1410,31 @@ void processInput(bool *quit) {
     //     slowDownBall();
     // }
     // BONUS FIRE LASER (L_BONUS)
-    if (keys[SDL_SCANCODE_M]) {
-        if (!mWasPressed && isLaserBeam) {
+    if (keys[SDL_SCANCODE_M])
+    {
+        if (!mWasPressed && isLaserBeam)
+        {
             fireLaser();
         }
     }
 
-    if (keys[SDL_SCANCODE_M] == 0) {
+    if (keys[SDL_SCANCODE_M] == 0)
+    {
         mWasPressed = false;
     }
     // BONUS CATCH AND FIRE (C_BONUS)
-    // if (keys[SDL_SCANCODE_X])
-    // {
-    //     CatchAndFire();
-    // }
+    if (keys[SDL_SCANCODE_X])
+    {
+        CatchAndFire();
+    }
     // BONUS ENLARGE VAULT(E_BONUS)
-    if (keys[SDL_SCANCODE_Z]) {
+    if (keys[SDL_SCANCODE_Z])
+    {
         enlargeVault();
     }
 
-    if (ballIsAttached && (SDL_GetPerformanceCounter() - attachTime) / (double) SDL_GetPerformanceFrequency() > 5.0) {
+    if (ballIsAttached && (SDL_GetPerformanceCounter() - attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
+    {
         ballIsAttached = false;
         balls[0].vy = -5;
         balls[0].vx = -1;
@@ -1249,28 +1442,34 @@ void processInput(bool *quit) {
 
     moveVault(keys);
 
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
+    while (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_QUIT)
+        {
             *quit = true;
         }
     }
 }
 
-void updateDeltaTime() {
+void updateDeltaTime()
+{
     now = SDL_GetPerformanceCounter();
-    delta_t = 1.0 / FPS - (double) (now - prev) / (double) SDL_GetPerformanceFrequency();
+    delta_t = 1.0 / FPS - (double)(now - prev) / (double)SDL_GetPerformanceFrequency();
     prev = now;
     if (delta_t > 0)
-        SDL_Delay((Uint32) (delta_t * 1000));
+        SDL_Delay((Uint32)(delta_t * 1000));
     prev = SDL_GetPerformanceCounter();
 }
 
-void mainGameLoop() {
+void mainGameLoop()
+{
     bool quit = false;
     prev = SDL_GetPerformanceCounter();
 
-    while (!quit) {
-        if (showMenu) {
+    while (!quit)
+    {
+        if (showMenu)
+        {
             showOptionsMenu(pWindow, win_surf);
             resetGame();
             showMenu = false;
@@ -1280,15 +1479,18 @@ void mainGameLoop() {
             playerName[0] = '\0';
         }
 
-        if (!isGameOver) {
+        if (!isGameOver)
+        {
             processInput(&quit);
             updateVaultEnlargement();
 
-            if (allBricksInvisible()) {
+            if (allBricksInvisible())
+            {
                 nextLevel();
             }
 
-            if (currentLife <= 0) {
+            if (currentLife <= 0)
+            {
                 printf("Life: 0, GAME OVER!\n");
                 isGameOver = true;
                 enteringName = true;
@@ -1297,19 +1499,27 @@ void mainGameLoop() {
             render();
         }
 
-        if (enteringName) {
+        if (enteringName)
+        {
             SDL_Event event;
-            while (SDL_PollEvent(&event)) {
-                if (event.type == SDL_QUIT) {
+            while (SDL_PollEvent(&event))
+            {
+                if (event.type == SDL_QUIT)
+                {
                     quit = true;
-                } else {
+                }
+                else
+                {
                     processNameInput(&event);
                 }
             }
 
-            if (currentLevel >= NUM_LEVELS) {
+            if (currentLevel >= NUM_LEVELS)
+            {
                 renderCongratulationsScreen(menuSprites, &srcLogo, win_surf);
-            } else {
+            }
+            else
+            {
                 renderGameOverScreen(menuSprites, &srcLogo, win_surf);
             }
         }
@@ -1319,7 +1529,8 @@ void mainGameLoop() {
     }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     initializeSDL();
     showOptionsMenu(pWindow, win_surf);
     resetGame();
