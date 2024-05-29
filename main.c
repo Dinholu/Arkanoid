@@ -885,7 +885,7 @@ void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
 
     renderString(asciiSprites, win_surf, "GAME OVER", (win_surf->w - 128) / 2, 300);
-    renderString(asciiSprites, win_surf, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
+    renderString(asciiSprites, win_surf, "ENTER NAME", (win_surf->w - 160) / 2, 350);
     renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
 }
 
@@ -898,7 +898,7 @@ void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Su
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
 
     renderString(asciiSprites, win_surf, "CONGRATULATIONS!", (win_surf->w - 256) / 2, 300);
-    renderString(asciiSprites, win_surf, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
+    renderString(asciiSprites, win_surf, "ENTER NAME", (win_surf->w - 160) / 2, 350);
     renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
 }
 
