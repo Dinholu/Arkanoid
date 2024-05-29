@@ -194,16 +194,6 @@ bool nwasPressed = false;
 // Variable pour savoir si la touche M a été pressée donc a enlever quand ca sera fait par collision avec le bonus
 bool mWasPressed = false;
 // -------------------------------
-int compareHighScores(const void *a, const void *b) {
-    HighScore *scoreA = (HighScore *) a;
-    HighScore *scoreB = (HighScore *) b;
-    return scoreB->score - scoreA->score;
-}
-
-void sortHighScores(HighScore highScores[], int count) {
-    qsort(highScores, count, sizeof(HighScore), compareHighScores);
-}
-
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2) {
     return !(rect1.x + rect1.w < rect2.x ||
              rect1.x > rect2.x + rect2.w ||
@@ -576,53 +566,15 @@ void moveVault(const Uint8 *keys) {
         x_vault = win_surf->w - vault_width - wallWidth;
     }
 }
-
-SDL_Rect charToSDLRect(char character) {
-    const int spriteWidth = 16;
-    const int spriteHeight = 32;
-    const int charsPerRow = 16;
-    const int spriteSpacing = 32;
-
-    if (character < ' ' || character > '~') {
-        fprintf(stderr, "Character out of printable ASCII range: %d\n", character);
-        return (SDL_Rect){0, 0, spriteWidth, spriteHeight};
-    }
-
-    int index = character - ' ';
-    int x = (index % charsPerRow) * spriteSpacing;
-    int y = (index / charsPerRow) * spriteHeight;
-
-    SDL_Rect rect = {x, y, spriteWidth, spriteHeight};
-    return rect;
+// ----------- SCORE --------------//
+int compareHighScores(const void *a, const void *b) {
+    HighScore *scoreA = (HighScore *) a;
+    HighScore *scoreB = (HighScore *) b;
+    return scoreB->score - scoreA->score;
 }
 
-void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string, int startX, int startY) {
-    int x = startX;
-    int y = startY;
-    const int spacing = 1;
-
-    SDL_Rect srcRect, destRect;
-    while (*string) {
-        srcRect = charToSDLRect(*string);
-        destRect = (SDL_Rect){x, y, srcRect.w, srcRect.h};
-
-        SDL_BlitSurface(sprites, &srcRect, surface, &destRect);
-
-        x += srcRect.w + spacing;
-        string++;
-    }
-}
-
-void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf) {
-    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
-    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
-    dest.x = (win_surf->w - srcLogo->w) / 2;
-
-    SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
-
-    renderString(asciiSprites, win_surf, "GAME OVER", (win_surf->w - 128) / 2, 300);
-    renderString(asciiSprites, win_surf, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
-    renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
+void sortHighScores(HighScore highScores[], int count) {
+    qsort(highScores, count, sizeof(HighScore), compareHighScores);
 }
 
 void writeHighScores(HighScore highScores[], int count) {
@@ -680,6 +632,26 @@ void saveHighScore(const char *playerName, int score) {
     writeHighScores(highScores, count);
 }
 
+int getHighestScore() {
+    int highScore;
+    int count;
+    HighScore highScores[MAX_HIGHSCORE];
+    readHighScores(highScores, &count);
+
+    if (count == 0) {
+        highScore = 0;
+    }
+    else {
+        highScore = highScores[0].score;
+    }
+
+    if (currentScore > highScore) {
+        highScore = currentScore;
+    }
+
+    return highScore;
+}
+
 void processNameInput(SDL_Event *event) {
     if (event->type == SDL_KEYDOWN) {
         if (event->key.keysym.sym == SDLK_RETURN) {
@@ -697,6 +669,55 @@ void processNameInput(SDL_Event *event) {
             }
         }
     }
+}
+
+// ----- STRING -----//
+SDL_Rect charToSDLRect(char character) {
+    const int spriteWidth = 16;
+    const int spriteHeight = 32;
+    const int charsPerRow = 16;
+    const int spriteSpacing = 32;
+
+    if (character < ' ' || character > '~') {
+        fprintf(stderr, "Character out of printable ASCII range: %d\n", character);
+        return (SDL_Rect){0, 0, spriteWidth, spriteHeight};
+    }
+
+    int index = character - ' ';
+    int x = (index % charsPerRow) * spriteSpacing;
+    int y = (index / charsPerRow) * spriteHeight;
+
+    SDL_Rect rect = {x, y, spriteWidth, spriteHeight};
+    return rect;
+}
+//------- RENDERING -------//
+void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string, int startX, int startY) {
+    int x = startX;
+    int y = startY;
+    const int spacing = 1;
+
+    SDL_Rect srcRect, destRect;
+    while (*string) {
+        srcRect = charToSDLRect(*string);
+        destRect = (SDL_Rect){x, y, srcRect.w, srcRect.h};
+
+        SDL_BlitSurface(sprites, &srcRect, surface, &destRect);
+
+        x += srcRect.w + spacing;
+        string++;
+    }
+}
+
+void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf) {
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
+    dest.x = (win_surf->w - srcLogo->w) / 2;
+
+    SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
+
+    renderString(asciiSprites, win_surf, "GAME OVER", (win_surf->w - 128) / 2, 300);
+    renderString(asciiSprites, win_surf, "ENTER NAME:", (win_surf->w - 160) / 2, 350);
+    renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
 }
 
 void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf) {
@@ -1145,7 +1166,8 @@ void render() {
     renderBricks(gameSprites, NUM_BRICKS);
     renderInfo(asciiSprites, currentScore, "", 16, 10);
     renderInfo(asciiSprites, currentLife, "HP ", win_surf->w - 96, 10);
-    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 10);
+    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 10); // a clean
+    renderInfo(asciiSprites, getHighestScore(), "HI-SCORE ", win_surf->w / 2 - 64, 92); // a clean
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     moveAndRenderBonuses(gameSprites, win_surf);
     handleCollisions();
