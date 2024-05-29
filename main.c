@@ -55,6 +55,7 @@
     (SDL_Rect) { 0, 320, 32, 32 }
 #define HARMFUL_EXPLOSITION \
     (SDL_Rect) { 0, 384, 32, 32 }
+#define VAUS_HP (SDL_Rect) { 384, 122, 26, 6 }
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 33
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
@@ -977,6 +978,18 @@ void attachBallToVault(struct Ball *ball, int x_vault)
     ball->y = destVault.y - srcBall.h;
 }
 
+void renderHP(SDL_Surface *sprites, SDL_Surface *win_surf, int currentLife)
+{
+    int startX = srcEdgeWall.w;
+    int startY = win_surf->h - 12;
+
+    for (int i = 0; i < currentLife; i++)
+    {
+        SDL_Rect destHP = {startX + i * (VAUS_HP.w + 2), startY, VAUS_HP.w, VAUS_HP.h};
+        SDL_BlitSurface(sprites, &VAUS_HP, win_surf, &destHP);
+    }
+}
+
 void initializeBalls()
 {
     activeBallCount = 1;
@@ -1241,6 +1254,7 @@ void resetGame()
     currentScore = 0;
     currentLevel = 1;
     max_speed = 8.0;
+    srcBackground.x = 0;
     ballSpeedIncrement = BALL_SPEED_INCREMENT;
     attachTime = SDL_GetPerformanceCounter();
     initializeBalls();
@@ -1465,14 +1479,15 @@ void render()
     renderBalls(plancheSprites, &srcBall, win_surf);
     renderBricks(gameSprites, NUM_BRICKS);
     renderInfo(asciiSprites, currentScore, "", 16, 10);
-    renderInfo(asciiSprites, currentLife, "HP ", win_surf->w - 96, 10);
     renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 10);         // a clean
     renderInfo(asciiSprites, getHighestScore(), "HI-SCORE ", win_surf->w / 2 - 64, 92); // a clean
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     moveAndRenderBonuses(gameSprites, win_surf);
     handleCollisions();
     handleBonusCollision();
+    renderHP(gameSprites, win_surf, currentLife);
 }
+
 
 void processInput(bool *quit)
 {
