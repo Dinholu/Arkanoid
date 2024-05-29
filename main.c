@@ -272,6 +272,7 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
                         }
                         else
                         {
+                            lasers[i].isActive = false;
                             brick[j].isAnimating = true;
                             brick[j].animationFrame = 0;
                             brick[j].lastFrameTime = SDL_GetPerformanceCounter();
