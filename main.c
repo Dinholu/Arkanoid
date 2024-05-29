@@ -636,6 +636,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                 }
 
                 // Vérifier les collisions avec les briques pendant le déplacement horizontal
+                bool hitSideBrick = false;
                 for (int j = 0; j < NUM_BRICKS; j++)
                 {
                     if (brick[j].isVisible)
@@ -645,13 +646,41 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 
                         if (isCollision(harmfulRect, brickRect))
                         {
+                            // Vérifier uniquement les collisions latérales
                             if ((harmfulRect.x < brickRect.x + brickRect.w && harmfulRect.x + harmfulRect.w > brickRect.x) &&
-                                (harmfulRect.y + harmfulRect.h > brickRect.y && harmfulRect.y < brickRect.y + brickRect.h))
+                                (harmfulRect.y < brickRect.y + brickRect.h && harmfulRect.y + harmfulRect.h > brickRect.y))
                             {
                                 harmfuls[i].vx *= -1; // Changer de direction en cas de collision latérale avec une brique
+                                hitSideBrick = true;
                                 break;
                             }
                         }
+                    }
+                }
+
+                // Vérifier s'il peut tomber
+                if (!hitSideBrick)
+                {
+                    bool canFall = true;
+                    for (int j = 0; j < NUM_BRICKS; j++)
+                    {
+                        if (brick[j].isVisible)
+                        {
+                            SDL_Rect belowRect = {harmfuls[i].x, harmfuls[i].y + 32, 32, 1}; // Rect pour vérifier juste en dessous
+                            SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+
+                            if (isCollision(belowRect, brickRect))
+                            {
+                                canFall = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (canFall)
+                    {
+                        harmfuls[i].isFalling = true;
+                        harmfuls[i].vy = 2;
                     }
                 }
             }
