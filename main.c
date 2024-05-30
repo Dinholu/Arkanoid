@@ -594,9 +594,35 @@ void brickCollision(struct Ball *ball)
                         printf("Score: %d\n", currentScore);
 
                         // Generate bonus
-                        int randValue = rand() % 9;
-                        if (randValue < 6)
+                        int randValue = rand() % 100;
+                        if (randValue < 20) // 20% chance to generate a bonus
                         {
+                            int bonusTypeRand = rand() % 100;
+                            int bonusType;
+                            if (bonusTypeRand < 5) // 5% chance for rose bonus
+                            {
+                                bonusType = 1; // Assuming 1 is the rose bonus type
+                            }
+                            else if (bonusTypeRand < 25) // 20% chance for other specific bonus
+                            {
+                                bonusType = 2; // Another bonus type
+                            }
+                            else if (bonusTypeRand < 45) // 20% chance for another bonus
+                            {
+                                bonusType = 3; // Another bonus type
+                            }
+                            else if (bonusTypeRand < 65) // 20% chance for another bonus
+                            {
+                                bonusType = 4; // Another bonus type
+                            }
+                            else if (bonusTypeRand < 85) // 20% chance for another bonus
+                            {
+                                bonusType = 5; // Another bonus type
+                            }
+                            else // 15% chance for the remaining bonus types
+                            {
+                                bonusType = rand() % 2 + 6; // Assuming the last two bonus types
+                            }
                             for (int j = 0; j < MAX_BONUSES; j++)
                             {
                                 if (!bonuses[j].isActive)
