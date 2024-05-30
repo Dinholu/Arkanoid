@@ -62,7 +62,7 @@
 #define VIE_MAX 5
 #define MAX_LASERS 10
 #define MAX_BONUSES 10
-#define MAX_NAME_LENGTH 3
+#define MAX_NAME_LENGTH 8
 #define MAX_HIGHSCORE 10
 #define MAX_BACKGROUND 5
 
@@ -1119,18 +1119,24 @@ void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int st
 void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
 {
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+    
+    // Pour afficher le logo dans le HighScore
+    SDL_Rect destLogo = {0, 128, srcLogo.w, srcLogo.h};
+    destLogo.x = (win_surf->w - srcLogo.w) / 2;
+    SDL_BlitSurface(menuSprites, &srcLogo, win_surf, &destLogo);
 
     HighScore highScores[MAX_HIGHSCORE];
     int count;
     readHighScores(highScores, &count);
+    int startLeaderBoardY = srcLogo.h + 192;
 
-    renderString(asciiSprites, win_surf, "LEADERBOARD", win_surf->w / 2, 100, "center");
+    renderString(asciiSprites, win_surf, "LEADERBOARD", win_surf->w / 2, startLeaderBoardY, "center");
 
     for (int i = 0; i < count; i++)
     {
         char scoreText[256];
         sprintf(scoreText, "%d. %s %d", i + 1, highScores[i].name, highScores[i].score);
-        renderString(asciiSprites, win_surf, scoreText, 192, 150 + i * 40, "left");
+        renderString(asciiSprites, win_surf, scoreText, 192, startLeaderBoardY + 50 + i * 32, "left");
     }
 
     SDL_UpdateWindowSurface(pWindow);
@@ -1486,7 +1492,7 @@ void render()
     renderBalls(gameSprites, &srcBall, win_surf);
     renderBricks(gameSprites, NUM_BRICKS);
     renderInfo(asciiSprites, currentScore, "", 16, 32, "left");
-    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2, 108, "center");         // a clean
+    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2, 108, "center"); // a clean
     renderString(asciiSprites, win_surf, "HI-SCORE", win_surf->w - 16, 32, "right");
     renderInfo(asciiSprites, getHighestScore(), "", win_surf->w - 16, 64, "right");
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
