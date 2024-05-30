@@ -1129,8 +1129,8 @@ void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
     for (int i = 0; i < count; i++)
     {
         char scoreText[256];
-        sprintf(scoreText, "%s %d", highScores[i].name, highScores[i].score);
-        renderString(asciiSprites, win_surf, scoreText, 50, 150 + i * 40, "left");
+        sprintf(scoreText, "%d. %s %d", i + 1, highScores[i].name, highScores[i].score);
+        renderString(asciiSprites, win_surf, scoreText, 192, 150 + i * 40, "left");
     }
 
     SDL_UpdateWindowSurface(pWindow);
@@ -1161,14 +1161,13 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     bool inMenu = true;
     SDL_Event event;
 
-    int optionWidth = 160;
-    int startOptionX = (win_surf->w - optionWidth) / 2;
+    int startOptionX = 192;
 
     while (inMenu)
     {
         renderMenu(menuSprites, &srcLogo, win_surf);
         renderString(asciiSprites, win_surf, "1. START", startOptionX, srcLogo.h + 192, "left");
-        renderString(asciiSprites, win_surf, "2. HIGH SCORES", startOptionX, srcLogo.h + 256, "left");
+        renderString(asciiSprites, win_surf, "2. LEADERBOARD", startOptionX, srcLogo.h + 256, "left");
         renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, srcLogo.h + 320, "left");
 
         SDL_UpdateWindowSurface(pWindow);
