@@ -1,46 +1,94 @@
 #include "score.h"
 
-void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
+int getHighestScore()
 {
-    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
-
-    // Pour afficher le logo dans le HighScore
-    SDL_Rect destLogo = {0, 128, srcLogo.w, srcLogo.h};
-    destLogo.x = (win_surf->w - srcLogo.w) / 2;
-    SDL_BlitSurface(menuSprites, &srcLogo, win_surf, &destLogo);
-
-    HighScore highScores[MAX_HIGHSCORE];
+    int highScore;
     int count;
+    HighScore highScores[MAX_HIGHSCORE];
     readHighScores(highScores, &count);
-    int startLeaderBoardY = srcLogo.h + 192;
 
-    renderString(asciiSprites, win_surf, "LEADERBOARD", win_surf->w / 2, startLeaderBoardY, "center");
+    if (count == 0)
+    {
+        highScore = 0;
+    }
+    else
+    {
+        highScore = highScores[0].score;
+    }
+
+    if (currentScore > highScore)
+    {
+        highScore = currentScore;
+    }
+
+    return highScore;
+}
+int compareHighScores(const void *a, const void *b)
+{
+    HighScore *scoreA = (HighScore *)a;
+    HighScore *scoreB = (HighScore *)b;
+    return scoreB->score - scoreA->score;
+}
+
+void sortHighScores(HighScore highScores[], int count)
+{
+    qsort(highScores, count, sizeof(HighScore), compareHighScores);
+}
+
+void writeHighScores(HighScore highScores[], int count)
+{
+    FILE *file = fopen("highscores.txt", "w");
+    if (file == NULL)
+    {
+        return;
+    }
 
     for (int i = 0; i < count; i++)
     {
-        char scoreText[256];
-        sprintf(scoreText, "%d. %s %d", i + 1, highScores[i].name, highScores[i].score);
-        renderString(asciiSprites, win_surf, scoreText, 164, startLeaderBoardY + 50 + i * 32, "left");
+        fprintf(file, "%s %d\n", highScores[i].name, highScores[i].score);
     }
 
-    SDL_UpdateWindowSurface(pWindow);
+    fclose(file);
+}
 
-    // Wait for a key press to return to the menu
-    bool waiting = true;
-    SDL_Event event;
-    while (waiting)
+void readHighScores(HighScore highScores[], int *count)
+{
+    FILE *file = fopen("highscores.txt", "r");
+    if (file == NULL)
     {
-        while (SDL_PollEvent(&event))
+        *count = 0;
+        return;
+    }
+
+    *count = 0;
+    while (fscanf(file, "%s %d", highScores[*count].name, &highScores[*count].score) != EOF)
+    {
+        (*count)++;
+        if (*count >= MAX_HIGHSCORE)
         {
-            if (event.type == SDL_QUIT)
-            {
-                exit(EXIT_SUCCESS);
-            }
-            if (event.type == SDL_KEYDOWN)
-            {
-                SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
-                waiting = false;
-            }
+            break;
         }
     }
+
+    fclose(file);
+}
+
+void saveHighScore(const char *playerName, int score)
+{
+    HighScore highScores[MAX_HIGHSCORE + 1];
+    int count;
+    readHighScores(highScores, &count);
+
+    strcpy(highScores[count].name, playerName);
+    highScores[count].score = score;
+    count++;
+
+    sortHighScores(highScores, count);
+
+    if (count > MAX_HIGHSCORE)
+    {
+        count = MAX_HIGHSCORE;
+    }
+
+    writeHighScores(highScores, count);
 }

@@ -23,7 +23,7 @@ add_executable(${PROJECT_NAME}
         src/score.c
         main.c
 )
-# Adding include directories for ball.h and ball.c
+
 target_include_directories(${PROJECT_NAME} PRIVATE include src)
 
 if (TARGET SDL2::SDL2)
@@ -47,7 +47,6 @@ file(COPY
 # Ensure the dummy file exists to avoid configuration errors
 file(WRITE ${CMAKE_BINARY_DIR}/dummy.txt "")
 
-# List level files and touch the dummy file to trigger reconfiguration
 file(GLOB LEVEL_FILES resources/levels/*)
 
 add_custom_target(generate_levels ALL
@@ -66,5 +65,4 @@ endforeach()
 
 add_dependencies(${PROJECT_NAME} generate_levels)
 
-# Touch the dummy file to trigger reconfiguration if level files change
 configure_file(${CMAKE_BINARY_DIR}/dummy.txt ${CMAKE_BINARY_DIR}/dummy.txt COPYONLY)

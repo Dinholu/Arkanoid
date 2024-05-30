@@ -1,7 +1,4 @@
 #include "brick.h"
-#include "ball.h"
-#include "vault.h"
-#include "harmful.h"
 
 bool allBricksInvisible()
 {

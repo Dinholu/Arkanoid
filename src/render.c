@@ -1,5 +1,47 @@
 #include "render.h"
 
+void initializeSDL()
+{
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+    {
+        fprintf(stderr, "SDL Initialization failed: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 556, 800, SDL_WINDOW_SHOWN);
+    if (!pWindow)
+    {
+        fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(EXIT_FAILURE);
+    }
+
+    win_surf = SDL_GetWindowSurface(pWindow);
+    gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
+    asciiSprites = SDL_LoadBMP("./Arkanoid_ascii_sprites.bmp");
+    menuSprites = SDL_LoadBMP("./Arkanoid_menu_sprites.bmp");
+    topWallSprites = SDL_LoadBMP("./edge_top.bmp");
+    leftWallSprites = SDL_LoadBMP("./edge_left.bmp");
+    rightWallSprites = SDL_LoadBMP("./edge_right.bmp");
+
+    if (!gameSprites || !asciiSprites || !menuSprites || !topWallSprites || !leftWallSprites || !rightWallSprites)
+    {
+        fprintf(stderr, "Sprite loading failed: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(EXIT_FAILURE);
+    }
+
+    SDL_SetColorKey(gameSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(asciiSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(menuSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(topWallSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(leftWallSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(rightWallSprites, SDL_TRUE, 0);
+
+    x_vault = (win_surf->w - srcVault.w) / 2;
+    vault_width = srcVault.w;
+}
+
 void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_LASERS; i++)
@@ -590,11 +632,56 @@ void renderAllWalls()
     renderWall(topWallSprites, &srcTopWall, srcEdgeWall.w, Y_WALLS, srcTopWall.w, srcTopWall.h);
 }
 
+
+void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
+{
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+
+    SDL_Rect destLogo = {0, 128, srcLogo.w, srcLogo.h};
+    destLogo.x = (win_surf->w - srcLogo.w) / 2;
+    SDL_BlitSurface(menuSprites, &srcLogo, win_surf, &destLogo);
+
+    HighScore highScores[MAX_HIGHSCORE];
+    int count;
+    readHighScores(highScores, &count);
+    int startLeaderBoardY = srcLogo.h + 192;
+
+    renderString(asciiSprites, win_surf, "LEADERBOARD", win_surf->w / 2, startLeaderBoardY, "center");
+
+    for (int i = 0; i < count; i++)
+    {
+        char scoreText[256];
+        sprintf(scoreText, "%d. %s %d", i + 1, highScores[i].name, highScores[i].score);
+        renderString(asciiSprites, win_surf, scoreText, 164, startLeaderBoardY + 50 + i * 32, "left");
+    }
+
+    SDL_UpdateWindowSurface(pWindow);
+
+    bool waiting = true;
+    SDL_Event event;
+    while (waiting)
+    {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
+                exit(EXIT_SUCCESS);
+            }
+            if (event.type == SDL_KEYDOWN)
+            {
+                SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+                waiting = false;
+            }
+        }
+    }
+}
+
 void render()
 {
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     renderBackground(gameSprites, &srcBackground, win_surf);
     renderVault(gameSprites, &srcVault, win_surf, x_vault);
+
     for (int i = 0; i < MAX_BALLS; i++)
     {
         if (balls[i].isAttached)
@@ -616,4 +703,25 @@ void render()
     handleHarmfulCollisions();
     handleBonusCollision();
     renderHP(gameSprites, win_surf, currentLife);
+}
+
+SDL_Rect charToSDLRect(char character)
+{
+    const int spriteWidth = 16;
+    const int spriteHeight = 32;
+    const int charsPerRow = 16;
+    const int spriteSpacing = 32;
+
+    if (character < ' ' || character > '~')
+    {
+        fprintf(stderr, "Character out of printable ASCII range: %d\n", character);
+        return (SDL_Rect){0, 0, spriteWidth, spriteHeight};
+    }
+
+    int index = character - ' ';
+    int x = (index % charsPerRow) * spriteSpacing;
+    int y = (index / charsPerRow) * spriteHeight;
+
+    SDL_Rect rect = {x, y, spriteWidth, spriteHeight};
+    return rect;
 }

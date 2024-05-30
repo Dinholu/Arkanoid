@@ -1,7 +1,4 @@
-#include "ball.h"
 #include "vault.h"
-#include "brick.h"
-#include "harmful.h"
 
 void moveVault(const Uint8 *keys)
 {

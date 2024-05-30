@@ -1,3 +1,7 @@
+// BALL_H
+#ifndef ARKANOID_BALL_H
+#define ARKANOID_BALL_H
+
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,13 +9,9 @@
 #include <math.h>
 #include <string.h>
 
-#ifndef ARKANOID_BALL_H
-#define ARKANOID_BALL_H
 
-#include "brick.h"
 #include "vault.h"
-#include "harmful.h"
-#include "bonus.h"
+#include "brick.h"
 #include "render.h"
 
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick

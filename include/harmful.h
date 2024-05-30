@@ -1,3 +1,4 @@
+
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,10 +10,12 @@
 #define ARKANOID_HARMFUL_H
 
 #include "ball.h"
-#include "brick.h"
-#include "vault.h"
 #include "bonus.h"
+#include "brick.h"
+#include "game.h"
 #include "render.h"
+#include "score.h"
+#include "vault.h"
 
 #define HARMFUL_2 \
     (SDL_Rect) { 0, 256, 32, 32 }
@@ -34,7 +37,7 @@ struct Harmful
     int type;
     bool isFalling;
     double time;
-    int height; // Nouvelle variable pour la hauteur
+    int height;
     float elongationTime;
     double initialY;
     double amplitude;
@@ -43,10 +46,12 @@ struct Harmful
     double animationTime;
     float randonElongationTime;
     int maxSteps;
-    bool isDestroying; // New field for tracking destruction
+    bool isDestroying;
     int destroyAnimationFrame;
     double destroyAnimationTime;
 } harmfuls[MAX_HARMFULS];
+
+
 int currentHarmfulsType = 1;
 
 void initializeHarmfuls();
@@ -55,4 +60,5 @@ SDL_Rect getHarmfulSrcRect(int type, int frame);
 void addRandomHarmfuls();
 void handleHarmfulCollisions();
 void clearHarmfuls();
+
 #endif // ARKANOID_HARMFUL_H

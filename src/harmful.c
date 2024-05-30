@@ -1,6 +1,3 @@
-#include "ball.h"
-#include "brick.h"
-#include "vault.h"
 #include "harmful.h"
 
 void initializeHarmfuls()
