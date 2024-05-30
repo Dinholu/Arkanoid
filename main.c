@@ -84,6 +84,9 @@ struct Harmful
     int animationFrame;
     double animationTime;
     int maxSteps;
+    bool isDestroying; // New field for tracking destruction
+    int destroyAnimationFrame;
+    double destroyAnimationTime;
 } harmfuls[MAX_HARMFULS];
 
 struct Bonus
@@ -376,6 +379,9 @@ void initializeHarmfuls()
         harmfuls[i].animationFrame = 0;
         harmfuls[i].animationTime = 0;
         harmfuls[i].maxSteps = 1;
+        harmfuls[i].isDestroying = false; // Nouvelle variable pour suivre la destruction
+        harmfuls[i].destroyAnimationFrame = 0;
+        harmfuls[i].destroyAnimationTime = 0;
     }
 }
 
@@ -415,7 +421,7 @@ void splitBall()
         if (balls[i].isActive && balls[i].isAttached)
         {
             balls[i].isAttached = false;
-            releaseCount = 1;
+            releaseCount = 0;
             balls[i].vy = -5;
             balls[i].vx = -1;
         }
@@ -678,6 +684,29 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_HARMFULS; i++)
     {
+        if (harmfuls[i].isDestroying)
+        {
+            harmfuls[i].destroyAnimationTime += 1.0 / FPS;
+            if (harmfuls[i].destroyAnimationTime >= 0.1)
+            {
+                harmfuls[i].destroyAnimationFrame++;
+                harmfuls[i].destroyAnimationTime = 0;
+                if (harmfuls[i].destroyAnimationFrame >= 5)
+                {
+                    harmfuls[i].isDestroying = false;
+                    harmfuls[i].isActive = false;
+                }
+            }
+
+            SDL_Rect srcHarmfulExplosion = {
+                HARMFUL_EXPLOSITION.x + harmfuls[i].destroyAnimationFrame * 32,
+                HARMFUL_EXPLOSITION.y,
+                HARMFUL_EXPLOSITION.w,
+                HARMFUL_EXPLOSITION.h};
+
+            SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmfulExplosion.w, srcHarmfulExplosion.h};
+            SDL_BlitSurface(gameSprites, &srcHarmfulExplosion, win_surf, &destHarmful);
+        }
         if (harmfuls[i].isActive)
         {
             if (harmfuls[i].y > win_surf->h / 2 && !harmfuls[i].isSinusoidal)
@@ -893,6 +922,9 @@ void handleHarmfulCollisions()
             {
                 currentScore += 1000;
                 harmfuls[i].isActive = false;
+                harmfuls[i].isDestroying = true; // Trigger destruction animation
+                harmfuls[i].destroyAnimationFrame = 0;
+                harmfuls[i].destroyAnimationTime = 0;
             }
 
             if (harmfuls[i].y > win_surf->h)
@@ -911,6 +943,9 @@ void handleHarmfulCollisions()
                         balls[j].vx *= -1;
                         balls[j].vy *= -1;
                         harmfuls[i].isActive = false;
+                        harmfuls[i].isDestroying = true;
+                        harmfuls[i].destroyAnimationFrame = 0;
+                        harmfuls[i].destroyAnimationTime = 0;
                         break;
                     }
                 }
@@ -1811,7 +1846,6 @@ void processInput(bool *quit)
                 releaseCount--;
                 break; // Libérer une seule balle à chaque appui
             }
-            break;
         }
     }
 
