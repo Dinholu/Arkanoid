@@ -79,6 +79,7 @@ struct Harmful
     double time;
     double initialY;
     double amplitude;
+    bool isSinusoidal;
 } harmfuls[MAX_HARMFULS];
 
 struct Bonus
@@ -366,6 +367,7 @@ void initializeHarmfuls()
         harmfuls[i].initialY = 0; // Nouvelle variable pour la position initiale en Y
         harmfuls[i].time = 0;
         harmfuls[i].amplitude = 20; // Amplitude initiale de la sinusoïde
+        harmfuls[i].isSinusoidal = false;
     }
 }
 
@@ -483,6 +485,14 @@ void resetAllBonuses()
     isLaserBeam = false;
     isEnlarging = false;
     releaseCount = 0;
+}
+
+void clearHarmfuls()
+{
+    for (int i = 0; i < MAX_HARMFULS; i++)
+    {
+        harmfuls[i].isActive = false;
+    }
 }
 
 void clearBonuses()
@@ -609,12 +619,13 @@ void generateHarmfuls()
             harmfuls[i].y = Y_WALLS + srcTopWall.h;
             harmfuls[i].initialY = harmfuls[i].y; // Enregistrer la position initiale en Y
             harmfuls[i].vx = 2;                   // Déplacement initial à droite
-            harmfuls[i].vy = 0;
+            harmfuls[i].vy = 2;
             harmfuls[i].isActive = true;
             harmfuls[i].type = rand() % 3 + 2;
             harmfuls[i].isFalling = true;
             harmfuls[i].amplitude = 20; // Réinitialiser l'amplitude
             harmfuls[i].time = 0;       // Réinitialiser le temps
+            harmfuls[i].isSinusoidal = false;
             break;
         }
     }
@@ -625,92 +636,111 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
     {
         if (harmfuls[i].isActive)
         {
-            if (!harmfuls[i].isFalling)
+            if (harmfuls[i].y > win_surf->h / 2 && !harmfuls[i].isSinusoidal)
             {
+                harmfuls[i].isSinusoidal = true;
+                harmfuls[i].amplitude = 2; // Amplitude réduite pour une sinusoïde plus douce
+                harmfuls[i].time = 0.0f;
+            }
+            if (harmfuls[i].isSinusoidal)
+            {
+                harmfuls[i].time += 1.0 / FPS;
+
                 harmfuls[i].x += harmfuls[i].vx;
 
-                // Vérifier les collisions avec les bords de l'écran
+                harmfuls[i].y = harmfuls[i].y + harmfuls[i].amplitude * sin(2 * M_PI * 0.5 * harmfuls[i].time);
                 if (harmfuls[i].x < srcEdgeWall.w || harmfuls[i].x + 32 > win_surf->w - srcEdgeWall.w)
                 {
-                    harmfuls[i].vx *= -1; // Changer de direction en cas de collision avec les bords
+                    harmfuls[i].vx *= -1;
                 }
 
-                // Vérifier les collisions avec les briques pendant le déplacement horizontal
-                bool hitSideBrick = false;
-                for (int j = 0; j < NUM_BRICKS; j++)
+                if (harmfuls[i].y > win_surf->h)
                 {
-                    if (brick[j].isVisible)
-                    {
-                        SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
-                        SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
-
-                        if (isCollision(harmfulRect, brickRect))
-                        {
-                            // Vérifier uniquement les collisions latérales
-                            if ((harmfulRect.x < brickRect.x + brickRect.w && harmfulRect.x + harmfulRect.w > brickRect.x) &&
-                                (harmfulRect.y < brickRect.y + brickRect.h && harmfulRect.y + harmfulRect.h > brickRect.y))
-                            {
-                                harmfuls[i].vx *= -1; // Changer de direction en cas de collision latérale avec une brique
-                                hitSideBrick = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // Vérifier s'il peut tomber
-                if (!hitSideBrick)
-                {
-                    bool canFall = true;
-                    for (int j = 0; j < NUM_BRICKS; j++)
-                    {
-                        if (brick[j].isVisible)
-                        {
-                            SDL_Rect belowRect = {harmfuls[i].x, harmfuls[i].y + 32, 32, 1}; // Rect pour vérifier juste en dessous
-                            SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
-
-                            if (isCollision(belowRect, brickRect))
-                            {
-                                canFall = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (canFall)
-                    {
-                        harmfuls[i].isFalling = true;
-                        harmfuls[i].vy = 2;
-                    }
+                    harmfuls[i].isActive = false;
                 }
             }
             else
             {
-                harmfuls[i].y += 2;
-
-                // Vérifier les collisions avec les briques pendant la chute
-                for (int j = 0; j < NUM_BRICKS; j++)
+                if (!harmfuls[i].isFalling)
                 {
-                    if (brick[j].isVisible)
-                    {
-                        SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
-                        SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+                    harmfuls[i].x += harmfuls[i].vx;
 
-                        if (isCollision(harmfulRect, brickRect))
+                    // Vérifier les collisions avec les bords de l'écran
+                    if (harmfuls[i].x < srcEdgeWall.w || harmfuls[i].x + 32 > win_surf->w - srcEdgeWall.w)
+                    {
+                        harmfuls[i].vx *= -1; // Changer de direction en cas de collision avec les bords
+                    }
+
+                    // Vérifier les collisions avec les briques pendant le déplacement horizontal
+                    bool hitSideBrick = false;
+                    for (int j = 0; j < NUM_BRICKS; j++)
+                    {
+                        if (brick[j].isVisible)
                         {
-                            harmfuls[i].y = brickRect.y - 32;            // Ajuster la position pour rester au-dessus de la brique
-                            harmfuls[i].isFalling = false;               // Recommencer le déplacement horizontal
-                            harmfuls[i].vx = (rand() % 2 == 0) ? 2 : -2; // Déplacement aléatoire gauche/droite
-                            break;
+                            SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
+                            SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+
+                            if (isCollision(harmfulRect, brickRect))
+                            {
+                                // Vérifier uniquement les collisions latérales
+                                if ((harmfulRect.x < brickRect.x + brickRect.w && harmfulRect.x + harmfulRect.w > brickRect.x) &&
+                                    (harmfulRect.y < brickRect.y + brickRect.h && harmfulRect.y + harmfulRect.h > brickRect.y))
+                                {
+                                    harmfuls[i].vx *= -1; // Changer de direction en cas de collision latérale avec une brique
+                                    hitSideBrick = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // Vérifier s'il peut tomber
+                    if (!hitSideBrick)
+                    {
+                        bool canFall = true;
+                        for (int j = 0; j < NUM_BRICKS; j++)
+                        {
+                            if (brick[j].isVisible)
+                            {
+                                SDL_Rect belowRect = {harmfuls[i].x, harmfuls[i].y + 32, 32, 1}; // Rect pour vérifier juste en dessous
+                                SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+
+                                if (isCollision(belowRect, brickRect))
+                                {
+                                    canFall = false;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (canFall)
+                        {
+                            harmfuls[i].isFalling = true;
+                            harmfuls[i].vy = 2;
                         }
                     }
                 }
-            }
+                else
+                {
+                    harmfuls[i].y += harmfuls[i].vy;
 
-            // Vérifier si le harmful sort de l'écran
-            if (harmfuls[i].y > win_surf->h)
-            {
-                harmfuls[i].isActive = false;
+                    for (int j = 0; j < NUM_BRICKS; j++)
+                    {
+                        if (brick[j].isVisible)
+                        {
+                            SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
+                            SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+
+                            if (isCollision(harmfulRect, brickRect))
+                            {
+                                harmfuls[i].y = brickRect.y - 32;            // Ajuster la position pour rester au-dessus de la brique
+                                harmfuls[i].isFalling = false;               // Recommencer le déplacement horizontal
+                                harmfuls[i].vx = (rand() % 2 == 0) ? 2 : -2; // Déplacement aléatoire gauche/droite
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
             // Rendre le harmful
@@ -1426,6 +1456,7 @@ void nextLevel()
     changeBackground();
     clearBonuses();
     resetAllBonuses();
+    clearHarmfuls();
     currentLevel++;
     if (currentLevel >= NUM_LEVELS)
     {
@@ -1455,6 +1486,7 @@ void resetGame()
     initializeLasers();
     initializeBonuses();
     loadCurrentLevel(((currentLevel) % 8 == 0));
+    initializeHarmfuls();
 }
 
 void initializeSDL()
