@@ -1679,6 +1679,7 @@ void addLife()
 void wraplevel()
 {
     nwasPressed = true;
+    currentScore += 10000;
     nextLevel();
 }
 
