@@ -78,11 +78,14 @@ struct Harmful
     int type;
     bool isFalling;
     double time;
+    int height; // Nouvelle variable pour la hauteur
+    float elongationTime;
     double initialY;
     double amplitude;
     bool isSinusoidal;
     int animationFrame;
     double animationTime;
+    float randonElongationTime;
     int maxSteps;
     bool isDestroying; // New field for tracking destruction
     int destroyAnimationFrame;
@@ -371,9 +374,12 @@ void initializeHarmfuls()
         harmfuls[i].vy = 0;
         harmfuls[i].isActive = false;
         harmfuls[i].type = 0;
+        harmfuls[i].randonElongationTime = 0;
         harmfuls[i].isFalling = false;
         harmfuls[i].initialY = 0; // Nouvelle variable pour la position initiale en Y
         harmfuls[i].time = 0;
+        harmfuls[i].height = 0; // Nouvelle variable pour la hauteur
+        harmfuls[i].elongationTime = 0;
         harmfuls[i].amplitude = 20; // Amplitude initiale de la sinusoïde
         harmfuls[i].isSinusoidal = false;
         harmfuls[i].animationFrame = 0;
@@ -644,6 +650,9 @@ void generateHarmfuls()
             harmfuls[i].isFalling = true;
             harmfuls[i].amplitude = 2; // Réinitialiser l'amplitude
             harmfuls[i].time = 0;      // Réinitialiser le temps
+            harmfuls[i].height = 0;    // Réinitialiser la hauteur
+            harmfuls[i].elongationTime = 0;
+            harmfuls[i].randonElongationTime = 10.0f + (rand() % 6);
             harmfuls[i].isSinusoidal = false;
             harmfuls[i].animationFrame = 0;
             harmfuls[i].animationTime = 0;
@@ -718,8 +727,21 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             if (harmfuls[i].isSinusoidal)
             {
                 harmfuls[i].time += 1.0 / FPS;
+                harmfuls[i].elongationTime += 1.0 / FPS;
 
                 harmfuls[i].x += harmfuls[i].vx;
+
+                if (harmfuls[i].elongationTime >= harmfuls[i].randonElongationTime)
+                {
+                    harmfuls[i].y += harmfuls[i].vy; // Descendre vers le bas
+                    harmfuls[i].vy += 0.1;           // Augmente la vitesse progressivement
+                    harmfuls[i].height += 1;         // Augmenter la hauteur progressivement
+
+                    if (harmfuls[i].y > win_surf->h)
+                    {
+                        harmfuls[i].isActive = false; // Désactiver quand il sort de l'écran
+                    }
+                }
 
                 harmfuls[i].y = harmfuls[i].y + harmfuls[i].amplitude * sin(2 * M_PI * 0.5 * harmfuls[i].time);
                 if (harmfuls[i].x < srcEdgeWall.w || harmfuls[i].x + 32 > win_surf->w - srcEdgeWall.w)
@@ -1561,6 +1583,7 @@ void nextLevel()
     clearBonuses();
     resetAllBonuses();
     clearHarmfuls();
+    vault_width = srcVault.w;
     currentHarmfulsType++;
     if (currentLevel >= NUM_LEVELS)
     {
