@@ -65,7 +65,7 @@
 #define MAX_NAME_LENGTH 3
 #define MAX_HIGHSCORE 10
 #define MAX_BACKGROUND 5
-#define MAX_HARMFULS 10
+#define MAX_HARMFULS 5
 
 struct Harmful
 {
@@ -89,8 +89,8 @@ struct Bonus
     double vy;
     bool isActive;
     int type;
-    int animationFrame;   // Frame actuelle de l'animation
-    double animationTime; // Temps écoulé depuis la dernière frame
+    int animationFrame;
+    double animationTime;
 };
 
 typedef struct
@@ -846,20 +846,17 @@ void handleHarmfulCollisions()
         {
             SDL_Rect harmfulRect = {harmfuls[i].x, harmfuls[i].y, 32, 32};
 
-            // Collision avec le vaisseau
             if (isCollision(vaultRect, harmfulRect))
             {
                 currentScore += 1000;
                 harmfuls[i].isActive = false;
             }
 
-            // si le harmful touche le mur du bas
             if (harmfuls[i].y > win_surf->h)
             {
                 harmfuls[i].isActive = false;
             }
 
-            // Collision avec les balles
             for (int j = 0; j < MAX_BALLS; j++)
             {
                 if (balls[j].isActive)
@@ -1476,6 +1473,9 @@ void nextLevel()
 
 void resetGame()
 {
+    clearBonuses();
+    resetAllBonuses();
+    clearHarmfuls();
     currentLife = 3;
     currentScore = 0;
     currentLevel = 1;
