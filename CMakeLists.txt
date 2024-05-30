@@ -9,12 +9,22 @@ add_executable(${PROJECT_NAME}
         include/brick.h
         include/ball.h
         include/game.h
+        include/bonus.h
+        include/vault.h
+        include/harmful.h
+        include/score.h
         src/render.c
         src/brick.c
         src/ball.c
         src/game.c
+        src/bonus.c
+        src/vault.c
+        src/harmful.c
+        src/score.c
         main.c
 )
+# Adding include directories for ball.h and ball.c
+target_include_directories(${PROJECT_NAME} PRIVATE include src)
 
 if (TARGET SDL2::SDL2)
     target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main m)
