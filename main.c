@@ -34,7 +34,6 @@
 
 // slow down ball
 #define S_BONUS (SDL_Rect) BRICK(256, 0) // pour animer ca doit faire (288, 0) puis (320, 0) puis (352, 0) et cela 8 x puis reprendre a (256, 0)
-
 // catch and fire
 #define C_BONUS (SDL_Rect) BRICK(256, 16)
 // laser beam
@@ -150,12 +149,12 @@ SDL_Surface *rightWallSprites = NULL;
 // Pour l'ecran gameOver, incrémenter la variable y par 64 (version sombre du sprite actuel)
 SDL_Rect srcBackground = {0, 128, 64, 64};
 // ------------------------------------------------------------------------------------------------------------------
-SDL_Rect srcBall = {0, 96, 24, 24};
+SDL_Rect srcBall = {63, 65, 16, 16};
 SDL_Rect srcVault = {384, 160, 82, 16};
 SDL_Rect srcBrick;
 SDL_Rect destVault;
-SDL_Rect srcLogo = {0, 0, 192, 42};
-SDL_Rect srcVaus = {0, 50, 192, 90};
+SDL_Rect srcLogo = {0, 0, 388, 96};
+SDL_Rect srcVaus = {0, 108, 192, 90};
 SDL_Rect srcLeftLaser = {0, 80, 16, 20};
 SDL_Rect srcRightLaser = {16, 80, 16, 20};
 
@@ -1476,11 +1475,11 @@ void render()
         }
     }
     renderAllWalls();
-    renderBalls(plancheSprites, &srcBall, win_surf);
+    renderBalls(gameSprites, &srcBall, win_surf);
     renderBricks(gameSprites, NUM_BRICKS);
     renderInfo(asciiSprites, currentScore, "", 16, 10);
-    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 10);         // a clean
-    renderInfo(asciiSprites, getHighestScore(), "HI-SCORE ", win_surf->w / 2 - 64, 92); // a clean
+    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 92);         // a clean
+    renderInfo(asciiSprites, getHighestScore(), "HI-SCORE ", win_surf->w - 64, 10); // a clean
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     moveAndRenderBonuses(gameSprites, win_surf);
     handleCollisions();
