@@ -1477,9 +1477,9 @@ void render()
     renderAllWalls();
     renderBalls(gameSprites, &srcBall, win_surf);
     renderBricks(gameSprites, NUM_BRICKS);
-    renderInfo(asciiSprites, currentScore, "", 16, 10);
-    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 92);         // a clean
-    renderInfo(asciiSprites, getHighestScore(), "HI-SCORE ", win_surf->w - 64, 10); // a clean
+    renderInfo(asciiSprites, currentScore, "", 16, 32);
+    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 32);         // a clean
+    renderInfo(asciiSprites, getHighestScore(), "HI-SCORE ", win_surf->w/2 - 96, 108); // a clean
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     moveAndRenderBonuses(gameSprites, win_surf);
     handleCollisions();
