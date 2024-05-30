@@ -55,7 +55,7 @@
     (SDL_Rect) { 0, 320, 32, 32 }
 #define HARMFUL_EXPLOSITION \
     (SDL_Rect) { 0, 384, 32, 32 }
-#define VAUS_HP (SDL_Rect) { 384, 122, 26, 6 }
+#define VAUS_HP (SDL_Rect) { 384, 118, 28, 10 }
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 33
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
