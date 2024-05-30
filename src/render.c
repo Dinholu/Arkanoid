@@ -1,5 +1,24 @@
 #include "render.h"
 
+SDL_Window *pWindow = NULL;
+SDL_Surface *win_surf = NULL;
+
+SDL_Surface *gameSprites = NULL;
+SDL_Surface *asciiSprites = NULL;
+SDL_Surface *menuSprites = NULL;
+SDL_Surface *topWallSprites = NULL;
+SDL_Surface *leftWallSprites = NULL;
+SDL_Surface *rightWallSprites = NULL;
+
+SDL_Rect srcBackground = {0, 128, 64, 64};
+SDL_Rect srcLogo = {0, 0, 388, 96};
+SDL_Rect srcVaus = {0, 108, 192, 90};
+SDL_Rect srcTopWall = {22, 0, 512, 22};
+SDL_Rect srcEdgeWall = {0, 0, 22, 650};
+
+const int Y_WALLS = 144;
+int backgroundChange = 0;
+
 void initializeSDL()
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
@@ -167,7 +186,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 
                 harmfuls[i].x += harmfuls[i].vx;
 
-                if (harmfuls[i].elongationTime >= harmfuls[i].randonElongationTime)
+                if (harmfuls[i].elongationTime >= harmfuls[i].randomElongationTime)
                 {
                     harmfuls[i].y += harmfuls[i].vy; // Descendre vers le bas
                     harmfuls[i].vy += 0.1;           // Augmente la vitesse progressivement

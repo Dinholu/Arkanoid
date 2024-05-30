@@ -1,5 +1,23 @@
 #include "bonus.h"
 
+struct Bonus bonuses[MAX_BONUSES];
+struct Laser lasers[MAX_LASERS];
+
+SDL_Rect srcLeftLaser = {0, 80, 16, 20};
+SDL_Rect srcRightLaser = {16, 80, 16, 20};
+
+bool isVaultEnlarged = false;
+bool isEnlarging = false;
+bool isShrinking = false;
+bool isLaserBeam = false;
+
+int enlargeSteps = 5;
+int currentStep = 0;
+Uint64 enlargeStartTime = 0;
+double enlargeDuration = 0.5;
+double enlargedHoldDuration = 5.0;
+double shrinkDuration = 0.5;
+
 void fireLaser()
 {
     mWasPressed = true;
@@ -168,7 +186,7 @@ void addLife()
 
 void wraplevel()
 {
-    nwasPressed = true;
+    nWasPressed = true;
     currentScore += 10000;
     nextLevel();
 }

@@ -1,13 +1,12 @@
-// BONUS_H
+#ifndef ARKANOID_BONUS_H
+#define ARKANOID_BONUS_H
+
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
-
-#ifndef ARKANOID_BONUS_H
-#define ARKANOID_BONUS_H
 
 #include "vault.h"
 #include "score.h"
@@ -16,8 +15,7 @@
 #define MAX_LASERS 10
 #define MAX_BONUSES 10
 
-struct Bonus
-{
+struct Bonus {
     double x;
     double y;
     double vy;
@@ -26,10 +24,9 @@ struct Bonus
     int animationFrame;
     double animationTime;
 };
-struct Bonus bonuses[MAX_BONUSES];
+extern struct Bonus bonuses[MAX_BONUSES];
 
-struct Laser
-{
+struct Laser {
     double x;
     double y;
     double vy;
@@ -38,23 +35,22 @@ struct Laser
     bool isAnimating;
     int animationFrame;
     Uint64 lastFrameTime;
-} lasers[MAX_LASERS];
+};
+extern struct Laser lasers[MAX_LASERS];
 
-SDL_Rect srcLeftLaser = {0, 80, 16, 20};
-SDL_Rect srcRightLaser = {16, 80, 16, 20};
+extern SDL_Rect srcLeftLaser;
+extern SDL_Rect srcRightLaser;
 
-bool isVaultEnlarged = false;
-bool isEnlarging = false;
-bool isShrinking = false;
-
-bool isLaserBeam = false;
-
-int enlargeSteps = 5;
-int currentStep = 0;
-Uint64 enlargeStartTime = 0;
-double enlargeDuration = 0.5;
-double enlargedHoldDuration = 5.0;
-double shrinkDuration = 0.5;
+extern bool isVaultEnlarged;
+extern bool isEnlarging;
+extern bool isShrinking;
+extern bool isLaserBeam;
+extern int enlargeSteps;
+extern int currentStep;
+extern Uint64 enlargeStartTime;
+extern double enlargeDuration;
+extern double enlargedHoldDuration;
+extern double shrinkDuration;
 
 void fireLaser();
 void initializeBonuses();

@@ -1,5 +1,23 @@
 #include "game.h"
 
+Uint64 prev, now;
+Level levels[NUM_LEVELS];
+
+bool vWasPressed = false;
+bool nWasPressed = false;
+bool mWasPressed = false;
+
+bool spaceWasPressed = false;
+int currentLevel = 1;
+bool enteringName = false;
+bool isGameOver = false;
+bool showMenu = true;
+int nameIndex = 0;
+
+int currentLife = 3;
+double delta_t;
+const int FPS = 60;
+
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
     return !(rect1.x + rect1.w < rect2.x ||
@@ -193,12 +211,12 @@ void processInput(bool *quit)
     }
     if (keys[SDL_SCANCODE_N] == 0)
     {
-        nwasPressed = false;
+        nWasPressed = false;
     }
     // BONUS WRAP LEVEL (B_BONUS)
     if (keys[SDL_SCANCODE_N])
     {
-        if (!nwasPressed)
+        if (!nWasPressed)
         {
             wraplevel();
         }

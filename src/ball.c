@@ -1,5 +1,13 @@
 #include "ball.h"
 
+struct Ball balls[MAX_BALLS];
+SDL_Rect srcBall = {63, 65, 16, 16};
+Uint64 attachTime = 0;
+int releaseCount = 0;
+int activeBallCount = 1;
+double ballSpeedIncrement = BALL_SPEED_INCREMENT;
+double max_speed = 7.0;
+
 void vaultCollision(struct Ball *ball)
 {
     if ((ball->y + srcBall.h > win_surf->h - 32) && (ball->x + srcBall.w > x_vault) && (ball->x < x_vault + vault_width))

@@ -1,6 +1,6 @@
 // BALL_H
-#ifndef ARKANOID_BALL_H
-#define ARKANOID_BALL_H
+#ifndef BALL_H
+#define BALL_H
 
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -27,15 +27,15 @@ struct Ball
     bool isAttached;
     Uint64 attachTime;
     int relative;
-} ball;
+};
 
-struct Ball balls[MAX_BALLS];
-SDL_Rect srcBall = {63, 65, 16, 16};
-Uint64 attachTime = 0;
-int releaseCount = 0;
-int activeBallCount = 1;
-double ballSpeedIncrement = BALL_SPEED_INCREMENT;
-double max_speed = 7.0;
+extern struct Ball balls[MAX_BALLS];
+extern SDL_Rect srcBall;
+extern Uint64 attachTime;
+extern int releaseCount;
+extern int activeBallCount;
+extern double ballSpeedIncrement;
+extern double max_speed;
 
 void wallCollision(struct Ball *ball);
 void vaultCollision(struct Ball *ball);
@@ -46,4 +46,4 @@ void defeatCollision(struct Ball *ball);
 void initializeBalls();
 void attachBallToVault(struct Ball *ball, int x_vault);
 
-#endif // ARKANOID_BALL_H
+#endif // BALL_H

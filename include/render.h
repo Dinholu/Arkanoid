@@ -1,4 +1,6 @@
-// RENDER_H
+#ifndef ARKANOID_RENDER_H
+#define ARKANOID_RENDER_H
+
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,33 +8,30 @@
 #include <math.h>
 #include <string.h>
 
-#ifndef ARKANOID_RENDER_H
-#define ARKANOID_RENDER_H
-
 #include "bonus.h"
 #include "harmful.h"
 
 #define VAUS_HP (SDL_Rect) { 384, 118, 28, 10 }
 #define MAX_BACKGROUND 5
 
-SDL_Window *pWindow = NULL;
-SDL_Surface *win_surf = NULL;
+extern SDL_Window *pWindow;
+extern SDL_Surface *win_surf;
 
-SDL_Surface *gameSprites = NULL;
-SDL_Surface *asciiSprites = NULL;
-SDL_Surface *menuSprites = NULL;
-SDL_Surface *topWallSprites = NULL;
-SDL_Surface *leftWallSprites = NULL;
-SDL_Surface *rightWallSprites = NULL;
+extern SDL_Surface *gameSprites;
+extern SDL_Surface *asciiSprites;
+extern SDL_Surface *menuSprites;
+extern SDL_Surface *topWallSprites;
+extern SDL_Surface *leftWallSprites;
+extern SDL_Surface *rightWallSprites;
 
-SDL_Rect srcBackground = {0, 128, 64, 64};
-SDL_Rect srcLogo = {0, 0, 388, 96};
-SDL_Rect srcVaus = {0, 108, 192, 90};
-SDL_Rect srcTopWall = {22, 0, 512, 22};
-SDL_Rect srcEdgeWall = {0, 0, 22, 650};
+extern SDL_Rect srcBackground;
+extern SDL_Rect srcLogo;
+extern SDL_Rect srcVaus;
+extern SDL_Rect srcTopWall;
+extern SDL_Rect srcEdgeWall;
 
-const int Y_WALLS = 144;
-int backgroundChange = 0;
+extern const int Y_WALLS;
+extern int backgroundChange;
 
 void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser, SDL_Surface *win_surf);
 void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf);
@@ -49,7 +48,7 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
 void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault);
 void renderHP(SDL_Surface *sprites, SDL_Surface *win_surf, int currentLife);
 void renderBricks(SDL_Surface *sprites, int num_bricks);
-void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY, const char *alignement);
+void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY, const char *alignment);
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf);
 void initializeSDL();
 void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, int positionX, int positionY, int width, int height);

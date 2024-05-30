@@ -1,4 +1,6 @@
-// BRICK_H
+#ifndef ARKANOID_BRICK_H
+#define ARKANOID_BRICK_H
+
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,9 +10,6 @@
 
 #define NUM_BRICKS_PER_ROW 16
 #define NUM_ROWS 16
-
-#ifndef ARKANOID_BRICK_H
-#define ARKANOID_BRICK_H
 
 #define BRICK_WIDTH 32
 #define BRICK_HEIGHT 16
@@ -32,8 +31,7 @@
 #define GREY_BRICK (SDL_Rect) BRICK(0, 32)
 #define GOLD_BRICK (SDL_Rect) BRICK(0, 48)
 
-struct Brick
-{
+struct Brick {
     double x;
     double y;
     char type;
@@ -45,11 +43,9 @@ struct Brick
     int animationFrame;
     Uint64 lastFrameTime;
 };
-
-struct Brick brick[NUM_BRICKS];
-SDL_Rect srcBrick;
-
-int touched = 2;
+extern struct Brick brick[NUM_BRICKS];
+extern SDL_Rect srcBrick;
+extern int touched;
 
 bool allBricksInvisible();
 

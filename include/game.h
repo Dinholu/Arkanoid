@@ -1,4 +1,3 @@
-// GAME_H
 #ifndef ARKANOID_GAME_H
 #define ARKANOID_GAME_H
 
@@ -9,7 +8,6 @@
 #include <math.h>
 #include <string.h>
 
-
 #include "brick.h"
 #include "score.h"
 #include "render.h"
@@ -18,28 +16,27 @@
 #define NUM_LEVELS 33
 #define VIE_MAX 5
 
-typedef struct Level
-{
+typedef struct Level {
     int bricks[NUM_ROWS][NUM_BRICKS_PER_ROW];
 } Level;
 
-Uint64 prev, now;
-Level levels[NUM_LEVELS];
+extern Uint64 prev, now;
+extern Level levels[NUM_LEVELS];
 
-bool vWasPressed = false;
-bool nwasPressed = false;
-bool mWasPressed = false;
+extern bool vWasPressed;
+extern bool nWasPressed;
+extern bool mWasPressed;
 
-bool spaceWasPressed = false;
-int currentLevel = 1;
-bool enteringName = false;
-bool isGameOver = false;
-bool showMenu = true;
-int nameIndex = 0;
+extern bool spaceWasPressed;
+extern int currentLevel;
+extern bool enteringName;
+extern bool isGameOver;
+extern bool showMenu;
+extern int nameIndex;
 
-int currentLife = 3;
-double delta_t;
-const int FPS = 60;
+extern int currentLife;
+extern double delta_t;
+extern const int FPS;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2);
 void loadCurrentLevel(bool isEigth);

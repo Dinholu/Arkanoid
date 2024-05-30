@@ -1,5 +1,8 @@
 #include "score.h"
 
+char playerName[MAX_NAME_LENGTH + 1] = "";
+int currentScore = 0;
+
 int getHighestScore()
 {
     int highScore;

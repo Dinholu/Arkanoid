@@ -1,4 +1,6 @@
 #include "harmful.h"
+struct Harmful harmfuls[MAX_HARMFULS];
+int currentHarmfulsType = 1;
 
 void initializeHarmfuls()
 {
@@ -10,7 +12,7 @@ void initializeHarmfuls()
         harmfuls[i].vy = 0;
         harmfuls[i].isActive = false;
         harmfuls[i].type = 0;
-        harmfuls[i].randonElongationTime = 0;
+        harmfuls[i].randomElongationTime = 0;
         harmfuls[i].isFalling = false;
         harmfuls[i].initialY = 0; // Nouvelle variable pour la position initiale en Y
         harmfuls[i].time = 0;
@@ -50,7 +52,7 @@ void generateHarmfuls()
             harmfuls[i].time = 0;      // Réinitialiser le temps
             harmfuls[i].height = 0;    // Réinitialiser la hauteur
             harmfuls[i].elongationTime = 0;
-            harmfuls[i].randonElongationTime = 10.0f + (rand() % 6);
+            harmfuls[i].randomElongationTime = 10.0f + (rand() % 6);
             harmfuls[i].isSinusoidal = false;
             harmfuls[i].animationFrame = 0;
             harmfuls[i].animationTime = 0;

@@ -24,7 +24,7 @@ add_executable(${PROJECT_NAME}
         main.c
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE include src)
+target_include_directories(${PROJECT_NAME} PRIVATE include)
 
 if (TARGET SDL2::SDL2)
     target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main m)
