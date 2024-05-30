@@ -34,7 +34,6 @@
 
 // slow down ball
 #define S_BONUS (SDL_Rect) BRICK(256, 0) // pour animer ca doit faire (288, 0) puis (320, 0) puis (352, 0) et cela 8 x puis reprendre a (256, 0)
-
 // catch and fire
 #define C_BONUS (SDL_Rect) BRICK(256, 16)
 // laser beam
@@ -55,6 +54,7 @@
     (SDL_Rect) { 0, 320, 32, 32 }
 #define HARMFUL_EXPLOSITION \
     (SDL_Rect) { 0, 384, 32, 32 }
+#define VAUS_HP (SDL_Rect) { 384, 118, 28, 10 }
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 33
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
@@ -62,7 +62,7 @@
 #define VIE_MAX 5
 #define MAX_LASERS 10
 #define MAX_BONUSES 10
-#define MAX_NAME_LENGTH 3
+#define MAX_NAME_LENGTH 8
 #define MAX_HIGHSCORE 10
 #define MAX_BACKGROUND 5
 #define MAX_HARMFULS 5
@@ -168,12 +168,12 @@ SDL_Surface *rightWallSprites = NULL;
 // Pour l'ecran gameOver, incrémenter la variable y par 64 (version sombre du sprite actuel)
 SDL_Rect srcBackground = {0, 128, 64, 64};
 // ------------------------------------------------------------------------------------------------------------------
-SDL_Rect srcBall = {0, 96, 24, 24};
+SDL_Rect srcBall = {63, 65, 16, 16};
 SDL_Rect srcVault = {384, 160, 82, 16};
 SDL_Rect srcBrick;
 SDL_Rect destVault;
-SDL_Rect srcLogo = {0, 0, 192, 42};
-SDL_Rect srcVaus = {0, 50, 192, 90};
+SDL_Rect srcLogo = {0, 0, 388, 96};
+SDL_Rect srcVaus = {0, 108, 192, 90};
 SDL_Rect srcLeftLaser = {0, 80, 16, 20};
 SDL_Rect srcRightLaser = {16, 80, 16, 20};
 
@@ -1143,20 +1143,29 @@ SDL_Rect charToSDLRect(char character)
     return rect;
 }
 //------- RENDERING -------//
-void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string, int startX, int startY)
+void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string, int startX, int startY, const char *alignment)
 {
     int x = startX;
     int y = startY;
     const int spacing = 1;
+    int totalWidth = 0;
 
-    SDL_Rect srcRect, destRect;
-    while (*string)
-    {
-        srcRect = charToSDLRect(*string);
-        destRect = (SDL_Rect){x, y, srcRect.w, srcRect.h};
+    for (const char *temp = string; *temp; temp++) {
+        SDL_Rect srcRect = charToSDLRect(*temp);
+        totalWidth += srcRect.w + spacing;
+    }
+    totalWidth -= spacing;
 
+    if (strcmp(alignment, "right") == 0) {
+        x -= totalWidth;
+    } else if (strcmp(alignment, "center") == 0) {
+        x -= totalWidth / 2;
+    }
+
+    while (*string) {
+        SDL_Rect srcRect = charToSDLRect(*string);
+        SDL_Rect destRect = {x, y, srcRect.w, srcRect.h};
         SDL_BlitSurface(sprites, &srcRect, surface, &destRect);
-
         x += srcRect.w + spacing;
         string++;
     }
@@ -1170,9 +1179,9 @@ void renderGameOverScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *
 
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
 
-    renderString(asciiSprites, win_surf, "GAME OVER", (win_surf->w - 128) / 2, 300);
-    renderString(asciiSprites, win_surf, "ENTER NAME", (win_surf->w - 160) / 2, 350);
-    renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
+    renderString(asciiSprites, win_surf, "GAME OVER", win_surf->w / 2, 300, "center");
+    renderString(asciiSprites, win_surf, "ENTER NAME", win_surf->w / 2, 350, "center");
+    renderString(asciiSprites, win_surf, playerName, win_surf->w / 2, 400, "center");
 }
 
 void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
@@ -1183,9 +1192,9 @@ void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Su
 
     SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
 
-    renderString(asciiSprites, win_surf, "CONGRATULATIONS!", (win_surf->w - 256) / 2, 300);
-    renderString(asciiSprites, win_surf, "ENTER NAME", (win_surf->w - 160) / 2, 350);
-    renderString(asciiSprites, win_surf, playerName, (win_surf->w - 160) / 2, 400);
+    renderString(asciiSprites, win_surf, "CONGRATULATIONS!", win_surf->w / 2, 300, "center");
+    renderString(asciiSprites, win_surf, "ENTER NAME", win_surf->w / 2, 350, "center");
+    renderString(asciiSprites, win_surf, playerName, win_surf->w / 2, 400, "center");
 }
 
 void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
@@ -1251,6 +1260,18 @@ void attachBallToVault(struct Ball *ball, int x_vault)
     // Garder le x en fonction du vaisseau
     ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2) - ball->relative;
     ball->y = destVault.y - srcBall.h;
+}
+
+void renderHP(SDL_Surface *sprites, SDL_Surface *win_surf, int currentLife)
+{
+    int startX = srcEdgeWall.w;
+    int startY = win_surf->h - 12;
+
+    for (int i = 0; i < currentLife; i++)
+    {
+        SDL_Rect destHP = {startX + i * (VAUS_HP.w + 2), startY, VAUS_HP.w, VAUS_HP.h};
+        SDL_BlitSurface(sprites, &VAUS_HP, win_surf, &destHP);
+    }
 }
 
 void initializeBalls()
@@ -1363,29 +1384,35 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
     }
 }
 
-void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY)
+void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY, const char* alignement)
 {
     char *string = malloc(sizeof(*string) * 256);
     sprintf(string, "%s%d", label, value);
-    renderString(sprites, win_surf, string, startX, startY);
+    renderString(sprites, win_surf, string, startX, startY, alignement);
     free(string);
 }
 
 void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
 {
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+    
+    // Pour afficher le logo dans le HighScore
+    SDL_Rect destLogo = {0, 128, srcLogo.w, srcLogo.h};
+    destLogo.x = (win_surf->w - srcLogo.w) / 2;
+    SDL_BlitSurface(menuSprites, &srcLogo, win_surf, &destLogo);
 
     HighScore highScores[MAX_HIGHSCORE];
     int count;
     readHighScores(highScores, &count);
+    int startLeaderBoardY = srcLogo.h + 192;
 
-    renderString(asciiSprites, win_surf, "HIGH SCORES", (win_surf->w - 160) / 2, 100);
+    renderString(asciiSprites, win_surf, "LEADERBOARD", win_surf->w / 2, startLeaderBoardY, "center");
 
     for (int i = 0; i < count; i++)
     {
         char scoreText[256];
-        sprintf(scoreText, "%s %d", highScores[i].name, highScores[i].score);
-        renderString(asciiSprites, win_surf, scoreText, 50, 150 + i * 40);
+        sprintf(scoreText, "%d. %s %d", i + 1, highScores[i].name, highScores[i].score);
+        renderString(asciiSprites, win_surf, scoreText, 192, startLeaderBoardY + 50 + i * 32, "left");
     }
 
     SDL_UpdateWindowSurface(pWindow);
@@ -1416,15 +1443,14 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     bool inMenu = true;
     SDL_Event event;
 
-    int optionWidth = 160;
-    int startOptionX = (win_surf->w - optionWidth) / 2;
+    int startOptionX = 192;
 
     while (inMenu)
     {
         renderMenu(menuSprites, &srcLogo, win_surf);
-        renderString(asciiSprites, win_surf, "1. START", startOptionX, srcLogo.h + 192);
-        renderString(asciiSprites, win_surf, "2. HIGH SCORES", startOptionX, srcLogo.h + 256);
-        renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, srcLogo.h + 320);
+        renderString(asciiSprites, win_surf, "1. START", startOptionX, srcLogo.h + 192, "left");
+        renderString(asciiSprites, win_surf, "2. LEADERBOARD", startOptionX, srcLogo.h + 256, "left");
+        renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, srcLogo.h + 320, "left");
 
         SDL_UpdateWindowSurface(pWindow);
 
@@ -1523,6 +1549,7 @@ void resetGame()
     currentScore = 0;
     currentLevel = 1;
     max_speed = 8.0;
+    srcBackground.x = 0;
     ballSpeedIncrement = BALL_SPEED_INCREMENT;
     attachTime = SDL_GetPerformanceCounter();
     initializeBalls();
@@ -1745,19 +1772,21 @@ void render()
         }
     }
     renderAllWalls();
-    renderBalls(plancheSprites, &srcBall, win_surf);
+    renderBalls(gameSprites, &srcBall, win_surf);
     renderBricks(gameSprites, NUM_BRICKS);
-    renderInfo(asciiSprites, currentScore, "", 16, 10);
-    renderInfo(asciiSprites, currentLife, "HP ", win_surf->w - 96, 10);
-    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2 - 64, 10);         // a clean
-    renderInfo(asciiSprites, getHighestScore(), "HI-SCORE ", win_surf->w / 2 - 64, 92); // a clean
+    renderInfo(asciiSprites, currentScore, "", 16, 32, "left");
+    renderInfo(asciiSprites, currentLevel, "LEVEL ", win_surf->w / 2, 108, "center"); // a clean
+    renderString(asciiSprites, win_surf, "HI-SCORE", win_surf->w - 16, 32, "right");
+    renderInfo(asciiSprites, getHighestScore(), "", win_surf->w - 16, 64, "right");
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     moveAndRenderBonuses(gameSprites, win_surf);
     moveAndRenderHarmfuls(gameSprites, win_surf);
     handleCollisions();
     handleHarmfulCollisions();
     handleBonusCollision();
+    renderHP(gameSprites, win_surf, currentLife);
 }
+
 
 void processInput(bool *quit)
 {
