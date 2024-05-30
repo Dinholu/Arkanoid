@@ -54,7 +54,8 @@
     (SDL_Rect) { 0, 320, 32, 32 }
 #define HARMFUL_EXPLOSITION \
     (SDL_Rect) { 0, 384, 32, 32 }
-#define VAUS_HP (SDL_Rect) { 384, 118, 28, 10 }
+#define VAUS_HP \
+    (SDL_Rect) { 384, 118, 28, 10 }
 // Si on augmente de niveau penser a modifier la constante ci dessous <-----
 #define NUM_LEVELS 33
 #define BALL_SPEED_INCREMENT 1.0 // Speed increment when hitting a brick
@@ -630,8 +631,8 @@ void generateHarmfuls()
             harmfuls[i].x = 355;
             harmfuls[i].y = Y_WALLS + srcTopWall.h;
             harmfuls[i].initialY = harmfuls[i].y; // Enregistrer la position initiale en Y
-            harmfuls[i].vx = 2;                   // Déplacement initial à droite
-            harmfuls[i].vy = 2;
+            harmfuls[i].vx = 1;                   // Déplacement initial à droite
+            harmfuls[i].vy = 1;
             harmfuls[i].isActive = true;
             harmfuls[i].type = currentHarmfulsType;
             harmfuls[i].isFalling = true;
@@ -756,7 +757,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                         if (canFall)
                         {
                             harmfuls[i].isFalling = true;
-                            harmfuls[i].vy = 2;
+                            harmfuls[i].vy = 1;
                         }
                     }
                 }
@@ -1150,19 +1151,24 @@ void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string
     const int spacing = 1;
     int totalWidth = 0;
 
-    for (const char *temp = string; *temp; temp++) {
+    for (const char *temp = string; *temp; temp++)
+    {
         SDL_Rect srcRect = charToSDLRect(*temp);
         totalWidth += srcRect.w + spacing;
     }
     totalWidth -= spacing;
 
-    if (strcmp(alignment, "right") == 0) {
+    if (strcmp(alignment, "right") == 0)
+    {
         x -= totalWidth;
-    } else if (strcmp(alignment, "center") == 0) {
+    }
+    else if (strcmp(alignment, "center") == 0)
+    {
         x -= totalWidth / 2;
     }
 
-    while (*string) {
+    while (*string)
+    {
         SDL_Rect srcRect = charToSDLRect(*string);
         SDL_Rect destRect = {x, y, srcRect.w, srcRect.h};
         SDL_BlitSurface(sprites, &srcRect, surface, &destRect);
@@ -1384,7 +1390,7 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
     }
 }
 
-void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY, const char* alignement)
+void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY, const char *alignement)
 {
     char *string = malloc(sizeof(*string) * 256);
     sprintf(string, "%s%d", label, value);
@@ -1395,7 +1401,7 @@ void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int st
 void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
 {
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
-    
+
     // Pour afficher le logo dans le HighScore
     SDL_Rect destLogo = {0, 128, srcLogo.w, srcLogo.h};
     destLogo.x = (win_surf->w - srcLogo.w) / 2;
@@ -1787,7 +1793,6 @@ void render()
     handleBonusCollision();
     renderHP(gameSprites, win_surf, currentLife);
 }
-
 
 void processInput(bool *quit)
 {
