@@ -1012,7 +1012,6 @@ void writeHighScores(HighScore highScores[], int count)
     FILE *file = fopen("highscores.txt", "w");
     if (file == NULL)
     {
-        printf("Unable to open highscores.txt for writing.\n");
         return;
     }
 
@@ -1029,7 +1028,6 @@ void readHighScores(HighScore highScores[], int *count)
     FILE *file = fopen("highscores.txt", "r");
     if (file == NULL)
     {
-        printf("Unable to open highscores.txt for reading.\n");
         *count = 0;
         return;
     }
@@ -1418,7 +1416,7 @@ void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
     {
         char scoreText[256];
         sprintf(scoreText, "%d. %s %d", i + 1, highScores[i].name, highScores[i].score);
-        renderString(asciiSprites, win_surf, scoreText, 192, startLeaderBoardY + 50 + i * 32, "left");
+        renderString(asciiSprites, win_surf, scoreText, 164, startLeaderBoardY + 50 + i * 32, "left");
     }
 
     SDL_UpdateWindowSurface(pWindow);
