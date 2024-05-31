@@ -123,6 +123,8 @@ void resetAllBonuses()
 {
     isLaserBeam = false;
     isEnlarging = false;
+    isShrinking = false;
+    isEnlarging = false;
     releaseCount = 0;
     ballSpeedIncrement = BALL_SPEED_INCREMENT;
 }
@@ -246,31 +248,43 @@ void handleBonusCollision()
 
             if (isCollision(vaultRect, bonusRect))
             {
-                resetAllBonuses();
+
                 bonuses[i].isActive = false;
                 currentScore += 100;
-                // Appliquer l'effet du bonus
                 switch (bonuses[i].type)
                 {
                 case 1:
+                    resetAllBonuses();
                     slowDownBall();
                     break;
                 case 2:
+                    resetAllBonuses();
                     CatchAndFire();
                     break;
                 case 3:
+                    resetAllBonuses();
                     isLaserBeam = true;
                     break;
                 case 4:
-                    enlargeVault();
+                    if (isVaultEnlarged || isEnlarging)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        resetAllBonuses();
+                        enlargeVault();
+                    }
                     break;
                 case 5:
+                    resetAllBonuses();
                     splitBall();
                     break;
                 case 6:
                     wraplevel();
                     break;
                 case 7:
+                    resetAllBonuses();
                     addLife();
                     break;
                 default:

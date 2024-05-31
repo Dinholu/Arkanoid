@@ -42,7 +42,8 @@ void processInput(bool *quit)
     // BONUS SPLIT BALL (D_BONUS)
     if (keys[SDL_SCANCODE_B] && !vWasPressed)
     {
-        splitBall();
+        // splitBall();
+        enlargeVault();
         vWasPressed = true;
     }
 
