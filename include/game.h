@@ -11,6 +11,7 @@
 #include "score.h"
 #include "render.h"
 #include "bonus.h"
+#include "input.h"
 
 #define NUM_LEVELS 33
 #define VIE_MAX 5
@@ -21,18 +22,9 @@ typedef struct Level {
 
 extern Uint64 prev, now;
 extern Level levels[NUM_LEVELS];
-
-extern bool vWasPressed;
-extern bool nWasPressed;
-extern bool mWasPressed;
-
-extern bool spaceWasPressed;
 extern int currentLevel;
-extern bool enteringName;
 extern bool isGameOver;
 extern bool showMenu;
-extern int nameIndex;
-
 extern int currentLife;
 extern double delta_t;
 extern const int FPS;
@@ -40,7 +32,6 @@ extern const int FPS;
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2);
 void loadCurrentLevel(bool isEight);
 void loadLevelFromFile(const char *filename, bool isEigth);
-void processCongratulationsInput(SDL_Event *event);
 void nextLevel();
 void resetGame();
 void mainGameLoop();

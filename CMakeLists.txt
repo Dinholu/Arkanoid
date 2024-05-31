@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
         include/vault.h
         include/harmful.h
         include/score.h
+        include/input.h
         src/render.c
         src/brick.c
         src/ball.c
@@ -21,6 +22,7 @@ add_executable(${PROJECT_NAME}
         src/vault.c
         src/harmful.c
         src/score.c
+        src/input.c
         main.c
 )
 

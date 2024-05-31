@@ -10,7 +10,6 @@ bool isVaultEnlarged = false;
 bool isEnlarging = false;
 bool isShrinking = false;
 bool isLaserBeam = false;
-
 int enlargeSteps = 5;
 int currentStep = 0;
 Uint64 enlargeStartTime = 0;
