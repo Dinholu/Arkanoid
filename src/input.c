@@ -40,9 +40,15 @@ void processInput(bool *quit)
     }
 
     // BONUS SPLIT BALL (D_BONUS)
-    if (keys[SDL_SCANCODE_B] && activeBallCount == 1)
+    if (keys[SDL_SCANCODE_B] && !vWasPressed)
     {
         splitBall();
+        vWasPressed = true;
+    }
+
+    if (keys[SDL_SCANCODE_B] == 0)
+    {
+        vWasPressed = false;
     }
     if (keys[SDL_SCANCODE_N] == 0)
     {

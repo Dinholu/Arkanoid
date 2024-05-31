@@ -71,6 +71,7 @@ void splitBall()
 {
     for (int i = 0; i < MAX_BALLS; i++)
     {
+        // degage les balles qui sont attachees
         if (balls[i].isActive && balls[i].isAttached)
         {
             balls[i].isAttached = false;
@@ -80,18 +81,45 @@ void splitBall()
         }
     }
 
-    if (activeBallCount == 1)
+    // Créer un tableau temporaire pour stocker les nouvelles balles
+    struct Ball tempBalls[MAX_BALLS];
+    int tempActiveBallCount = 0;
+    for (int i = 0; i < MAX_BALLS; i++)
     {
-        balls[1] = balls[0];
-        balls[2] = balls[0];
-        balls[1].vx = balls[0].vx * cos(M_PI / 6) - balls[0].vy * sin(M_PI / 6);
-        balls[1].vy = balls[0].vx * sin(M_PI / 6) + balls[0].vy * cos(M_PI / 6);
-        balls[2].vx = balls[0].vx * cos(-M_PI / 6) - balls[0].vy * sin(-M_PI / 6);
-        balls[2].vy = balls[0].vx * sin(-M_PI / 6) + balls[0].vy * cos(-M_PI / 6);
-        balls[1].isActive = true;
-        balls[2].isActive = true;
-        activeBallCount = 3;
+        if (balls[i].isActive)
+        {
+            if (tempActiveBallCount + 3 <= MAX_BALLS) // S'assurer de ne pas dépasser la capacité maximale
+            {
+                tempBalls[tempActiveBallCount] = balls[i];
+
+                tempBalls[tempActiveBallCount + 1] = balls[i];
+                tempBalls[tempActiveBallCount + 1].vx = balls[i].vx * cos(M_PI / 6) - balls[i].vy * sin(M_PI / 6);
+                tempBalls[tempActiveBallCount + 1].vy = balls[i].vx * sin(M_PI / 6) + balls[i].vy * cos(M_PI / 6);
+
+                tempBalls[tempActiveBallCount + 2] = balls[i];
+                tempBalls[tempActiveBallCount + 2].vx = balls[i].vx * cos(-M_PI / 6) - balls[i].vy * sin(-M_PI / 6);
+                tempBalls[tempActiveBallCount + 2].vy = balls[i].vx * sin(-M_PI / 6) + balls[i].vy * cos(-M_PI / 6);
+
+                tempBalls[tempActiveBallCount + 1].isActive = true;
+                tempBalls[tempActiveBallCount + 2].isActive = true;
+
+                tempActiveBallCount += 3;
+            }
+            else
+            {
+                // Si nous ne pouvons pas ajouter deux nouvelles balles, nous arrêtons la boucle pour éviter un dépassement
+                break;
+            }
+        }
     }
+
+    // Copier les nouvelles balles dans le tableau principal
+    for (int i = 0; i < tempActiveBallCount && i < MAX_BALLS; i++)
+    {
+        balls[i] = tempBalls[i];
+    }
+
+    activeBallCount = tempActiveBallCount < MAX_BALLS ? tempActiveBallCount : MAX_BALLS;
 }
 
 void resetAllBonuses()
@@ -192,7 +220,7 @@ void wraplevel()
 
 void slowDownBall()
 {
-    for (int i = 0; i < MAX_BALLS; i++)
+    for (int i = 0; i < activeBallCount; i++)
     {
         if (balls[i].isActive)
         {

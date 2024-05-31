@@ -13,7 +13,7 @@
 #include "render.h"
 
 #define BALL_SPEED_INCREMENT 0.5 // Speed increment when hitting a brick
-#define MAX_BALLS 3
+#define MAX_BALLS 50
 
 struct Ball
 {
