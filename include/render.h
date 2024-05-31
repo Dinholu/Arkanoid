@@ -44,7 +44,6 @@ extern Color grey;
 extern const int Y_WALLS;
 extern int backgroundChange;
 
-void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser, SDL_Surface *win_surf);
 void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf);
 void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites);
 SDL_Rect charToSDLRect(char character);
@@ -64,5 +63,7 @@ void initializeSDL();
 void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, int positionX, int positionY, int width, int height);
 void renderAllWalls();
 void render();
+void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf);
+void renderLasers(SDL_Surface *gameSprites, const SDL_Rect *srcLeftLaser, const SDL_Rect *srcRightLaser, SDL_Surface *win_surf);
 
 #endif // ARKANOID_RENDER_H

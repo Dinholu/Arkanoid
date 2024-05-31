@@ -50,6 +50,8 @@ extern Uint64 enlargeStartTime;
 extern double enlargeDuration;
 extern double shrinkDuration;
 
+void moveLasers();
+void laserCollisions();
 void moveBonuses();
 void fireLaser();
 void initializeBonuses();
@@ -64,6 +66,5 @@ void slowDownBall();
 void CatchAndFire();
 void wraplevel();
 void handleBonusCollision();
-void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf);
 
 #endif // ARKANOID_BONUS_H

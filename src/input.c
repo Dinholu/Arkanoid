@@ -76,6 +76,14 @@ void processInput(bool *quit)
     //     slowDownBall();
     // }
 
+    // BONUS FIRE LASER (L_BONUS)
+    if (keys[SDL_SCANCODE_M])
+    {
+        if (!mWasPressed)
+        {
+            fireLaser();
+        }
+    }
     // BONUS CATCH AND FIRE (C_BONUS)
     if (keys[SDL_SCANCODE_X])
     {
@@ -104,33 +112,6 @@ void processInput(bool *quit)
         if (event.type == SDL_QUIT)
         {
             *quit = true;
-        }
-    }
-}
-
-void processCongratulationsInput(SDL_Event *event)
-{
-    if (event->type == SDL_KEYDOWN)
-    {
-        if (event->key.keysym.sym == SDLK_RETURN)
-        {
-            enteringName = false;
-            showMenu = true;
-            saveHighScore(playerName, currentScore);
-            printf("Player Name: %s, Score: %d\n", playerName, currentScore);
-        }
-        else if (event->key.keysym.sym == SDLK_BACKSPACE && nameIndex > 0)
-        {
-            playerName[--nameIndex] = '\0';
-        }
-        else if (nameIndex < MAX_NAME_LENGTH)
-        {
-            char key = (char)event->key.keysym.sym;
-            if ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z'))
-            {
-                playerName[nameIndex++] = key;
-                playerName[nameIndex] = '\0';
-            }
         }
     }
 }

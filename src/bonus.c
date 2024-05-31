@@ -277,3 +277,66 @@ void moveBonuses()
         }
     }
 }
+
+void moveLasers()
+{
+    for (int i = 0; i < MAX_LASERS; i++)
+    {
+        if (lasers[i].isActive)
+        {
+            lasers[i].y += lasers[i].vy;
+            laserCollisions();
+            if (lasers[i].y < Y_WALLS + srcTopWall.h)
+            {
+                lasers[i].isActive = false;
+            }
+        }
+    }
+}
+
+void laserCollisions()
+{
+    for (int i = 0; i < MAX_LASERS; i++)
+    {
+        for (int j = 0; j < NUM_BRICKS; j++)
+        {
+            if (brick[j].isVisible)
+            {
+                SDL_Rect laserRect = {lasers[i].x, lasers[i].y, srcLeftLaser.w, srcLeftLaser.h};
+                SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+
+                if (isCollision(laserRect, brickRect))
+                {
+                    lasers[i].isAnimating = true;
+                    lasers[i].animationFrame = 0;
+                    lasers[i].lastFrameTime = SDL_GetPerformanceCounter();
+                    lasers[i].hasTouchedBrick = true;
+                    lasers[i].isActive = false;
+
+                    if (brick[j].isDestructible)
+                    {
+                        brick[j].touched--;
+                        if (brick[j].touched == 0)
+                        {
+                            brick[j].isVisible = false;
+                            currentScore += brick[j].scoreValue;
+                        }
+                        else
+                        {
+                            brick[j].isAnimating = true;
+                            brick[j].animationFrame = 0;
+                            brick[j].lastFrameTime = SDL_GetPerformanceCounter();
+                        }
+                    }
+                    else
+                    {
+                        brick[j].isAnimating = true;
+                        brick[j].animationFrame = 0;
+                        brick[j].lastFrameTime = SDL_GetPerformanceCounter();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+}
