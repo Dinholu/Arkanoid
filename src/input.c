@@ -76,14 +76,6 @@ void processInput(bool *quit)
     //     slowDownBall();
     // }
 
-    // BONUS FIRE LASER (L_BONUS)
-    if (keys[SDL_SCANCODE_M])
-    {
-        if (!mWasPressed)
-        {
-            fireLaser();
-        }
-    }
     // BONUS CATCH AND FIRE (C_BONUS)
     if (keys[SDL_SCANCODE_X])
     {
