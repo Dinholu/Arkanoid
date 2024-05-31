@@ -311,66 +311,6 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
     }
 }
 
-void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
-{
-    for (int i = 0; i < MAX_BONUSES; i++)
-    {
-        if (bonuses[i].isActive)
-        {
-            bonuses[i].y += bonuses[i].vy * delta_t; // Mise à jour de la position en fonction de delta_t
-            bonuses[i].animationTime += delta_t;     // Mise à jour du temps d'animation
-
-            if (bonuses[i].animationTime >= 0.1)
-            {
-                bonuses[i].animationFrame = (bonuses[i].animationFrame + 1) % 8; // Boucler sur 8 frames d'animation
-                bonuses[i].animationTime = 0;
-            }
-
-            // Vérifier si le bonus sort de l'écran
-            if (bonuses[i].y > win_surf->h)
-            {
-                bonuses[i].isActive = false;
-            }
-
-            // Rendre le bonus
-            if (bonuses[i].isActive)
-            {
-                SDL_Rect srcBonus;
-                int frameOffset = bonuses[i].animationFrame * 32;
-                switch (bonuses[i].type)
-                {
-                case 1:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
-                    break;
-                case 2:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
-                    break;
-                case 3:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 32, 32, 16};
-                    break;
-                case 4:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 48, 32, 16};
-                    break;
-                case 5:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 64, 32, 16};
-                    break;
-                case 6:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 80, 32, 16};
-                    break;
-                case 7:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 96, 32, 16};
-                    break;
-                default:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
-                    break;
-                }
-                SDL_Rect destBonus = { bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
-                SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
-            }
-        }
-    }
-}
-
 void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string, int startX, int startY, const char *alignment, Color color)
 {
     int x = startX;
@@ -450,7 +390,7 @@ void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface
     SDL_Rect dest = {0, 0, 0, 0};
     for (int j = Y_WALLS + srcTopWall.h; j < win_surf->h; j += srcBackground->h)
     {
-        for (int i = srcEdgeWall.w; i < win_surf->w; i += srcBackground->w)
+        for (int i = srcEdgeWall.w; i < win_surf->w - srcEdgeWall.w; i += srcBackground->w)
         {
             dest.x = i;
             dest.y = j;
@@ -662,6 +602,46 @@ void renderAllWalls()
     renderWall(topWallSprites, &srcTopWall, srcEdgeWall.w, Y_WALLS, srcTopWall.w, srcTopWall.h);
 }
 
+void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
+{
+    for (int i = 0; i < MAX_BONUSES; i++)
+    {
+        if (bonuses[i].isActive)
+        {
+            SDL_Rect srcBonus;
+            int frameOffset = bonuses[i].animationFrame * 32;
+            switch (bonuses[i].type)
+            {
+                case 1:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
+                    break;
+                case 2:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
+                    break;
+                case 3:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 32, 32, 16};
+                    break;
+                case 4:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 48, 32, 16};
+                    break;
+                case 5:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 64, 32, 16};
+                    break;
+                case 6:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 80, 32, 16};
+                    break;
+                case 7:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 96, 32, 16};
+                    break;
+                default:
+                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
+                    break;
+            }
+            SDL_Rect destBonus = { bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
+            SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
+        }
+    }
+}
 
 void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
 {
@@ -676,7 +656,7 @@ void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
     readHighScores(highScores, &count);
     int startLeaderBoardY = srcLogo.h + 192;
 
-    renderString(asciiSprites, win_surf, "LEADERBOARD", win_surf->w / 2, startLeaderBoardY, "center", grey);
+    renderString(asciiSprites, win_surf, "LEADERBOARD", win_surf->w / 2, startLeaderBoardY, "center", blue);
 
     for (int i = 0; i < count; i++)
     {
@@ -709,8 +689,15 @@ void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
 void render()
 {
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+    renderAllWalls();
     renderBackground(gameSprites, &srcBackground, win_surf);
     renderVault(gameSprites, &srcVault, win_surf, x_vault);
+    renderBricks(gameSprites, NUM_BRICKS);
+    renderHP(gameSprites, win_surf, currentLife);
+    renderInfo(asciiSprites, currentScore, "", 16, 32, "left", white);
+    renderInfo(asciiSprites, currentLevel, "ROUND ", win_surf->w / 2, 108, "center", grey); // a clean
+    renderString(asciiSprites, win_surf, "HI-SCORE", win_surf->w - 16, 32, "right", red);
+    renderInfo(asciiSprites, getHighestScore(), "", win_surf->w - 16, 64, "right", white);
 
     for (int i = 0; i < MAX_BALLS; i++)
     {
@@ -719,20 +706,14 @@ void render()
             attachBallToVault(&balls[i], x_vault);
         }
     }
-    renderAllWalls();
     renderBalls(gameSprites, &srcBall, win_surf);
-    renderBricks(gameSprites, NUM_BRICKS);
-    renderInfo(asciiSprites, currentScore, "", 16, 32, "left", white);
-    renderInfo(asciiSprites, currentLevel, "ROUND ", win_surf->w / 2, 108, "center", white); // a clean
-    renderString(asciiSprites, win_surf, "HI-SCORE", win_surf->w - 16, 32, "right", red);
-    renderInfo(asciiSprites, getHighestScore(), "", win_surf->w - 16, 64, "right", white);
+    renderBonuses(gameSprites, win_surf);
     moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
-    moveAndRenderBonuses(gameSprites, win_surf);
     moveAndRenderHarmfuls(gameSprites, win_surf);
     handleCollisions();
     handleHarmfulCollisions();
     handleBonusCollision();
-    renderHP(gameSprites, win_surf, currentLife);
+    moveBonuses();
 }
 
 SDL_Rect charToSDLRect(char character)

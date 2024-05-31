@@ -88,6 +88,7 @@ void brickCollision(struct Ball *ball)
                 handleBallProperty(ball, brickRect);
                 if (brick[i].isDestructible)
                 {
+                    printf("Brick touched: %i\n", i);
                     brick[i].touched--;
                     if (brick[i].touched == 0)
                     {

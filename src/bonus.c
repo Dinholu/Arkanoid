@@ -14,7 +14,6 @@ int enlargeSteps = 5;
 int currentStep = 0;
 Uint64 enlargeStartTime = 0;
 double enlargeDuration = 0.5;
-double enlargedHoldDuration = 5.0;
 double shrinkDuration = 0.5;
 
 void fireLaser()
@@ -77,7 +76,7 @@ void splitBall()
             balls[i].isAttached = false;
             releaseCount = 0;
             balls[i].vy = -5;
-            balls[i].vx = -1;
+            balls[i].vx = -0;
         }
     }
 
@@ -251,6 +250,29 @@ void handleBonusCollision()
                 default:
                     break;
                 }
+            }
+        }
+    }
+}
+
+void moveBonuses()
+{
+    for (int i = 0; i < MAX_BONUSES; i++)
+    {
+        if (bonuses[i].isActive)
+        {
+            bonuses[i].y += bonuses[i].vy * delta_t; // Mise à jour de la position en fonction de delta_t
+            bonuses[i].animationTime += delta_t;     // Mise à jour du temps d'animation
+
+            if (bonuses[i].animationTime >= 0.1)
+            {
+                bonuses[i].animationFrame = (bonuses[i].animationFrame + 1) % 8; // Boucler sur 8 frames d'animation
+                bonuses[i].animationTime = 0;
+            }
+
+            if (bonuses[i].y > win_surf->h)
+            {
+                bonuses[i].isActive = false;
             }
         }
     }

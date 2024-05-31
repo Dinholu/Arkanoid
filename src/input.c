@@ -27,10 +27,9 @@ void processInput(bool *quit)
             {
                 balls[i].isAttached = false;
                 balls[i].vy = -5;
-                balls[i].vx = -1;
+                balls[i].vx = 0;
                 releaseCount--;
-
-                break; // Libérer une seule balle à chaque appui
+                break;
             }
         }
     }
@@ -94,7 +93,7 @@ void processInput(bool *quit)
         {
             balls[i].isAttached = false;
             balls[i].vy = -5;
-            balls[i].vx = -1;
+            balls[i].vx = 0;
         }
     }
 

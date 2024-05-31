@@ -46,7 +46,6 @@ extern int backgroundChange;
 
 void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser, SDL_Surface *win_surf);
 void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf);
-void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf);
 void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites);
 SDL_Rect charToSDLRect(char character);
 void renderString(SDL_Surface *sprites, SDL_Surface *surface, const char *string, int startX, int startY, const char *alignment, Color color);
