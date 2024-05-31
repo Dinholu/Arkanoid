@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
-
 #include "ball.h"
 #include "bonus.h"
 #include "brick.h"

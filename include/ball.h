@@ -8,8 +8,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
-
-
 #include "vault.h"
 #include "brick.h"
 #include "render.h"

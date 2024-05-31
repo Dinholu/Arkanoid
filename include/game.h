@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
-
 #include "brick.h"
 #include "score.h"
 #include "render.h"
@@ -39,7 +38,7 @@ extern double delta_t;
 extern const int FPS;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2);
-void loadCurrentLevel(bool isEigth);
+void loadCurrentLevel(bool isEight);
 void loadLevelFromFile(const char *filename, bool isEigth);
 void processCongratulationsInput(SDL_Event *event);
 void nextLevel();

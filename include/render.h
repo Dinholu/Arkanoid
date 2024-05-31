@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
-
 #include "bonus.h"
 #include "harmful.h"
 

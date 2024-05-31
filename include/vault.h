@@ -3,7 +3,6 @@
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>
-
 #include "ball.h"
 
 extern SDL_Rect srcVault;

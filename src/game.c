@@ -26,7 +26,7 @@ bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
              rect1.y > rect2.y + rect2.h);
 }
 
-void loadLevelFromFile(const char *filename, bool isEigth)
+void loadLevelFromFile(const char *filename, bool isEight)
 {
     FILE *file = fopen(filename, "r");
     if (file == NULL)
@@ -39,9 +39,10 @@ void loadLevelFromFile(const char *filename, bool isEigth)
     int col = 0;
     char brickType;
 
-    if (isEigth)
+    if (isEight)
     {
         touched++;
+        max_speed += 1;
     }
 
     while (fscanf(file, "%1c", &brickType) != EOF)
@@ -77,11 +78,11 @@ void loadLevelFromFile(const char *filename, bool isEigth)
 }
 
 
-void loadCurrentLevel(bool isEigth)
+void loadCurrentLevel(bool isEight)
 {
     char filename[20];
     sprintf(filename, "level%d.txt", currentLevel);
-    loadLevelFromFile(filename, isEigth);
+    loadLevelFromFile(filename, isEight);
 }
 
 void processCongratulationsInput(SDL_Event *event)
@@ -131,7 +132,6 @@ void nextLevel()
     initializeLasers();
     initializeBonuses();
     initializeHarmfuls();
-    max_speed = max_speed * 1.1;
     currentLevel++;
     loadCurrentLevel(((currentLevel) % 8 == 0));
 }

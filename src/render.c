@@ -364,8 +364,7 @@ void moveAndRenderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                     srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
                     break;
                 }
-                SDL_Rect destBonus = {
-                    bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
+                SDL_Rect destBonus = { bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
                 SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
             }
         }
