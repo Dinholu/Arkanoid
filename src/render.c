@@ -348,6 +348,7 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
 void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault)
 {
     destVault = (SDL_Rect){x_vault, win_surf->h - 32, 0, 0};
+    renderShadow(sprites, srcVault, &destVault, 4, 4);
     SDL_BlitSurface(sprites, srcVault, win_surf, &destVault);
 }
 
@@ -690,8 +691,8 @@ SDL_Rect charToSDLRect(char character)
 
 void renderShadow(SDL_Surface *sprites, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY)
 {
-    SDL_SetSurfaceAlphaMod(sprites, 16);
-    SDL_SetSurfaceColorMod(sprites, 0, 0, 0);
+    SDL_SetSurfaceAlphaMod(sprites, 128);
+    SDL_SetSurfaceColorMod(sprites, 8, 8, 8);
     SDL_Rect shadowDest = {destRect->x + offsetX, destRect->y + offsetY, destRect->w, destRect->h};
     SDL_BlitSurface(sprites, srcRect, win_surf, &shadowDest);
     SDL_SetSurfaceAlphaMod(sprites, 255);
