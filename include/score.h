@@ -9,7 +9,7 @@
 #include <string.h>
 
 #define MAX_HIGHSCORE 10
-#define MAX_NAME_LENGTH 8
+#define MAX_NAME_LENGTH 4
 
 typedef struct {
     char name[MAX_NAME_LENGTH + 1];
