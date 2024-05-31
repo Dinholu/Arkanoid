@@ -13,8 +13,13 @@ void processInput(bool *quit)
     SDL_PumpEvents();
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
-    if (keys[SDL_SCANCODE_SPACE])
+    if (keys[SDL_SCANCODE_SPACE] && !spaceWasPressed)
     {
+        spaceWasPressed = true;
+        if (isLaserBeam)
+        {
+            fireLaser();
+        }
 
         for (int i = 0; i < MAX_BALLS; i++)
         {
@@ -24,9 +29,15 @@ void processInput(bool *quit)
                 balls[i].vy = -5;
                 balls[i].vx = -1;
                 releaseCount--;
+
                 break; // Libérer une seule balle à chaque appui
             }
         }
+    }
+
+    if (keys[SDL_SCANCODE_SPACE] == 0)
+    {
+        spaceWasPressed = false;
     }
 
     // BONUS SPLIT BALL (D_BONUS)
@@ -65,19 +76,7 @@ void processInput(bool *quit)
     // {
     //     slowDownBall();
     // }
-    // BONUS FIRE LASER (L_BONUS)
-    if (keys[SDL_SCANCODE_M])
-    {
-        if (!mWasPressed && isLaserBeam)
-        {
-            fireLaser();
-        }
-    }
 
-    if (keys[SDL_SCANCODE_M] == 0)
-    {
-        mWasPressed = false;
-    }
     // BONUS CATCH AND FIRE (C_BONUS)
     if (keys[SDL_SCANCODE_X])
     {
@@ -136,7 +135,6 @@ void processCongratulationsInput(SDL_Event *event)
         }
     }
 }
-
 
 void processNameInput(SDL_Event *event)
 {
