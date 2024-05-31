@@ -131,9 +131,9 @@ void nextLevel()
     initializeLasers();
     initializeBonuses();
     initializeHarmfuls();
-    max_speed = max_speed + 2.0;
-    loadCurrentLevel(((currentLevel) % 8 == 0));
+    max_speed = max_speed * 1.1;
     currentLevel++;
+    loadCurrentLevel(((currentLevel) % 8 == 0));
 }
 
 void resetGame()

@@ -5,6 +5,7 @@ SDL_Surface *win_surf = NULL;
 
 SDL_Surface *gameSprites = NULL;
 SDL_Surface *asciiSprites = NULL;
+
 SDL_Surface *menuSprites = NULL;
 SDL_Surface *topWallSprites = NULL;
 SDL_Surface *leftWallSprites = NULL;

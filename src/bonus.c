@@ -101,6 +101,7 @@ void resetAllBonuses()
     isLaserBeam = false;
     isEnlarging = false;
     releaseCount = 0;
+    ballSpeedIncrement = BALL_SPEED_INCREMENT;
 }
 
 void clearBonuses()
@@ -201,6 +202,7 @@ void slowDownBall()
             balls[i].vy /= 2;
         }
     }
+    ballSpeedIncrement = 0;
 }
 
 void CatchAndFire()
