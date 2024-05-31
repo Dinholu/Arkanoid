@@ -337,6 +337,7 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
         if (balls[i].isActive)
         {
             SDL_Rect destBall = {balls[i].x, balls[i].y, 0, 0};
+            renderShadow(sprites, srcBall, &destBall, 5, 2);
             SDL_BlitSurface(sprites, srcBall, win_surf, &destBall);
             balls[i].x += balls[i].vx;
             balls[i].y += balls[i].vy;
@@ -448,6 +449,7 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
                     continue;
                 }
             }
+            renderShadow(sprites, &srcBrick, &destBrick, 4, 5);
             SDL_BlitSurface(sprites, &srcBrick, win_surf, &destBrick);
         }
     }
@@ -682,4 +684,14 @@ SDL_Rect charToSDLRect(char character)
 
     SDL_Rect rect = {x, y, spriteWidth, spriteHeight};
     return rect;
+}
+
+void renderShadow(SDL_Surface *sprites, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY)
+{
+    SDL_SetSurfaceAlphaMod(sprites, 16);
+    SDL_SetSurfaceColorMod(sprites, 5, 5, 5);
+    SDL_Rect shadowDest = {destRect->x + offsetX, destRect->y + offsetY, destRect->w, destRect->h};
+    SDL_BlitSurface(sprites, srcRect, win_surf, &shadowDest);
+    SDL_SetSurfaceAlphaMod(sprites, 255);
+    SDL_SetSurfaceColorMod(sprites, 255, 255, 255);
 }
