@@ -18,6 +18,8 @@ void vaultCollision(struct Ball *ball)
         {
             ball->isAttached = true;
             ball->attachTime = SDL_GetPerformanceCounter();
+            ball->vxOld = ball->vx;
+            ball->vyOld = ball->vy;
             ball->vx = 0;
             ball->vy = 0;
         }
@@ -191,6 +193,8 @@ void initializeBalls()
         balls[i].y = destVault.y - srcBall.h;
         balls[i].vx = 0;
         balls[i].vy = 0;
+        balls[i].vxOld = 0;
+        balls[i].vyOld = 0;
         balls[i].isActive = false;
         balls[i].isAttached = false;
         balls[i].relative = 0;

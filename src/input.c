@@ -26,8 +26,10 @@ void processInput(bool *quit)
             if (balls[i].isAttached)
             {
                 balls[i].isAttached = false;
-                balls[i].vy = -5;
-                balls[i].vx = 0;
+                balls[i].vy = ((int)balls[i].vyOld) != 0 ? (balls[i].vyOld * -1) : -5;
+                balls[i].vx = ((int)balls[i].vxOld) != 0 ? (balls[i].vxOld * -1) : 0;
+                balls[i].vyOld = 0;
+                balls[i].vxOld = 0;
                 releaseCount--;
                 break;
             }
@@ -42,8 +44,7 @@ void processInput(bool *quit)
     // BONUS SPLIT BALL (D_BONUS)
     if (keys[SDL_SCANCODE_B] && !vWasPressed)
     {
-        // splitBall();
-        enlargeVault();
+        splitBall();
         vWasPressed = true;
     }
 
@@ -99,8 +100,11 @@ void processInput(bool *quit)
         if (balls[i].isAttached && (SDL_GetPerformanceCounter() - balls[i].attachTime) / (double)SDL_GetPerformanceFrequency() > 5.0)
         {
             balls[i].isAttached = false;
-            balls[i].vy = -5;
-            balls[i].vx = 0;
+            printf("Ball %f released\n", balls[i].vy);
+            balls[i].vy = ((int)balls[i].vyOld != 0) ? (balls[i].vyOld * -1) : -5;
+            balls[i].vx = ((int)balls[i].vxOld != 0) ? (balls[i].vxOld * -1) : 0;
+            balls[i].vyOld = 0;
+            balls[i].vxOld = 0;
         }
     }
 

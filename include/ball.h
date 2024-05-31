@@ -21,6 +21,8 @@ struct Ball
     double y;
     double vx;
     double vy;
+    double vxOld;
+    double vyOld;
     bool isActive;
     bool isAttached;
     Uint64 attachTime;
