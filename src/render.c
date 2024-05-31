@@ -557,6 +557,8 @@ void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
                     break;
             }
             SDL_Rect destBonus = { bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
+
+            renderShadow(gameSprites, &srcBonus, &destBonus, 4, 4);
             SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
         }
     }
@@ -689,7 +691,7 @@ SDL_Rect charToSDLRect(char character)
 void renderShadow(SDL_Surface *sprites, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY)
 {
     SDL_SetSurfaceAlphaMod(sprites, 16);
-    SDL_SetSurfaceColorMod(sprites, 5, 5, 5);
+    SDL_SetSurfaceColorMod(sprites, 0, 0, 0);
     SDL_Rect shadowDest = {destRect->x + offsetX, destRect->y + offsetY, destRect->w, destRect->h};
     SDL_BlitSurface(sprites, srcRect, win_surf, &shadowDest);
     SDL_SetSurfaceAlphaMod(sprites, 255);
