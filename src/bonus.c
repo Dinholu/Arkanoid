@@ -81,14 +81,13 @@ void splitBall()
         }
     }
 
-    // Créer un tableau temporaire pour stocker les nouvelles balles
     struct Ball tempBalls[MAX_BALLS];
     int tempActiveBallCount = 0;
     for (int i = 0; i < MAX_BALLS; i++)
     {
         if (balls[i].isActive)
         {
-            if (tempActiveBallCount + 3 <= MAX_BALLS) // S'assurer de ne pas dépasser la capacité maximale
+            if (tempActiveBallCount + 3 <= MAX_BALLS)
             {
                 tempBalls[tempActiveBallCount] = balls[i];
 
@@ -107,13 +106,11 @@ void splitBall()
             }
             else
             {
-                // Si nous ne pouvons pas ajouter deux nouvelles balles, nous arrêtons la boucle pour éviter un dépassement
                 break;
             }
         }
     }
 
-    // Copier les nouvelles balles dans le tableau principal
     for (int i = 0; i < tempActiveBallCount && i < MAX_BALLS; i++)
     {
         balls[i] = tempBalls[i];
@@ -220,17 +217,18 @@ void wraplevel()
 
 void slowDownBall()
 {
-    for (int i = 0; i < activeBallCount; i++)
+    for (int i = 0; i < MAX_BALLS; i++)
     {
-        if (balls[i].isActive)
+        if (fabs(balls[i].vx) > MIN_SPEED || fabs(balls[i].vy) > MIN_SPEED)
         {
+            printf("Ralentissement des balles!\n");
+
             balls[i].vx /= 2;
             balls[i].vy /= 2;
         }
+        ballSpeedIncrement = 0;
     }
-    ballSpeedIncrement = 0;
 }
-
 void CatchAndFire()
 {
     releaseCount = 5;
