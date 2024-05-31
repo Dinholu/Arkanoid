@@ -223,6 +223,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 
             SDL_Rect srcHarmful = getHarmfulSrcRect(harmfuls[i].type, harmfuls[i].animationFrame);
             SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmful.w, srcHarmful.h};
+            renderShadow(gameSprites, &srcHarmful, &destHarmful, 5,2);
             SDL_BlitSurface(gameSprites, &srcHarmful, win_surf, &destHarmful);
         }
     }
@@ -293,9 +294,9 @@ void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Su
 
 void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
 {
-    SDL_Rect dest = {0, 128, srcLogo->w, srcLogo->h};
-    dest.x = (win_surf->w - srcLogo->w) / 2;
-    SDL_BlitSurface(sprites, srcLogo, win_surf, &dest);
+    SDL_Rect destLogo = {0, 128, srcLogo->w, srcLogo->h};
+    destLogo.x = (win_surf->w - srcLogo->w) / 2;
+    SDL_BlitSurface(sprites, srcLogo, win_surf, &destLogo);
 
     int vausOffset = 128;
     SDL_Rect destVaus = {(win_surf->w - srcVaus.w) / 2, win_surf->h - srcVaus.h - vausOffset, srcVaus.w, srcVaus.h};
@@ -337,7 +338,7 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
         if (balls[i].isActive)
         {
             SDL_Rect destBall = {balls[i].x, balls[i].y, 0, 0};
-            renderShadow(sprites, srcBall, &destBall, 5, 2);
+            renderShadow(sprites, srcBall, &destBall, 4, 4);
             SDL_BlitSurface(sprites, srcBall, win_surf, &destBall);
             balls[i].x += balls[i].vx;
             balls[i].y += balls[i].vy;
@@ -450,7 +451,7 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
                     continue;
                 }
             }
-            renderShadow(sprites, &srcBrick, &destBrick, 4, 5);
+            renderShadow(sprites, &srcBrick, &destBrick, 6, 6);
             SDL_BlitSurface(sprites, &srcBrick, win_surf, &destBrick);
         }
     }
@@ -559,7 +560,7 @@ void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             }
             SDL_Rect destBonus = { bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
 
-            renderShadow(gameSprites, &srcBonus, &destBonus, 4, 4);
+            renderShadow(gameSprites, &srcBonus, &destBonus, 2, 5);
             SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
         }
     }
@@ -691,10 +692,14 @@ SDL_Rect charToSDLRect(char character)
 
 void renderShadow(SDL_Surface *sprites, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY)
 {
-    SDL_SetSurfaceAlphaMod(sprites, 128);
-    SDL_SetSurfaceColorMod(sprites, 8, 8, 8);
+    SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
+    SDL_SetSurfaceAlphaMod(sprites, 144);
+    SDL_SetSurfaceColorMod(sprites, 10, 10, 10);
+
     SDL_Rect shadowDest = {destRect->x + offsetX, destRect->y + offsetY, destRect->w, destRect->h};
     SDL_BlitSurface(sprites, srcRect, win_surf, &shadowDest);
+
     SDL_SetSurfaceAlphaMod(sprites, 255);
     SDL_SetSurfaceColorMod(sprites, 255, 255, 255);
+    SDL_BlitSurface(sprites, srcRect, win_surf, destRect);
 }
