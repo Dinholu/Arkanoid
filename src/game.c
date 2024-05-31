@@ -42,7 +42,7 @@ void loadLevelFromFile(const char *filename, bool isEight)
     if (isEight)
     {
         touched++;
-        max_speed += 1;
+        max_speed++;
     }
 
     while (fscanf(file, "%1c", &brickType) != EOF)
