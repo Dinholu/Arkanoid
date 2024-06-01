@@ -528,11 +528,12 @@ void showPauseMenu(SDL_Surface *win_surf)
     int startOptionX = (win_surf->w / 2);
 
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
-    renderString(asciiSprites, win_surf, "PAUSED", startOptionX, 300, "center", grey);
-    renderString(asciiSprites, win_surf, "1. CONTINUE", startOptionX, 350, "center", grey);
-    renderString(asciiSprites, win_surf, "2. RETRY", startOptionX, 400, "center", grey);
 
-    renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, 450, "center", grey);
+    renderString(asciiSprites, win_surf, "PAUSED", win_surf->w /2, 250, "center", grey);
+    renderString(asciiSprites, win_surf, "1. CONTINUE", startOptionX, 350, "left", grey);
+    renderString(asciiSprites, win_surf, "2. RETRY", startOptionX, 400, "left", grey);
+
+    renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, 450, "left", grey);
     SDL_UpdateWindowSurface(pWindow);
 }
 

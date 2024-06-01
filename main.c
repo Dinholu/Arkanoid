@@ -22,6 +22,7 @@ void freeAllResources()
         SDL_DestroyWindow(pWindow);
     SDL_Quit();
 }
+
 int main(int argc, char **argv)
 {
     initializeSDL();
