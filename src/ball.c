@@ -104,7 +104,7 @@ void brickCollision(struct Ball *ball)
                         {
                             int bonusTypeRand = rand() % 100;
                             int bonusType;
-                            if (bonusTypeRand < 5) // 5% chance for rose bonus
+                            if (bonusTypeRand < 2) // 5% chance for rose bonus
                             {
                                 bonusType = 1; // Assuming 1 is the rose bonus type
                             }

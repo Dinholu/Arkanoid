@@ -130,8 +130,25 @@ void handleHarmfulCollisions()
                     if (isCollision(ballRect, harmfulRect))
                     {
                         currentScore += 100;
-                        balls[j].vx *= -1;
-                        balls[j].vy *= -1;
+                        handleBallProperty(&balls[j], harmfulRect);
+                        harmfuls[i].isActive = false;
+                        harmfuls[i].isDestroying = true;
+                        harmfuls[i].destroyAnimationFrame = 0;
+                        harmfuls[i].destroyAnimationTime = 0;
+                        break;
+                    }
+                }
+            }
+
+            for (int k = 0; k < MAX_LASERS; k++)
+            {
+                if (lasers[k].isActive)
+                {
+                    SDL_Rect laserRect = {lasers[k].x, lasers[k].y, srcLeftLaser.w, srcLeftLaser.h};
+                    if (isCollision(laserRect, harmfulRect))
+                    {
+                        lasers[k].isActive = false;
+                        currentScore += 100;
                         harmfuls[i].isActive = false;
                         harmfuls[i].isDestroying = true;
                         harmfuls[i].destroyAnimationFrame = 0;
