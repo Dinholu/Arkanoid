@@ -16,8 +16,5 @@ DDDDDDDDDDDDDDDD
 --DDDDDDDDDDDDDD
 ----------------
 ----------------
-<<<<<<< Updated upstream
 ----------------
-=======
->>>>>>> Stashed changes
 ----------------

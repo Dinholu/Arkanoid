@@ -525,7 +525,7 @@ void renderAllWalls()
 
 void showPauseMenu(SDL_Surface *win_surf)
 {
-    int startOptionX = 192;
+    int startOptionX = (win_surf->w / 2);
 
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     renderString(asciiSprites, win_surf, "PAUSED", startOptionX, 300, "center", grey);
