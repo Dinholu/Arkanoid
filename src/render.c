@@ -566,10 +566,64 @@ void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
     }
 }
 
-void renderLasers(SDL_Surface *gameSprites, const SDL_Rect *srcLeftLaser, const SDL_Rect *srcRightLaser, SDL_Surface *win_surf)
+void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_Rect *srcRightLaser, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_LASERS; i++)
     {
+        if (lasers[i].isActive)
+        {
+            lasers[i].y += lasers[i].vy;
+
+            // Vérifier les collisions avec les briques
+            for (int j = 0; j < NUM_BRICKS; j++)
+            {
+                if (brick[j].isVisible)
+                {
+                    SDL_Rect laserRect = {lasers[i].x, lasers[i].y, srcLeftLaser->w, srcLeftLaser->h};
+                    SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+
+                    if (isCollision(laserRect, brickRect))
+                    {
+                        lasers[i].isAnimating = true;
+                        lasers[i].animationFrame = 0;
+                        lasers[i].lastFrameTime = SDL_GetPerformanceCounter();
+                        lasers[i].hasTouchedBrick = true; // Marquer le laser comme ayant touché une brique
+                        lasers[i].isActive = false;       // Désactiver le laser
+
+                        if (brick[j].isDestructible)
+                        {
+                            brick[j].touched--;
+                            if (brick[j].touched == 0)
+                            {
+                                brick[j].isVisible = false;
+                                currentScore += brick[j].scoreValue;
+                            }
+                            else
+                            {
+                                brick[j].isAnimating = true;
+                                brick[j].animationFrame = 0;
+                                brick[j].lastFrameTime = SDL_GetPerformanceCounter();
+                            }
+                        }
+                        else
+                        {
+                            brick[j].isAnimating = true;
+                            brick[j].animationFrame = 0;
+                            brick[j].lastFrameTime = SDL_GetPerformanceCounter();
+                        }
+                        break; // Sortir de la boucle dès qu'une collision est détectée
+                    }
+                }
+            }
+
+            // Désactiver le laser s'il sort de l'écran
+            if (lasers[i].y < Y_WALLS + srcTopWall.h)
+            {
+                lasers[i].isActive = false;
+            }
+        }
+
+        // Rendre le laser
         if (lasers[i].isActive || lasers[i].hasTouchedBrick)
         {
             SDL_Rect destLaser = {lasers[i].x, lasers[i].y, 0, 0};
@@ -583,9 +637,9 @@ void renderLasers(SDL_Surface *gameSprites, const SDL_Rect *srcLeftLaser, const 
                     lasers[i].animationFrame++;
                     lasers[i].lastFrameTime = SDL_GetPerformanceCounter();
                     if (lasers[i].animationFrame >= 3)
-                    {
+                    { // 3 frames d'animation
                         lasers[i].isAnimating = false;
-                        lasers[i].hasTouchedBrick = false;
+                        lasers[i].hasTouchedBrick = false; // Réinitialiser hasTouchedBrick après l'animation
                     }
                 }
                 srcLaser.y += lasers[i].animationFrame * 16;
@@ -659,14 +713,13 @@ void render()
         }
     }
     renderBalls(gameSprites, &srcBall, win_surf);
+    moveBonuses();
     renderBonuses(gameSprites, win_surf);
-    moveLasers();
-    renderLasers(gameSprites,&srcLeftLaser, &srcRightLaser, win_surf);
+    moveAndRenderLasers(gameSprites,&srcLeftLaser, &srcRightLaser, win_surf);
     moveAndRenderHarmfuls(gameSprites, win_surf);
     handleCollisions();
     handleHarmfulCollisions();
     handleBonusCollision();
-    moveBonuses();
 }
 
 SDL_Rect charToSDLRect(char character)

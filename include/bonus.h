@@ -50,7 +50,6 @@ extern Uint64 enlargeStartTime;
 extern double enlargeDuration;
 extern double shrinkDuration;
 
-void moveLasers();
 void laserCollisions();
 void moveBonuses();
 void fireLaser();

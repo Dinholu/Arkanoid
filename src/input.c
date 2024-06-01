@@ -16,6 +16,7 @@ void processInput(bool *quit)
     if (keys[SDL_SCANCODE_SPACE] && !spaceWasPressed)
     {
         spaceWasPressed = true;
+        isLaserBeam = true;
         if (isLaserBeam)
         {
             fireLaser();
