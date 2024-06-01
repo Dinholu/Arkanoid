@@ -3,6 +3,8 @@
 bool vWasPressed = false;
 bool nWasPressed = false;
 bool mWasPressed = false;
+bool escapeWasPressed = false;
+bool isPaused = false;
 bool spaceWasPressed = false;
 bool enteringName = false;
 int nameIndex = 0;
@@ -35,6 +37,22 @@ void processInput(bool *quit)
                 break;
             }
         }
+    }
+    if (keys[SDL_SCANCODE_ESCAPE] && !escapeWasPressed)
+    {
+        printf("Escape pressed\n");
+        isPaused = true;
+        escapeWasPressed = true;
+    }
+
+    if (keys[SDL_SCANCODE_ESCAPE] == 0)
+    {
+        escapeWasPressed = false;
+    }
+
+    if (isPaused)
+    {
+        return;
     }
 
     if (keys[SDL_SCANCODE_SPACE] == 0)

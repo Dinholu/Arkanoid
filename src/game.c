@@ -68,7 +68,6 @@ void loadLevelFromFile(const char *filename, bool isEight)
     fclose(file);
 }
 
-
 void loadCurrentLevel(bool isEight)
 {
     char filename[20];
@@ -128,7 +127,6 @@ void updateDeltaTime()
         SDL_Delay((Uint32)(delta_t * 1000));
     prev = SDL_GetPerformanceCounter();
 }
-
 void mainGameLoop()
 {
     bool quit = false;
@@ -146,7 +144,45 @@ void mainGameLoop()
             nameIndex = 0;
             playerName[0] = '\0';
         }
-        if (!isGameOver)
+        else if (isPaused)
+        {
+            showPauseMenu(win_surf);
+            SDL_UpdateWindowSurface(pWindow);
+
+            // Boucle pour gérer les événements pendant la pause
+            SDL_Event event;
+            while (isPaused && !quit)
+            {
+                while (SDL_PollEvent(&event))
+                {
+                    if (event.type == SDL_QUIT)
+                    {
+                        quit = true;
+                    }
+                    else if (event.type == SDL_KEYDOWN)
+                    {
+                        switch (event.key.keysym.sym)
+                        {
+                        case SDLK_1:
+                            isPaused = false;
+                            break;
+                        case SDLK_2:
+                            resetGame();
+                            isPaused = false;
+                            break;
+                        case SDLK_3:
+                            showMenu = true;
+                            isPaused = false;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+                SDL_Delay(16); // Pour éviter de consommer trop de ressources CPU
+            }
+        }
+        else if (!isGameOver)
         {
             processInput(&quit);
             updateVaultEnlargement();
@@ -164,6 +200,9 @@ void mainGameLoop()
             }
             addRandomHarmfuls(); // Ajouter des harmfuls aléatoirement
             render();
+
+            SDL_UpdateWindowSurface(pWindow);
+            updateDeltaTime();
         }
 
         if (enteringName)
@@ -189,10 +228,9 @@ void mainGameLoop()
             {
                 renderGameOverScreen(menuSprites, &srcLogo, win_surf);
             }
-        }
 
-        SDL_UpdateWindowSurface(pWindow);
-        updateDeltaTime();
+            SDL_UpdateWindowSurface(pWindow);
+            updateDeltaTime();
+        }
     }
 }
-

@@ -16,7 +16,8 @@
 #define NUM_LEVELS 33
 #define VIE_MAX 5
 
-typedef struct Level {
+typedef struct Level
+{
     int bricks[NUM_ROWS][NUM_BRICKS_PER_ROW];
 } Level;
 

@@ -223,7 +223,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 
             SDL_Rect srcHarmful = getHarmfulSrcRect(harmfuls[i].type, harmfuls[i].animationFrame);
             SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmful.w, srcHarmful.h};
-            renderShadow(gameSprites, &srcHarmful, &destHarmful, 5,2);
+            renderShadow(gameSprites, &srcHarmful, &destHarmful, 5, 2);
             SDL_BlitSurface(gameSprites, &srcHarmful, win_surf, &destHarmful);
         }
     }
@@ -523,6 +523,19 @@ void renderAllWalls()
     renderWall(topWallSprites, &srcTopWall, srcEdgeWall.w, Y_WALLS, srcTopWall.w, srcTopWall.h);
 }
 
+void showPauseMenu(SDL_Surface *win_surf)
+{
+    int startOptionX = 192;
+
+    SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
+    renderString(asciiSprites, win_surf, "PAUSED", startOptionX, 300, "center", grey);
+    renderString(asciiSprites, win_surf, "1. CONTINUE", startOptionX, 350, "center", grey);
+    renderString(asciiSprites, win_surf, "2. RETRY", startOptionX, 400, "center", grey);
+
+    renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, 450, "center", grey);
+    SDL_UpdateWindowSurface(pWindow);
+}
+
 void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_BONUSES; i++)
@@ -533,32 +546,32 @@ void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             int frameOffset = bonuses[i].animationFrame * 32;
             switch (bonuses[i].type)
             {
-                case 1:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
-                    break;
-                case 2:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
-                    break;
-                case 3:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 32, 32, 16};
-                    break;
-                case 4:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 48, 32, 16};
-                    break;
-                case 5:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 64, 32, 16};
-                    break;
-                case 6:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 80, 32, 16};
-                    break;
-                case 7:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 96, 32, 16};
-                    break;
-                default:
-                    srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
-                    break;
+            case 1:
+                srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
+                break;
+            case 2:
+                srcBonus = (SDL_Rect){256 + frameOffset, 16, 32, 16};
+                break;
+            case 3:
+                srcBonus = (SDL_Rect){256 + frameOffset, 32, 32, 16};
+                break;
+            case 4:
+                srcBonus = (SDL_Rect){256 + frameOffset, 48, 32, 16};
+                break;
+            case 5:
+                srcBonus = (SDL_Rect){256 + frameOffset, 64, 32, 16};
+                break;
+            case 6:
+                srcBonus = (SDL_Rect){256 + frameOffset, 80, 32, 16};
+                break;
+            case 7:
+                srcBonus = (SDL_Rect){256 + frameOffset, 96, 32, 16};
+                break;
+            default:
+                srcBonus = (SDL_Rect){256 + frameOffset, 0, 32, 16};
+                break;
             }
-            SDL_Rect destBonus = { bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
+            SDL_Rect destBonus = {bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
 
             renderShadow(gameSprites, &srcBonus, &destBonus, 2, 5);
             SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
@@ -715,7 +728,7 @@ void render()
     renderBalls(gameSprites, &srcBall, win_surf);
     moveBonuses();
     renderBonuses(gameSprites, win_surf);
-    moveAndRenderLasers(gameSprites,&srcLeftLaser, &srcRightLaser, win_surf);
+    moveAndRenderLasers(gameSprites, &srcLeftLaser, &srcRightLaser, win_surf);
     moveAndRenderHarmfuls(gameSprites, win_surf);
     handleCollisions();
     handleHarmfulCollisions();

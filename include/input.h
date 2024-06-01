@@ -8,6 +8,7 @@
 extern bool vWasPressed;
 extern bool nWasPressed;
 extern bool mWasPressed;
+extern bool isPaused;
 
 extern bool spaceWasPressed;
 extern bool enteringName;
@@ -17,5 +18,4 @@ void processInput(bool *quit);
 void processCongratulationsInput(SDL_Event *event);
 void processNameInput(SDL_Event *event);
 
-
-#endif //INPUT_H
+#endif // INPUT_H
