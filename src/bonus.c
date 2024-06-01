@@ -345,7 +345,7 @@ void laserCollisions()
                 SDL_Rect laserRect = {lasers[i].x, lasers[i].y, srcLeftLaser.w, srcLeftLaser.h};
                 SDL_Rect brickRect = {brick[j].x + srcEdgeWall.w, brick[j].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
-                if (isCollision(laserRect, brickRect))
+                if (SDL_HasIntersection(&laserRect, &brickRect))
                 {
                     lasers[i].isAnimating = true;
                     lasers[i].animationFrame = 0;
