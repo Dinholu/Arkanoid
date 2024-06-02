@@ -68,6 +68,6 @@ void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, int positionX, int posi
 void renderAllWalls();
 void render();
 void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf);
-void renderShadow(SDL_Surface *surface, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY);
+void renderShadow(SDL_Surface *surface, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY, int alpha);
 
 #endif // ARKANOID_RENDER_H

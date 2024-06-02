@@ -3,8 +3,6 @@
 
 void freeAllResources()
 {
-    // Libérer toutes les surfaces SDL
-
     if (gameSprites)
         SDL_FreeSurface(gameSprites);
     if (asciiSprites)

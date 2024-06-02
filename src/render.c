@@ -34,7 +34,7 @@ void initializeSDL()
         exit(EXIT_FAILURE);
     }
 
-    pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 556, 800, SDL_WINDOW_SHOWN);
+    pWindow = SDL_CreateWindow("Arkanoid", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 556, 768, SDL_WINDOW_SHOWN);
     if (!pWindow)
     {
         fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
@@ -223,7 +223,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 
             SDL_Rect srcHarmful = getHarmfulSrcRect(harmfuls[i].type, harmfuls[i].animationFrame);
             SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmful.w, srcHarmful.h};
-            renderShadow(gameSprites, &srcHarmful, &destHarmful, 5, 2);
+            renderShadow(gameSprites, &srcHarmful, &destHarmful, 5, 2, 256);
             SDL_BlitSurface(gameSprites, &srcHarmful, win_surf, &destHarmful);
         }
     }
@@ -338,7 +338,7 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
         if (balls[i].isActive)
         {
             SDL_Rect destBall = {balls[i].x, balls[i].y, 0, 0};
-            renderShadow(sprites, srcBall, &destBall, 4, 4);
+            renderShadow(sprites, srcBall, &destBall, 4, 4, 144);
             SDL_BlitSurface(sprites, srcBall, win_surf, &destBall);
             balls[i].x += balls[i].vx;
             balls[i].y += balls[i].vy;
@@ -349,7 +349,7 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
 void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault)
 {
     destVault = (SDL_Rect){x_vault, win_surf->h - 32, 0, 0};
-    renderShadow(sprites, srcVault, &destVault, 4, 4);
+    renderShadow(sprites, srcVault, &destVault, 5, 7, 255);
     SDL_BlitSurface(sprites, srcVault, win_surf, &destVault);
 }
 
@@ -451,7 +451,7 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
                     continue;
                 }
             }
-            renderShadow(sprites, &srcBrick, &destBrick, 6, 6);
+            renderShadow(sprites, &srcBrick, &destBrick, 7, 12, 96);
             SDL_BlitSurface(sprites, &srcBrick, win_surf, &destBrick);
         }
     }
@@ -532,7 +532,6 @@ void showPauseMenu(SDL_Surface *win_surf)
     renderString(asciiSprites, win_surf, "PAUSED", win_surf->w /2, 250, "center", grey);
     renderString(asciiSprites, win_surf, "1. CONTINUE", startOptionX, 350, "left", grey);
     renderString(asciiSprites, win_surf, "2. RETRY", startOptionX, 400, "left", grey);
-
     renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, 450, "left", grey);
     SDL_UpdateWindowSurface(pWindow);
 }
@@ -574,7 +573,7 @@ void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             }
             SDL_Rect destBonus = {bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
 
-            renderShadow(gameSprites, &srcBonus, &destBonus, 2, 5);
+            renderShadow(gameSprites, &srcBonus, &destBonus, 3, 5, 192);
             SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
         }
     }
@@ -757,16 +756,15 @@ SDL_Rect charToSDLRect(char character)
     return rect;
 }
 
-void renderShadow(SDL_Surface *sprites, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY)
+void renderShadow(SDL_Surface *sprites, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY, int alpha)
 {
     SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
-    SDL_SetSurfaceAlphaMod(sprites, 144);
+    SDL_SetSurfaceAlphaMod(sprites, alpha);
     SDL_SetSurfaceColorMod(sprites, 10, 10, 10);
-
     SDL_Rect shadowDest = {destRect->x + offsetX, destRect->y + offsetY, destRect->w, destRect->h};
+
     SDL_BlitSurface(sprites, srcRect, win_surf, &shadowDest);
 
     SDL_SetSurfaceAlphaMod(sprites, 255);
     SDL_SetSurfaceColorMod(sprites, 255, 255, 255);
-    SDL_BlitSurface(sprites, srcRect, win_surf, destRect);
 }
