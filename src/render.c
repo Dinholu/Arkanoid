@@ -223,7 +223,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 
             SDL_Rect srcHarmful = getHarmfulSrcRect(harmfuls[i].type, harmfuls[i].animationFrame);
             SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmful.w, srcHarmful.h};
-            renderShadow(gameSprites, &srcHarmful, &destHarmful, 5, 2, 256);
+            renderShadow(gameSprites, &srcHarmful, &destHarmful, 5, 4, 255);
             SDL_BlitSurface(gameSprites, &srcHarmful, win_surf, &destHarmful);
         }
     }
@@ -533,6 +533,8 @@ void showPauseMenu(SDL_Surface *win_surf)
     renderString(asciiSprites, win_surf, "1. CONTINUE", startOptionX, 350, "left", grey);
     renderString(asciiSprites, win_surf, "2. RETRY", startOptionX, 400, "left", grey);
     renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, 450, "left", grey);
+    SDL_Rect destVaus = {(win_surf->w - srcVaus.w) / 2, win_surf->h - srcVaus.h - 96, srcVaus.w, srcVaus.h};
+    SDL_BlitSurface(menuSprites, &srcVaus, win_surf, &destVaus);
     SDL_UpdateWindowSurface(pWindow);
 }
 
