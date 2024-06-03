@@ -158,27 +158,33 @@ void mainGameLoop()
             SDL_Event event;
             while (isPaused && !quit)
             {
-                while (SDL_PollEvent(&event)) {
-                    if (event.type == SDL_QUIT) {
+                while (SDL_PollEvent(&event))
+                {
+                    if (event.type == SDL_QUIT)
+                    {
                         quit = true;
-                    } else if (event.type == SDL_KEYDOWN) {
-                        switch (event.key.keysym.sym) {
-                            case SDLK_1:
-                                isPaused = false;
-                                break;
-                            case SDLK_2:
-                                resetGame();
-                                isPaused = false;
-                                break;
-                            case SDLK_3:
-                                showMenu = true;
-                                isPaused = false;
-                                break;
-                            default:
-                                break;
+                    }
+                    else if (event.type == SDL_KEYDOWN)
+                    {
+                        switch (event.key.keysym.sym)
+                        {
+                        case SDLK_1:
+                            isPaused = false;
+                            break;
+                        case SDLK_2:
+                            resetGame();
+                            isPaused = false;
+                            break;
+                        case SDLK_3:
+                            showMenu = true;
+                            isPaused = false;
+                            break;
+                        default:
+                            break;
                         }
                     }
                 }
+                SDL_Delay(16); // Pour éviter de consommer trop de ressources CPU
             }
         }
         else if (!isGameOver)
