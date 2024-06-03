@@ -334,17 +334,20 @@ void changeBackground()
 
 void renderBallTrail(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf, struct Ball *ball)
 {
-    for (int i = 1; i < ball->trailLength; i++)
+    if (ACTIVATE_TRAIl)
     {
-        SDL_Rect dest = {ball->trail[i].x, ball->trail[i].y, srcBall->w, srcBall->h};
+        for (int i = 1; i < ball->trailLength; i++)
+        {
+            SDL_Rect dest = {ball->trail[i].x, ball->trail[i].y, srcBall->w, srcBall->h};
 
-        SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
-        SDL_SetSurfaceAlphaMod(sprites, ball->trail[i].alpha);
+            SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
+            SDL_SetSurfaceAlphaMod(sprites, ball->trail[i].alpha);
 
-        SDL_BlitSurface(sprites, srcBall, win_surf, &dest);
+            SDL_BlitSurface(sprites, srcBall, win_surf, &dest);
+        }
+
+        SDL_SetSurfaceAlphaMod(sprites, 255);
     }
-
-    SDL_SetSurfaceAlphaMod(sprites, 255);
 }
 
 void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
