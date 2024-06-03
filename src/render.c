@@ -64,6 +64,7 @@ void initializeSDL()
     SDL_SetColorKey(topWallSprites, SDL_TRUE, 0);
     SDL_SetColorKey(leftWallSprites, SDL_TRUE, 0);
     SDL_SetColorKey(rightWallSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(dohSprites, SDL_TRUE, 0);
 
     x_vault = (win_surf->w - srcVault.w) / 2;
     vault_width = srcVault.w;
