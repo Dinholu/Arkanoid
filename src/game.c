@@ -86,6 +86,7 @@ void nextLevel()
     clearHarmfuls();
     vault_width = srcVault.w;
     currentHarmfulsType++;
+
     if (currentLevel >= NUM_LEVELS)
     {
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
@@ -94,6 +95,7 @@ void nextLevel()
         isGameOver = true;
         return;
     }
+
     initializeBalls();
     initializeLasers();
     initializeBonuses();
@@ -156,33 +158,27 @@ void mainGameLoop()
             SDL_Event event;
             while (isPaused && !quit)
             {
-                while (SDL_PollEvent(&event))
-                {
-                    if (event.type == SDL_QUIT)
-                    {
+                while (SDL_PollEvent(&event)) {
+                    if (event.type == SDL_QUIT) {
                         quit = true;
-                    }
-                    else if (event.type == SDL_KEYDOWN)
-                    {
-                        switch (event.key.keysym.sym)
-                        {
-                        case SDLK_1:
-                            isPaused = false;
-                            break;
-                        case SDLK_2:
-                            resetGame();
-                            isPaused = false;
-                            break;
-                        case SDLK_3:
-                            showMenu = true;
-                            isPaused = false;
-                            break;
-                        default:
-                            break;
+                    } else if (event.type == SDL_KEYDOWN) {
+                        switch (event.key.keysym.sym) {
+                            case SDLK_1:
+                                isPaused = false;
+                                break;
+                            case SDLK_2:
+                                resetGame();
+                                isPaused = false;
+                                break;
+                            case SDLK_3:
+                                showMenu = true;
+                                isPaused = false;
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
-                SDL_Delay(16); // Pour éviter de consommer trop de ressources CPU
             }
         }
         else if (!isGameOver)

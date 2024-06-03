@@ -36,5 +36,6 @@ void loadLevelFromFile(const char *filename, bool isEigth);
 void nextLevel();
 void resetGame();
 void mainGameLoop();
+void initializeDoh();
 
 #endif // ARKANOID_GAME_H

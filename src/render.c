@@ -5,11 +5,11 @@ SDL_Surface *win_surf = NULL;
 
 SDL_Surface *gameSprites = NULL;
 SDL_Surface *asciiSprites = NULL;
-
 SDL_Surface *menuSprites = NULL;
 SDL_Surface *topWallSprites = NULL;
 SDL_Surface *leftWallSprites = NULL;
 SDL_Surface *rightWallSprites = NULL;
+SDL_Surface  *dohSprites = NULL;
 
 SDL_Rect srcBackground = {0, 128, 64, 64};
 SDL_Rect srcLogo = {0, 0, 388, 96};
@@ -46,6 +46,7 @@ void initializeSDL()
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
     asciiSprites = SDL_LoadBMP("./Arkanoid_ascii_sprites.bmp");
     menuSprites = SDL_LoadBMP("./Arkanoid_menu_sprites.bmp");
+    dohSprites = SDL_LoadBMP("./Arkanoid_DOH_sprite.bmp");
     topWallSprites = SDL_LoadBMP("./edge_top.bmp");
     leftWallSprites = SDL_LoadBMP("./edge_left.bmp");
     rightWallSprites = SDL_LoadBMP("./edge_right.bmp");
@@ -817,6 +818,12 @@ void render()
             attachBallToVault(&balls[i], x_vault);
         }
     }
+
+    if (currentLevel == NUM_LEVELS)
+    {
+        renderDoh(dohSprites, win_surf);
+    }
+
     handleBallUpdates();
     renderBalls(gameSprites, &srcBall, win_surf);
     moveBonuses();
@@ -882,4 +889,10 @@ void renderBorderShadows()
 
         SDL_DestroyRenderer(renderer);
     }
+}
+
+void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
+{
+    SDL_Rect destRect = {win_surf->w/2 - DOH.w, win_surf->h/2, DOH.w, DOH.h};
+    SDL_BlitSurface(sprites, &DOH, win_surf, &destRect);
 }

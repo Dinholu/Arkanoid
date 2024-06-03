@@ -40,6 +40,7 @@ file(COPY
         resources/sprites/Arkanoid_sprites.bmp
         resources/sprites/Arkanoid_ascii_sprites.bmp
         resources/sprites/Arkanoid_ascii.bmp
+        resources/sprites/Arkanoid_DOH_sprite.bmp
         resources/sprites/edge_top.bmp
         resources/sprites/edge_left.bmp
         resources/sprites/edge_right.bmp
