@@ -315,6 +315,7 @@ void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface
             SDL_BlitSurface(sprites, srcBackground, win_surf, &dest);
         }
     }
+    renderBorderShadows();
 }
 
 void changeBackground()
@@ -771,5 +772,30 @@ void renderShadow(SDL_Surface *sprites, SDL_Rect *srcRect, SDL_Rect *destRect, i
 
         SDL_SetSurfaceAlphaMod(sprites, 255);
         SDL_SetSurfaceColorMod(sprites, 255, 255, 255);
+    }
+}
+
+void renderBorderShadows()
+{
+    if (ACTIVATE_SHADOW)
+    {
+        SDL_Renderer *renderer = SDL_CreateSoftwareRenderer(win_surf);
+        if (!renderer)
+        {
+            fprintf(stderr, "SDL_CreateSoftwareRenderer failed: %s\n", SDL_GetError());
+            return;
+        }
+
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+        SDL_Rect topShadow = {srcEdgeWall.w, Y_WALLS + srcTopWall.h, win_surf->w - 2 * srcEdgeWall.w, 16};
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 112);
+        SDL_RenderFillRect(renderer, &topShadow);
+
+        SDL_Rect leftShadow = {srcEdgeWall.w, Y_WALLS + srcTopWall.h, 16, win_surf->h - Y_WALLS - srcTopWall.h};
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 112);
+        SDL_RenderFillRect(renderer, &leftShadow);
+
+        SDL_DestroyRenderer(renderer);
     }
 }
