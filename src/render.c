@@ -760,13 +760,16 @@ SDL_Rect charToSDLRect(char character)
 
 void renderShadow(SDL_Surface *sprites, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY, int alpha)
 {
-    SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
-    SDL_SetSurfaceAlphaMod(sprites, alpha);
-    SDL_SetSurfaceColorMod(sprites, 10, 10, 10);
-    SDL_Rect shadowDest = {destRect->x + offsetX, destRect->y + offsetY, destRect->w, destRect->h};
+    if (ACTIVATE_SHADOW)
+    {
+        SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
+        SDL_SetSurfaceAlphaMod(sprites, alpha);
+        SDL_SetSurfaceColorMod(sprites, 10, 10, 10);
+        SDL_Rect shadowDest = {destRect->x + offsetX, destRect->y + offsetY, destRect->w, destRect->h};
 
-    SDL_BlitSurface(sprites, srcRect, win_surf, &shadowDest);
+        SDL_BlitSurface(sprites, srcRect, win_surf, &shadowDest);
 
-    SDL_SetSurfaceAlphaMod(sprites, 255);
-    SDL_SetSurfaceColorMod(sprites, 255, 255, 255);
+        SDL_SetSurfaceAlphaMod(sprites, 255);
+        SDL_SetSurfaceColorMod(sprites, 255, 255, 255);
+    }
 }
