@@ -322,6 +322,11 @@ void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface
 
 void changeBackground()
 {
+    if (currentLevel == NUM_LEVELS)
+    {
+        srcBackground.x = 256;
+        return;
+    }
     if (backgroundChange < MAX_BACKGROUND)
     {
         srcBackground.x += 64;
@@ -894,6 +899,8 @@ void renderBorderShadows()
 
 void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
 {
-    SDL_Rect destRect = {win_surf->w/2 - DOH.w, win_surf->h/2, DOH.w, DOH.h};
-    SDL_BlitSurface(sprites, &DOH, win_surf, &destRect);
+    int dohWidth = win_surf->w / 2;
+    int dohHeight = win_surf->h / 2;
+    SDL_Rect destRect = {win_surf->w / 4, win_surf->h / 4, dohWidth, dohHeight};
+    SDL_BlitScaled(sprites, &DOH, win_surf, &destRect);
 }
