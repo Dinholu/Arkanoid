@@ -51,6 +51,9 @@ void loadLevelFromFile(const char *filename, bool isEight)
         brick[row * NUM_BRICKS_PER_ROW + col].isAnimating = false;
         brick[row * NUM_BRICKS_PER_ROW + col].animationFrame = 0;
         brick[row * NUM_BRICKS_PER_ROW + col].lastFrameTime = SDL_GetPerformanceCounter();
+        brick[row * NUM_BRICKS_PER_ROW + col].isDisappearing = false;
+        brick[row * NUM_BRICKS_PER_ROW + col].disappearAnimationTime = 0;
+        brick[row * NUM_BRICKS_PER_ROW + col].disappearAnimationFrame = 0;
 
         col++;
         if (col == NUM_BRICKS_PER_ROW)

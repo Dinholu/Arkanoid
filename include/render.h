@@ -10,7 +10,8 @@
 #include "bonus.h"
 #include "harmful.h"
 
-#define VAUS_HP (SDL_Rect) { 384, 118, 28, 10 }
+#define VAUS_HP \
+    (SDL_Rect) { 384, 118, 28, 10 }
 #define MAX_BACKGROUND 5
 #define ACTIVATE_SHADOW true
 #define ACTIVATE_TRAIl true
@@ -60,6 +61,7 @@ void changeBackground();
 void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf);
 void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault);
 void renderHP(SDL_Surface *sprites, SDL_Surface *win_surf, int currentLife);
+SDL_Rect getBrickSrcRect(char type);
 void renderBricks(SDL_Surface *sprites, int num_bricks);
 void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int startY, const char *alignment, Color color);
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf);

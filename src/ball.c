@@ -94,7 +94,7 @@ void brickCollision(struct Ball *ball)
                     brick[i].touched--;
                     if (brick[i].touched == 0)
                     {
-                        brick[i].isVisible = false;
+                        brick[i].isDisappearing = true;
                         currentScore += brick[i].scoreValue;
                         printf("Score: %d\n", currentScore);
 

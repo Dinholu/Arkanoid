@@ -384,11 +384,84 @@ void renderHP(SDL_Surface *sprites, SDL_Surface *win_surf, int currentLife)
     }
 }
 
+SDL_Rect getBrickSrcRect(char type)
+{
+    SDL_Rect srcBrick;
+    switch (type)
+    {
+    case 'W': // White
+        srcBrick = WHITE_BRICK;
+        break;
+    case 'Y': // Yellow
+        srcBrick = YELLOW_BRICK;
+        break;
+    case 'B': // Blue1
+        srcBrick = BLUE1_BRICK;
+        break;
+    case 'G': // Green1
+        srcBrick = GREEN1_BRICK;
+        break;
+    case 'b': // Blue2
+        srcBrick = BLUE2_BRICK;
+        break;
+    case 'O': // Orange
+        srcBrick = ORANGE_BRICK;
+        break;
+    case 'R': // Red
+        srcBrick = RED_BRICK;
+        break;
+    case 'L': // bLue3
+        srcBrick = BLUE3_BRICK;
+        break;
+    case 'P': // Pink
+        srcBrick = PINK_BRICK;
+        break;
+    case 'E': // grEy
+        srcBrick = GREY_BRICK;
+        break;
+    case 'D': // golD
+        srcBrick = GOLD_BRICK;
+        break;
+    default:
+        // Si le type de brique n'est pas reconnu, on renvoie un rectangle vide ou une brique par défaut
+        srcBrick = (SDL_Rect){0, 0, BRICK_WIDTH, BRICK_HEIGHT};
+        break;
+    }
+    return srcBrick;
+}
+
 void renderBricks(SDL_Surface *sprites, int num_bricks)
 {
+    Uint32 now = SDL_GetPerformanceCounter();
     for (int i = 0; i < num_bricks; i++)
     {
-        if (brick[i].isVisible)
+        if (brick[i].isDisappearing)
+        {
+            double elapsed = (now - brick[i].lastFrameTime) / (double)SDL_GetPerformanceFrequency();
+            if (elapsed > 0.1)
+            {
+                brick[i].disappearAnimationFrame++;
+                brick[i].lastFrameTime = now;
+                if (brick[i].disappearAnimationFrame >= 5)
+                {
+                    brick[i].isVisible = false;
+                    brick[i].isDisappearing = false;
+                }
+            }
+
+            // Calculez la transparence en fonction de l'état d'animation
+            int alpha = 255 - (brick[i].disappearAnimationFrame * 50); // Ajustez le multiplicateur selon vos besoins
+
+            SDL_Rect srcBrick = getBrickSrcRect(brick[i].type);
+            SDL_Rect destBrick = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, 0, 0};
+
+            // Modifiez la surface pour appliquer l'alpha
+            SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
+            SDL_SetSurfaceAlphaMod(sprites, alpha);
+            SDL_BlitSurface(sprites, &srcBrick, win_surf, &destBrick);
+            SDL_SetSurfaceAlphaMod(sprites, 255); // Réinitialisez l'alpha après le rendu
+        }
+        else if (brick[i].isVisible)
         {
             SDL_Rect destBrick = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, 0, 0};
             if (brick[i].isAnimating)
@@ -548,7 +621,7 @@ void showPauseMenu(SDL_Surface *win_surf)
 
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
 
-    renderString(asciiSprites, win_surf, "PAUSED", win_surf->w /2, 250, "center", grey);
+    renderString(asciiSprites, win_surf, "PAUSED", win_surf->w / 2, 250, "center", grey);
     renderString(asciiSprites, win_surf, "1. CONTINUE", startOptionX, 350, "left", grey);
     renderString(asciiSprites, win_surf, "2. RETRY", startOptionX, 400, "left", grey);
     renderString(asciiSprites, win_surf, "3. QUIT", startOptionX, 450, "left", grey);

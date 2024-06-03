@@ -17,7 +17,10 @@
 
 #define NUM_BRICKS (NUM_BRICKS_PER_ROW * NUM_ROWS)
 
-#define BRICK(COIN, LIGNE) { (FIRST_LINE * COIN), (FIRST_LINE * LIGNE), BRICK_WIDTH, BRICK_HEIGHT }
+#define BRICK(COIN, LIGNE)                                                   \
+    {                                                                        \
+        (FIRST_LINE * COIN), (FIRST_LINE * LIGNE), BRICK_WIDTH, BRICK_HEIGHT \
+    }
 
 #define WHITE_BRICK (SDL_Rect) BRICK(0, 0)
 #define ORANGE_BRICK (SDL_Rect) BRICK(32, 0)
@@ -31,7 +34,8 @@
 #define GREY_BRICK (SDL_Rect) BRICK(0, 32)
 #define GOLD_BRICK (SDL_Rect) BRICK(0, 48)
 
-struct Brick {
+struct Brick
+{
     double x;
     double y;
     char type;
@@ -42,6 +46,9 @@ struct Brick {
     bool isAnimating;
     int animationFrame;
     Uint64 lastFrameTime;
+    bool isDisappearing;
+    double disappearAnimationTime;
+    int disappearAnimationFrame;
 };
 extern struct Brick brick[NUM_BRICKS];
 extern SDL_Rect srcBrick;
