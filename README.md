@@ -11,9 +11,10 @@
 ## A faire 
 
  - Que la balle touche la barre
- - AJouter les briques 2 types de brique:
+ - AJouter les briques 3 types de brique:
         - brique simple
-        - brique double 
+        - brique double
+        - brique indestructible    
  - Ajouter la vitesse selon l'angle etc
  - Ajouter le score
  - Ajouter les bonus :
@@ -32,9 +33,7 @@
  - Si on touche quelque-chose d’horizontal, la coordonnée y de la vitesse s’inverse.
  - Vous prendrez en compte la vitesse (horizontale) du vaisseau pour changer la direction du rebond.
 
-### BONUS 
--  deux joueurs,
--   ombres,
--  traces derrière la balle,
--   disparition progressive des briques.
--   distribution bonus/malus non aléatoire, etc ...
+
+### Aide pour la compréhension 
+
+http://nick-aschenbach.github.io/blog/2015/04/27/arkanoid-game-levels/

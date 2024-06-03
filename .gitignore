@@ -2,7 +2,9 @@ CMakeFiles/*
 CMakeCache.txt
 cmake_install.cmake
 CMakeLists.txt.user
-build
-.vscode
+build/
+.vscode/
 Arkanoid
 Makefile
+.idea/
+cmake-build-debug/
