@@ -438,7 +438,7 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
         if (brick[i].isDisappearing)
         {
             double elapsed = (now - brick[i].lastFrameTime) / (double)SDL_GetPerformanceFrequency();
-            if (elapsed > 0.1)
+            if (elapsed > 0.05)
             {
                 brick[i].disappearAnimationFrame++;
                 brick[i].lastFrameTime = now;
@@ -449,13 +449,11 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
                 }
             }
 
-            // Calculez la transparence en fonction de l'état d'animation
-            int alpha = 255 - (brick[i].disappearAnimationFrame * 50); // Ajustez le multiplicateur selon vos besoins
+            int alpha = 255 - (brick[i].disappearAnimationFrame * 50);
 
             SDL_Rect srcBrick = getBrickSrcRect(brick[i].type);
             SDL_Rect destBrick = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, 0, 0};
 
-            // Modifiez la surface pour appliquer l'alpha
             SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
             SDL_SetSurfaceAlphaMod(sprites, alpha);
             SDL_BlitSurface(sprites, &srcBrick, win_surf, &destBrick);
