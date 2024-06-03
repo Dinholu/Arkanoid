@@ -16,6 +16,11 @@
 #define MAX_BALLS 50
 #define MIN_SPEED 3.0
 
+struct TrailSegment {
+    int x, y;
+    Uint8 alpha;
+};
+
 struct Ball
 {
     double x;
@@ -28,6 +33,8 @@ struct Ball
     bool isAttached;
     Uint64 attachTime;
     int relative;
+    int trailLength;
+    struct TrailSegment trail[50];
 };
 
 extern struct Ball balls[MAX_BALLS];
@@ -46,5 +53,7 @@ void brickCollision(struct Ball *ball);
 void defeatCollision(struct Ball *ball);
 void initializeBalls();
 void attachBallToVault(struct Ball *ball, int x_vault);
+void updateBallTrail(struct Ball *ball);
+void handleBallUpdates();
 
 #endif // BALL_H

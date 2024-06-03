@@ -233,3 +233,38 @@ void attachBallToVault(struct Ball *ball, int x_vault)
     ball->x = x_vault + (vault_width / 2) - (srcBall.w / 2) - ball->relative;
     ball->y = destVault.y - srcBall.h;
 }
+
+void updateBallTrail(struct Ball *ball)
+{
+    if (!ball->isActive)
+        return;
+
+    for (int i = ball->trailLength - 1; i > 0; i--)
+    {
+        ball->trail[i] = ball->trail[i - 1];
+    }
+
+    ball->trail[0].x = ball->x;
+    ball->trail[0].y = ball->y;
+    ball->trail[0].alpha = 255;
+
+    ball->trailLength = (ball->trailLength < 50) ? ball->trailLength + 1 : 50;
+
+    for (int i = 1; i < ball->trailLength; i++)
+    {
+        ball->trail[i].alpha = (Uint8)(ball->trail[i - 1].alpha * 0.75);
+    }
+}
+
+void handleBallUpdates()
+{
+    for (int i = 0; i < MAX_BALLS; i++)
+    {
+        if (balls[i].isActive)
+        {
+            updateBallTrail(&balls[i]);
+            balls[i].x += balls[i].vx;
+            balls[i].y += balls[i].vy;
+        }
+    }
+}

@@ -332,17 +332,32 @@ void changeBackground()
     }
 }
 
+void renderBallTrail(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf, struct Ball *ball)
+{
+    for (int i = 1; i < ball->trailLength; i++)
+    {
+        SDL_Rect dest = {ball->trail[i].x, ball->trail[i].y, srcBall->w, srcBall->h};
+
+        SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
+        SDL_SetSurfaceAlphaMod(sprites, ball->trail[i].alpha);
+
+        SDL_BlitSurface(sprites, srcBall, win_surf, &dest);
+    }
+
+    SDL_SetSurfaceAlphaMod(sprites, 255);
+}
+
 void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_BALLS; i++)
     {
         if (balls[i].isActive)
         {
-            SDL_Rect destBall = {balls[i].x, balls[i].y, 0, 0};
+            renderBallTrail(sprites, srcBall, win_surf, &balls[i]);
+
+            SDL_Rect destBall = {balls[i].x, balls[i].y, srcBall->w, srcBall->h};
             renderShadow(sprites, srcBall, &destBall, 4, 4, 144);
             SDL_BlitSurface(sprites, srcBall, win_surf, &destBall);
-            balls[i].x += balls[i].vx;
-            balls[i].y += balls[i].vy;
         }
     }
 }
@@ -728,6 +743,7 @@ void render()
             attachBallToVault(&balls[i], x_vault);
         }
     }
+    handleBallUpdates();
     renderBalls(gameSprites, &srcBall, win_surf);
     moveBonuses();
     renderBonuses(gameSprites, win_surf);
@@ -780,12 +796,6 @@ void renderBorderShadows()
     if (ACTIVATE_SHADOW)
     {
         SDL_Renderer *renderer = SDL_CreateSoftwareRenderer(win_surf);
-        if (!renderer)
-        {
-            fprintf(stderr, "SDL_CreateSoftwareRenderer failed: %s\n", SDL_GetError());
-            return;
-        }
-
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
         SDL_Rect topShadow = {srcEdgeWall.w, Y_WALLS + srcTopWall.h, win_surf->w - 2 * srcEdgeWall.w, 16};
