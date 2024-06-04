@@ -27,7 +27,7 @@ typedef struct Doh
     int moveDownTime;
     Uint64 moveStartTime;
     bool hasMovedDown; // Indicateur pour s'assurer que le mouvement ne se produit qu'une fois
-    // Temps de début du mouvement vers le bas
+    bool disappearing; // Indicateur pour l'animation de disparition
 
 } Doh;
 

@@ -902,77 +902,98 @@ void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
     Uint64 now = SDL_GetPerformanceCounter();
     double elapsed = (now - doh.phaseStartTime) / (double)SDL_GetPerformanceFrequency();
 
-    if (doh.moveDown && !doh.hasMovedDown)
+    if (doh.disappearing)
     {
-        double moveElapsed = (now - doh.moveStartTime) / (double)SDL_GetPerformanceFrequency();
-        if (moveElapsed < 0.1) // 0.1 seconde pour le mouvement vers le bas
+        if (elapsed > 0.1)
         {
-            srcDoh.y += srcDoh.h;    // Incrémente la position en y de srcDoh
-            doh.hasMovedDown = true; // Indiquer que le mouvement a été effectué
+            if (doh.animationPhase < 9)
+            {
+                srcDoh.y = 624; // Position de départ pour l'animation de disparition
+                srcDoh.x += srcDoh.w;
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            else
+            {
+                // Terminer l'animation de disparition et passer au niveau suivant
+                nextLevel();
+            }
         }
     }
-    else if (doh.moveDown && doh.hasMovedDown)
+    else
     {
-        double moveElapsed = (now - doh.moveStartTime) / (double)SDL_GetPerformanceFrequency();
-        if (moveElapsed >= 0.1)
+        // Vérifier si le mouvement vers le bas doit être effectué
+        if (doh.moveDown && !doh.hasMovedDown)
         {
-            srcDoh.y = 144;
-            // Réinitialise la position en y de srcDoh après 0.1 seconde
-            doh.moveDown = false;
-            doh.hasMovedDown = false;
-            doh.moveDownTime = 0;
-            // Réinitialiser l'indicateur après le temps écoulé
+            double moveElapsed = (now - doh.moveStartTime) / (double)SDL_GetPerformanceFrequency();
+            if (moveElapsed < 0.1) // 0.1 seconde pour le mouvement vers le bas
+            {
+                srcDoh.y += srcDoh.h;    // Incrémente la position en y de srcDoh
+                doh.hasMovedDown = true; // Indiquer que le mouvement a été effectué
+            }
         }
-    }
+        else if (doh.moveDown && doh.hasMovedDown)
+        {
+            double moveElapsed = (now - doh.moveStartTime) / (double)SDL_GetPerformanceFrequency();
+            if (moveElapsed >= 0.1)
+            {
+                srcDoh.y = 144;
+                doh.moveDown = false;
+                doh.hasMovedDown = false;
+                doh.moveDownTime = 0;
+            }
+        }
 
-    switch (doh.animationPhase)
-    {
-    case 0:
-    case 1:
-    case 2:
-        if (elapsed > 0.1)
+        // Animation normale
+        switch (doh.animationPhase)
         {
-            srcDoh.x += srcDoh.w;
-            doh.animationPhase++;
-            doh.phaseStartTime = now;
+        case 0:
+        case 1:
+        case 2:
+            if (elapsed > 0.1)
+            {
+                srcDoh.x += srcDoh.w;
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            break;
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            if (elapsed > 0.1)
+            {
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            break;
+        case 7:
+        case 8:
+            if (elapsed > 0.1)
+            {
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            break;
+        case 9:
+        case 10:
+        case 11:
+            if (elapsed > 0.1)
+            {
+                srcDoh.x -= srcDoh.w;
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            break;
+        case 12:
+        case 13:
+            if (elapsed > 0.1)
+            {
+                doh.animationPhase = 0;
+                doh.phaseStartTime = now;
+            }
+            break;
         }
-        break;
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-        if (elapsed > 0.1)
-        {
-            doh.animationPhase++;
-            doh.phaseStartTime = now;
-        }
-        break;
-    case 7:
-    case 8:
-        if (elapsed > 0.1)
-        {
-            doh.animationPhase++;
-            doh.phaseStartTime = now;
-        }
-        break;
-    case 9:
-    case 10:
-    case 11:
-        if (elapsed > 0.1)
-        {
-            srcDoh.x -= srcDoh.w;
-            doh.animationPhase++;
-            doh.phaseStartTime = now;
-        }
-        break;
-    case 12:
-    case 13:
-        if (elapsed > 0.1)
-        {
-            doh.animationPhase = 0;
-            doh.phaseStartTime = now;
-        }
-        break;
     }
 
     SDL_Rect destRect = {doh.x, doh.y, doh.width, doh.height};

@@ -14,7 +14,7 @@ void initializeDoh()
     doh.animationPhase = 0;
     doh.phaseStartTime = SDL_GetPerformanceCounter();
     doh.moveDown = false;
-    doh.hasMovedDown = false;                        // Indicateur pour s'assurer que le mouvement ne se produit qu'une fois
-    doh.moveStartTime = SDL_GetPerformanceCounter(); // Temps de début du mouvement vers le bas
-    ;
+    doh.hasMovedDown = false;
+    doh.moveStartTime = SDL_GetPerformanceCounter();
+    doh.disappearing = false;
 }
