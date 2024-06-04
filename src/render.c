@@ -341,7 +341,7 @@ void changeBackground()
 
 void renderBallTrail(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf, struct Ball *ball)
 {
-    if (ACTIVATE_TRAIl)
+    if (ACTIVATE_TRAIL)
     {
         for (int i = 1; i < ball->trailLength; i++)
         {
