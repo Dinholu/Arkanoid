@@ -25,6 +25,8 @@ typedef struct Doh
 {
     double x;
     double y;
+    int height;
+    int width;
     char type;
     int health;
     int scoreValue;

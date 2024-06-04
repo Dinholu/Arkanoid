@@ -9,7 +9,7 @@ SDL_Surface *menuSprites = NULL;
 SDL_Surface *topWallSprites = NULL;
 SDL_Surface *leftWallSprites = NULL;
 SDL_Surface *rightWallSprites = NULL;
-SDL_Surface  *dohSprites = NULL;
+SDL_Surface *dohSprites = NULL;
 
 SDL_Rect srcBackground = {0, 128, 64, 64};
 SDL_Rect srcLogo = {0, 0, 388, 96};
@@ -900,10 +900,6 @@ void renderBorderShadows()
 void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
 {
     // a initialiser dans le struct
-    int dohWidth = 192;
-    int dohHeight = 256;
-    int dohX = win_surf->w / 2 - dohWidth / 2;
-    int dohY = srcTopWall.h + Y_WALLS + dohHeight / 2;
-    SDL_Rect destRect = {dohX, dohY , dohWidth, dohHeight};
+    SDL_Rect destRect = {doh.x, doh.y, doh.width, doh.height};
     SDL_BlitScaled(sprites, &DOH, win_surf, &destRect);
 }

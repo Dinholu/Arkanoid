@@ -138,8 +138,10 @@ void updateDeltaTime()
 
 void initializeDoh()
 {
-    doh.x = 0;
-    doh.y = 0;
+    doh.height = 256;
+    doh.width = 192;
+    doh.x = win_surf->w / 2 - doh.width / 2;
+    doh.y = win_surf->w / 2 - doh.height / 2;
     doh.type = 'X';
     doh.health = 10;
     doh.scoreValue = 1000;
