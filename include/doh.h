@@ -19,6 +19,10 @@ typedef struct Doh
     char type;
     int health;
     int scoreValue;
+    int animationFrame;
+    Uint64 lastFrameTime;
+    int animationPhase;
+    Uint64 phaseStartTime;
 } Doh;
 
 extern Doh doh;

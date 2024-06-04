@@ -11,4 +11,6 @@ void initializeDoh()
     doh.type = 'X';
     doh.health = 10;
     doh.scoreValue = 1000;
+    doh.animationPhase = 0;
+    doh.phaseStartTime = SDL_GetPerformanceCounter();
 }

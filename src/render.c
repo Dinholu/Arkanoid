@@ -897,9 +897,61 @@ void renderBorderShadows()
         SDL_DestroyRenderer(renderer);
     }
 }
-
 void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
 {
+    Uint64 now = SDL_GetPerformanceCounter();
+    double elapsed = (now - doh.phaseStartTime) / (double)SDL_GetPerformanceFrequency();
+
+    switch (doh.animationPhase)
+    {
+    case 0:
+    case 1:
+    case 2:
+        if (elapsed > 0.1)
+        {
+            srcDoh.x += srcDoh.w;
+            doh.animationPhase++;
+            doh.phaseStartTime = now;
+        }
+        break;
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+        if (elapsed > 0.1)
+        {
+            doh.animationPhase++;
+            doh.phaseStartTime = now;
+        }
+        break;
+    case 7:
+    case 8:
+        if (elapsed > 0.1)
+        {
+            doh.animationPhase++;
+            doh.phaseStartTime = now;
+        }
+        break;
+    case 9:
+    case 10:
+    case 11:
+        if (elapsed > 0.1)
+        {
+            srcDoh.x -= srcDoh.w;
+            doh.animationPhase++;
+            doh.phaseStartTime = now;
+        }
+        break;
+    case 12:
+    case 13:
+        if (elapsed > 0.1)
+        {
+            doh.animationPhase = 0;
+            doh.phaseStartTime = now;
+        }
+        break;
+    }
+
     SDL_Rect destRect = {doh.x, doh.y, doh.width, doh.height};
     SDL_BlitScaled(sprites, &srcDoh, win_surf, &destRect);
 }
