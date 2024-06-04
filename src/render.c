@@ -986,9 +986,19 @@ void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
         case 8:
             if (elapsed > 0.1)
             {
+                int availableBalls = 0;
                 for (int i = 0; i < MAX_ENEMY_BALLS; i++)
                 {
                     if (!enemyBalls[i].isActive)
+                    {
+                        availableBalls++;
+                    }
+                }
+
+                // Si toutes les balles ennemies sont disponibles, les lancer
+                if (availableBalls == MAX_ENEMY_BALLS)
+                {
+                    for (int i = 0; i < MAX_ENEMY_BALLS; i++)
                     {
                         enemyBalls[i].x = win_surf->w / 2;
                         enemyBalls[i].y = win_surf->h / 2;
