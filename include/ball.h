@@ -24,6 +24,16 @@ struct TrailSegment
     Uint8 alpha;
 };
 
+typedef struct EnemyBall
+{
+    int x, y;
+    int vx, vy;
+    bool isActive;
+} EnemyBall;
+
+#define MAX_ENEMY_BALLS 3
+extern struct EnemyBall enemyBalls[MAX_ENEMY_BALLS];
+
 struct Ball
 {
     double x;
@@ -48,6 +58,7 @@ extern int activeBallCount;
 extern double ballSpeedIncrement;
 extern double max_speed;
 
+void initializeEnemyBalls();
 void wallCollision(struct Ball *ball);
 void vaultCollision(struct Ball *ball);
 void handleBallProperty(struct Ball *ball, SDL_Rect brickRect);
@@ -59,5 +70,7 @@ void handleCollisions();
 void brickCollision(struct Ball *ball);
 void defeatCollision(struct Ball *ball);
 void dohCollision(struct Ball *ball);
+void handleEnemyBallCollisions();
+void clearEnemyBall();
 
 #endif // BALL_H

@@ -840,6 +840,9 @@ void render()
     handleCollisions();
     handleHarmfulCollisions();
     handleBonusCollision();
+    SDL_Rect srcEnemyBall = {63, 65, 16, 16}; // Ajuster la taille si nécessaire
+    moveAndRenderEnemyBalls(gameSprites, &srcEnemyBall, win_surf);
+    handleEnemyBallCollisions();
 }
 
 SDL_Rect charToSDLRect(char character)
@@ -895,6 +898,26 @@ void renderBorderShadows()
         SDL_RenderFillRect(renderer, &leftShadow);
 
         SDL_DestroyRenderer(renderer);
+    }
+}
+
+void moveAndRenderEnemyBalls(SDL_Surface *sprites, SDL_Rect *srcEnemyBall, SDL_Surface *win_surf)
+{
+    for (int i = 0; i < MAX_ENEMY_BALLS; i++)
+    {
+        if (enemyBalls[i].isActive)
+        {
+            enemyBalls[i].x += enemyBalls[i].vx;
+            enemyBalls[i].y += enemyBalls[i].vy;
+
+            if (enemyBalls[i].y > win_surf->h)
+            {
+                enemyBalls[i].isActive = false; // Désactiver quand il sort de l'écran
+            }
+
+            SDL_Rect destEnemyBall = {enemyBalls[i].x, enemyBalls[i].y, srcEnemyBall->w, srcEnemyBall->h};
+            SDL_BlitSurface(sprites, srcEnemyBall, win_surf, &destEnemyBall);
+        }
     }
 }
 void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
@@ -959,16 +982,21 @@ void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
         case 4:
         case 5:
         case 6:
-            if (elapsed > 0.1)
-            {
-                doh.animationPhase++;
-                doh.phaseStartTime = now;
-            }
-            break;
         case 7:
         case 8:
             if (elapsed > 0.1)
             {
+                for (int i = 0; i < MAX_ENEMY_BALLS; i++)
+                {
+                    if (!enemyBalls[i].isActive)
+                    {
+                        enemyBalls[i].x = win_surf->w / 2;
+                        enemyBalls[i].y = win_surf->h / 2;
+                        enemyBalls[i].vx = (i - 1) * 2; // Légère dispersion
+                        enemyBalls[i].vy = 3;
+                        enemyBalls[i].isActive = true;
+                    }
+                }
                 doh.animationPhase++;
                 doh.phaseStartTime = now;
             }

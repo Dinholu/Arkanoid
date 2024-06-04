@@ -1,6 +1,7 @@
 #include "ball.h"
 
 struct Ball balls[MAX_BALLS];
+struct EnemyBall enemyBalls[MAX_ENEMY_BALLS];
 SDL_Rect srcBall = {63, 65, 16, 16};
 Uint64 attachTime = 0;
 int releaseCount = 0;
@@ -8,6 +9,31 @@ int activeBallCount = 1;
 double ballSpeedIncrement = BALL_SPEED_INCREMENT;
 double max_speed = 7.0;
 
+void initializeEnemyBalls()
+{
+    for (int i = 0; i < MAX_ENEMY_BALLS; i++)
+    {
+        enemyBalls[i].isActive = false;
+    }
+}
+
+void handleEnemyBallCollisions()
+{
+    for (int i = 0; i < MAX_ENEMY_BALLS; i++)
+    {
+        if (enemyBalls[i].isActive)
+        {
+            SDL_Rect enemyBallRect = {enemyBalls[i].x, enemyBalls[i].y, 16, 16}; // Ajuster la taille si nécessaire
+            SDL_Rect vaultRect = {x_vault, win_surf->h - 32, srcVault.w, srcVault.h};
+
+            if (isCollision(enemyBallRect, vaultRect))
+            {
+                enemyBalls[i].isActive = false;
+                currentLife--;
+            }
+        }
+    }
+}
 void vaultCollision(struct Ball *ball)
 {
     if ((ball->y + srcBall.h > win_surf->h - 32) && (ball->x + srcBall.w > x_vault) && (ball->x < x_vault + vault_width))
@@ -160,6 +186,14 @@ void brickCollision(struct Ball *ball)
                 }
             }
         }
+    }
+}
+
+clearEnemyBall()
+{
+    for (int i = 0; i < MAX_ENEMY_BALLS; i++)
+    {
+        enemyBalls[i].isActive = false;
     }
 }
 

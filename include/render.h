@@ -73,6 +73,7 @@ void showPauseMenu(SDL_Surface *win_surf);
 void renderWall(SDL_Surface *sprites, SDL_Rect *srcWall, int positionX, int positionY, int width, int height);
 void renderAllWalls();
 void render();
+void moveAndRenderEnemyBalls(SDL_Surface *sprites, SDL_Rect *srcEnemyBall, SDL_Surface *win_surf);
 void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf);
 void renderShadow(SDL_Surface *surface, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY, int alpha);
 void renderBorderShadows();

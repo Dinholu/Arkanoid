@@ -80,6 +80,7 @@ void loadCurrentLevel(bool isEight)
 
 void nextLevel()
 {
+    clearEnemyBall();
     changeBackground();
     clearBonuses();
     resetAllBonuses();
@@ -111,6 +112,7 @@ void resetGame()
     resetAllBonuses();
     clearHarmfuls();
     initializeDoh();
+    clearEnemyBall();
     currentLife = 3;
     currentScore = 0;
     currentLevel = 1;
