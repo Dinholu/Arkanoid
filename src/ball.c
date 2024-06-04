@@ -274,11 +274,15 @@ void handleBallUpdates()
 
 void dohCollision(struct Ball *ball)
 {
+    // tout ca aussi dans le struct/fichier a part
     doh.health = 500;
     doh.scoreValue = 1000;
-    int dohWidth = win_surf->w / 2;
-    int dohHeight = win_surf->h / 2;
-    SDL_Rect dohRect = {win_surf->w / 4, win_surf->h / 4, dohWidth, dohHeight};
+    int dohWidth = 192;
+    int dohHeight = 256;
+    int dohX = win_surf->w / 2 - dohWidth / 2;
+    int dohY = srcTopWall.h + Y_WALLS + dohHeight / 2;
+    
+    SDL_Rect dohRect = {dohX, dohY, dohWidth, dohHeight};
     SDL_Rect ballRect = { ball->x, ball->y, srcBall.w, srcBall.h };
 
     if (isCollision(ballRect, dohRect))
