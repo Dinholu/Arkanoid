@@ -8,7 +8,6 @@ bool showMenu = true;
 int currentLife = 3;
 double delta_t;
 const int FPS = 60;
-Doh doh;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
@@ -134,17 +133,6 @@ void updateDeltaTime()
     if (delta_t > 0)
         SDL_Delay((Uint32)(delta_t * 1000));
     prev = SDL_GetPerformanceCounter();
-}
-
-void initializeDoh()
-{
-    doh.height = 256;
-    doh.width = 192;
-    doh.x = win_surf->w / 2 - doh.width / 2;
-    doh.y = srcTopWall.h + Y_WALLS + doh.height / 2;
-    doh.type = 'X';
-    doh.health = 10;
-    doh.scoreValue = 1000;
 }
 
 void mainGameLoop()

@@ -14,6 +14,8 @@ add_executable(${PROJECT_NAME}
         include/harmful.h
         include/score.h
         include/input.h
+        include/doh.h
+        src/doh.c
         src/render.c
         src/brick.c
         src/ball.c

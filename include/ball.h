@@ -12,6 +12,7 @@
 #include "brick.h"
 #include "render.h"
 #include "game.h"
+#include "doh.h"
 
 #define BALL_SPEED_INCREMENT 0.5 // Speed increment when hitting a brick
 #define MAX_BALLS 50
