@@ -10,18 +10,11 @@
 
 #define NUM_BRICKS_PER_ROW 16
 #define NUM_ROWS 16
-
 #define BRICK_WIDTH 32
 #define BRICK_HEIGHT 16
 #define FIRST_LINE 1
-
 #define NUM_BRICKS (NUM_BRICKS_PER_ROW * NUM_ROWS)
-
-#define BRICK(COIN, LIGNE)                                                   \
-    {                                                                        \
-        (FIRST_LINE * COIN), (FIRST_LINE * LIGNE), BRICK_WIDTH, BRICK_HEIGHT \
-    }
-
+#define BRICK(COIN, LIGNE) { (FIRST_LINE * COIN), (FIRST_LINE * LIGNE), BRICK_WIDTH, BRICK_HEIGHT }
 #define WHITE_BRICK (SDL_Rect) BRICK(0, 0)
 #define ORANGE_BRICK (SDL_Rect) BRICK(32, 0)
 #define BLUE1_BRICK (SDL_Rect) BRICK(64, 0)
@@ -39,7 +32,7 @@ struct Brick
     double x;
     double y;
     char type;
-    int touched;
+    int health;
     int scoreValue;
     bool isVisible;
     bool isDestructible;
@@ -52,7 +45,7 @@ struct Brick
 };
 extern struct Brick brick[NUM_BRICKS];
 extern SDL_Rect srcBrick;
-extern int touched;
+extern int health;
 
 bool allBricksInvisible();
 

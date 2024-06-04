@@ -90,9 +90,9 @@ void brickCollision(struct Ball *ball)
                 handleBallProperty(ball, brickRect);
                 if (brick[i].isDestructible)
                 {
-                    printf("Brick touched: %i\n", i);
-                    brick[i].touched--;
-                    if (brick[i].touched == 0)
+                    printf("Brick health: %i\n", i);
+                    brick[i].health--;
+                    if (brick[i].health == 0)
                     {
                         brick[i].isDisappearing = true;
                         currentScore += brick[i].scoreValue;

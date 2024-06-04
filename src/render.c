@@ -704,8 +704,8 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
 
                         if (brick[j].isDestructible)
                         {
-                            brick[j].touched--;
-                            if (brick[j].touched == 0)
+                            brick[j].health--;
+                            if (brick[j].health == 0)
                             {
                                 brick[j].isVisible = false;
                                 currentScore += brick[j].scoreValue;

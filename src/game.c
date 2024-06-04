@@ -32,7 +32,7 @@ void loadLevelFromFile(const char *filename, bool isEight)
 
     if (isEight)
     {
-        touched++;
+        health++;
         max_speed++;
     }
 
@@ -47,7 +47,7 @@ void loadLevelFromFile(const char *filename, bool isEight)
         brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
         brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
         brick[row * NUM_BRICKS_PER_ROW + col].isDestructible = (brickType != 'D');
-        brick[row * NUM_BRICKS_PER_ROW + col].touched = (brickType == 'E') ? touched : 1;
+        brick[row * NUM_BRICKS_PER_ROW + col].health = (brickType == 'E') ? health : 1;
         brick[row * NUM_BRICKS_PER_ROW + col].isAnimating = false;
         brick[row * NUM_BRICKS_PER_ROW + col].animationFrame = 0;
         brick[row * NUM_BRICKS_PER_ROW + col].lastFrameTime = SDL_GetPerformanceCounter();
