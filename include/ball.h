@@ -48,12 +48,13 @@ extern double max_speed;
 void wallCollision(struct Ball *ball);
 void vaultCollision(struct Ball *ball);
 void handleBallProperty(struct Ball *ball, SDL_Rect brickRect);
-void handleCollisions();
-void brickCollision(struct Ball *ball);
-void defeatCollision(struct Ball *ball);
 void initializeBalls();
 void attachBallToVault(struct Ball *ball, int x_vault);
 void updateBallTrail(struct Ball *ball);
 void handleBallUpdates();
+void handleCollisions();
+void brickCollision(struct Ball *ball);
+void defeatCollision(struct Ball *ball);
+void dohCollision(struct Ball *ball);
 
 #endif // BALL_H

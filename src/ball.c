@@ -66,6 +66,10 @@ void handleCollisions()
     {
         if (balls[i].isActive)
         {
+            if (currentLevel == NUM_LEVELS)
+            {
+                dohCollision(&balls[i]);
+            }
             wallCollision(&balls[i]);
             vaultCollision(&balls[i]);
             brickCollision(&balls[i]);
@@ -80,9 +84,8 @@ void brickCollision(struct Ball *ball)
     {
         if (brick[i].isVisible)
         {
-            SDL_Rect ballRect = {ball->x, ball->y, srcBall.w, srcBall.h};
-            SDL_Rect brickRect = {
-                brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+            SDL_Rect ballRect = { ball->x, ball->y, srcBall.w, srcBall.h };
+            SDL_Rect brickRect = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
             if (isCollision(ballRect, brickRect))
             {
@@ -268,3 +271,26 @@ void handleBallUpdates()
         }
     }
 }
+
+void dohCollision(struct Ball *ball)
+{
+    doh.health = 500;
+    doh.scoreValue = 1000;
+    int dohWidth = win_surf->w / 2;
+    int dohHeight = win_surf->h / 2;
+    SDL_Rect dohRect = {win_surf->w / 4, win_surf->h / 4, dohWidth, dohHeight};
+    SDL_Rect ballRect = { ball->x, ball->y, srcBall.w, srcBall.h };
+
+    if (isCollision(ballRect, dohRect))
+    {
+        handleBallProperty(ball, dohRect);
+        currentScore += doh.scoreValue;
+        doh.health--;
+
+        if (doh.health <= 0)
+        {
+            nextLevel();
+        }
+    }
+}
+

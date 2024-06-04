@@ -21,6 +21,15 @@ typedef struct Level
     int bricks[NUM_ROWS][NUM_BRICKS_PER_ROW];
 } Level;
 
+typedef struct Doh
+{
+    double x;
+    double y;
+    char type;
+    int health;
+    int scoreValue;
+} Doh;
+
 extern Uint64 prev, now;
 extern Level levels[NUM_LEVELS];
 extern int currentLevel;
@@ -29,6 +38,7 @@ extern bool showMenu;
 extern int currentLife;
 extern double delta_t;
 extern const int FPS;
+extern Doh doh;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2);
 void loadCurrentLevel(bool isEight);
