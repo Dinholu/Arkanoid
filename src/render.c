@@ -16,6 +16,7 @@ SDL_Rect srcLogo = {0, 0, 388, 96};
 SDL_Rect srcVaus = {0, 108, 192, 90};
 SDL_Rect srcTopWall = {22, 0, 512, 22};
 SDL_Rect srcEdgeWall = {0, 0, 22, 650};
+SDL_Rect srcDoh = {0, 144, 64, 96};
 
 Color red = {255, 0, 0};
 Color green = {0, 255, 0};
@@ -899,7 +900,6 @@ void renderBorderShadows()
 
 void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
 {
-    // a initialiser dans le struct
     SDL_Rect destRect = {doh.x, doh.y, doh.width, doh.height};
-    SDL_BlitScaled(sprites, &DOH, win_surf, &destRect);
+    SDL_BlitScaled(sprites, &srcDoh, win_surf, &destRect);
 }

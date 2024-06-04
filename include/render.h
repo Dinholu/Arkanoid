@@ -11,7 +11,6 @@
 #include "harmful.h"
 
 #define VAUS_HP (SDL_Rect) { 384, 118, 28, 10 }
-#define DOH (SDL_Rect) {0, 144, 64, 96}
 #define MAX_BACKGROUND 5
 #define ACTIVATE_SHADOW true
 #define ACTIVATE_TRAIL true
@@ -39,6 +38,7 @@ extern SDL_Rect srcLogo;
 extern SDL_Rect srcVaus;
 extern SDL_Rect srcTopWall;
 extern SDL_Rect srcEdgeWall;
+extern SDL_Rect srcDoh;
 
 extern Color red;
 extern Color green;
