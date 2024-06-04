@@ -87,8 +87,13 @@ void nextLevel()
     clearHarmfuls();
     vault_width = srcVault.w;
     currentHarmfulsType++;
+    initializeBalls();
+    initializeLasers();
+    initializeBonuses();
+    initializeHarmfuls();
+    currentLevel++;
 
-    if (currentLevel >= NUM_LEVELS)
+    if (currentLevel > NUM_LEVELS)
     {
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
         enteringName = true;
@@ -97,11 +102,7 @@ void nextLevel()
         return;
     }
 
-    initializeBalls();
-    initializeLasers();
-    initializeBonuses();
-    initializeHarmfuls();
-    currentLevel++;
+    initializeDoh();
     loadCurrentLevel(((currentLevel) % 8 == 0));
 }
 
@@ -110,6 +111,7 @@ void resetGame()
     clearBonuses();
     resetAllBonuses();
     clearHarmfuls();
+    initializeDoh();
     currentLife = 3;
     currentScore = 0;
     currentLevel = 1;
@@ -133,6 +135,16 @@ void updateDeltaTime()
         SDL_Delay((Uint32)(delta_t * 1000));
     prev = SDL_GetPerformanceCounter();
 }
+
+void initializeDoh()
+{
+    doh.x = 0;
+    doh.y = 0;
+    doh.type = 'X';
+    doh.health = 10;
+    doh.scoreValue = 1000;
+}
+
 void mainGameLoop()
 {
     bool quit = false;

@@ -84,7 +84,7 @@ void brickCollision(struct Ball *ball)
     {
         if (brick[i].isVisible)
         {
-            SDL_Rect ballRect = { ball->x, ball->y, srcBall.w, srcBall.h };
+            SDL_Rect ballRect = {ball->x, ball->y, srcBall.w, srcBall.h};
             SDL_Rect brickRect = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
             if (isCollision(ballRect, brickRect))
@@ -274,6 +274,7 @@ void handleBallUpdates()
 
 void dohCollision(struct Ball *ball)
 {
+<<<<<<< Updated upstream
     // tout ca aussi dans le struct/fichier a part
     doh.health = 500;
     doh.scoreValue = 1000;
@@ -284,17 +285,23 @@ void dohCollision(struct Ball *ball)
     
     SDL_Rect dohRect = {dohX, dohY, dohWidth, dohHeight};
     SDL_Rect ballRect = { ball->x, ball->y, srcBall.w, srcBall.h };
+=======
+    int dohWidth = win_surf->w / 2;
+    int dohHeight = win_surf->h / 2;
+    SDL_Rect dohRect = {win_surf->w / 4, win_surf->h / 4, dohWidth, dohHeight};
+    SDL_Rect ballRect = {ball->x, ball->y, srcBall.w, srcBall.h};
+>>>>>>> Stashed changes
 
     if (isCollision(ballRect, dohRect))
     {
         handleBallProperty(ball, dohRect);
         currentScore += doh.scoreValue;
         doh.health--;
+        printf("Doh health: %d\n", doh.health);
 
-        if (doh.health <= 0)
+        if (doh.health == 0)
         {
             nextLevel();
         }
     }
 }
-

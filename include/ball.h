@@ -11,12 +11,14 @@
 #include "vault.h"
 #include "brick.h"
 #include "render.h"
+#include "game.h"
 
 #define BALL_SPEED_INCREMENT 0.5 // Speed increment when hitting a brick
 #define MAX_BALLS 50
 #define MIN_SPEED 3.0
 
-struct TrailSegment {
+struct TrailSegment
+{
     int x, y;
     Uint8 alpha;
 };
