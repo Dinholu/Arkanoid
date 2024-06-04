@@ -289,5 +289,10 @@ void dohCollision(struct Ball *ball)
         {
             nextLevel();
         }
+        else
+        {
+            doh.moveDown = true;
+            doh.moveStartTime = SDL_GetPerformanceCounter(); // Enregistrer le temps de début du mouvement
+        }
     }
 }

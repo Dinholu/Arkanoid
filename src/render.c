@@ -902,6 +902,29 @@ void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
     Uint64 now = SDL_GetPerformanceCounter();
     double elapsed = (now - doh.phaseStartTime) / (double)SDL_GetPerformanceFrequency();
 
+    if (doh.moveDown && !doh.hasMovedDown)
+    {
+        double moveElapsed = (now - doh.moveStartTime) / (double)SDL_GetPerformanceFrequency();
+        if (moveElapsed < 0.1) // 0.1 seconde pour le mouvement vers le bas
+        {
+            srcDoh.y += srcDoh.h;    // Incrémente la position en y de srcDoh
+            doh.hasMovedDown = true; // Indiquer que le mouvement a été effectué
+        }
+    }
+    else if (doh.moveDown && doh.hasMovedDown)
+    {
+        double moveElapsed = (now - doh.moveStartTime) / (double)SDL_GetPerformanceFrequency();
+        if (moveElapsed >= 0.1)
+        {
+            srcDoh.y = 144;
+            // Réinitialise la position en y de srcDoh après 0.1 seconde
+            doh.moveDown = false;
+            doh.hasMovedDown = false;
+            doh.moveDownTime = 0;
+            // Réinitialiser l'indicateur après le temps écoulé
+        }
+    }
+
     switch (doh.animationPhase)
     {
     case 0:
