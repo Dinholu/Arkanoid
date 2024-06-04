@@ -195,7 +195,7 @@ void mainGameLoop()
             processInput(&quit);
             updateVaultEnlargement();
 
-            if (allBricksInvisible())
+            if (allBricksInvisible() && currentLevel < NUM_LEVELS)
             {
                 nextLevel();
             }
