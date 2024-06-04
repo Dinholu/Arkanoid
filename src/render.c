@@ -908,28 +908,26 @@ void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
         {
             if (doh.animationPhase < 9)
             {
-                srcDoh.y = 624; // Position de départ pour l'animation de disparition
+                srcDoh.y = 624;
                 srcDoh.x += srcDoh.w;
                 doh.animationPhase++;
                 doh.phaseStartTime = now;
             }
             else
             {
-                // Terminer l'animation de disparition et passer au niveau suivant
                 nextLevel();
             }
         }
     }
     else
     {
-        // Vérifier si le mouvement vers le bas doit être effectué
         if (doh.moveDown && !doh.hasMovedDown)
         {
             double moveElapsed = (now - doh.moveStartTime) / (double)SDL_GetPerformanceFrequency();
-            if (moveElapsed < 0.1) // 0.1 seconde pour le mouvement vers le bas
+            if (moveElapsed < 0.1)
             {
-                srcDoh.y += srcDoh.h;    // Incrémente la position en y de srcDoh
-                doh.hasMovedDown = true; // Indiquer que le mouvement a été effectué
+                srcDoh.y += srcDoh.h;
+                doh.hasMovedDown = true;
             }
         }
         else if (doh.moveDown && doh.hasMovedDown)
