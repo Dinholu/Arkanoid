@@ -12,6 +12,7 @@
 #include "render.h"
 #include "bonus.h"
 #include "input.h"
+#include "doh.h"
 
 #define NUM_LEVELS 33
 #define VIE_MAX 5

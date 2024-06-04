@@ -11,12 +11,15 @@
 #include "vault.h"
 #include "brick.h"
 #include "render.h"
+#include "game.h"
+#include "doh.h"
 
 #define BALL_SPEED_INCREMENT 0.5 // Speed increment when hitting a brick
 #define MAX_BALLS 50
 #define MIN_SPEED 3.0
 
-struct TrailSegment {
+struct TrailSegment
+{
     int x, y;
     Uint8 alpha;
 };
@@ -48,12 +51,13 @@ extern double max_speed;
 void wallCollision(struct Ball *ball);
 void vaultCollision(struct Ball *ball);
 void handleBallProperty(struct Ball *ball, SDL_Rect brickRect);
-void handleCollisions();
-void brickCollision(struct Ball *ball);
-void defeatCollision(struct Ball *ball);
 void initializeBalls();
 void attachBallToVault(struct Ball *ball, int x_vault);
 void updateBallTrail(struct Ball *ball);
 void handleBallUpdates();
+void handleCollisions();
+void brickCollision(struct Ball *ball);
+void defeatCollision(struct Ball *ball);
+void dohCollision(struct Ball *ball);
 
 #endif // BALL_H

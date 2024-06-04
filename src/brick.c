@@ -2,7 +2,7 @@
 
 struct Brick brick[NUM_BRICKS];
 SDL_Rect srcBrick;
-int touched = 2;
+int health = 2;
 
 bool allBricksInvisible()
 {

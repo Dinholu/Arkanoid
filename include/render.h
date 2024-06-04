@@ -9,12 +9,13 @@
 #include <string.h>
 #include "bonus.h"
 #include "harmful.h"
+#include "doh.h"
 
 #define VAUS_HP \
     (SDL_Rect) { 384, 118, 28, 10 }
 #define MAX_BACKGROUND 5
 #define ACTIVATE_SHADOW true
-#define ACTIVATE_TRAIl true
+#define ACTIVATE_TRAIL true
 
 typedef struct
 {
@@ -32,12 +33,14 @@ extern SDL_Surface *menuSprites;
 extern SDL_Surface *topWallSprites;
 extern SDL_Surface *leftWallSprites;
 extern SDL_Surface *rightWallSprites;
+extern SDL_Surface *dohSprites;
 
 extern SDL_Rect srcBackground;
 extern SDL_Rect srcLogo;
 extern SDL_Rect srcVaus;
 extern SDL_Rect srcTopWall;
 extern SDL_Rect srcEdgeWall;
+extern SDL_Rect srcDoh;
 
 extern Color red;
 extern Color green;
@@ -73,5 +76,6 @@ void render();
 void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf);
 void renderShadow(SDL_Surface *surface, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY, int alpha);
 void renderBorderShadows();
+void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf);
 
 #endif // ARKANOID_RENDER_H

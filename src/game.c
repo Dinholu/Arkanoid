@@ -32,7 +32,7 @@ void loadLevelFromFile(const char *filename, bool isEight)
 
     if (isEight)
     {
-        touched++;
+        health++;
         max_speed++;
     }
 
@@ -45,9 +45,9 @@ void loadLevelFromFile(const char *filename, bool isEight)
         brick[row * NUM_BRICKS_PER_ROW + col].type = brickType;
         brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH;
         brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
-        brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
+        brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-' && brickType != 'X');
         brick[row * NUM_BRICKS_PER_ROW + col].isDestructible = (brickType != 'D');
-        brick[row * NUM_BRICKS_PER_ROW + col].touched = (brickType == 'E') ? touched : 1;
+        brick[row * NUM_BRICKS_PER_ROW + col].health = (brickType == 'E') ? health : 1;
         brick[row * NUM_BRICKS_PER_ROW + col].isAnimating = false;
         brick[row * NUM_BRICKS_PER_ROW + col].animationFrame = 0;
         brick[row * NUM_BRICKS_PER_ROW + col].lastFrameTime = SDL_GetPerformanceCounter();
@@ -86,7 +86,13 @@ void nextLevel()
     clearHarmfuls();
     vault_width = srcVault.w;
     currentHarmfulsType++;
-    if (currentLevel >= NUM_LEVELS)
+    initializeBalls();
+    initializeLasers();
+    initializeBonuses();
+    initializeHarmfuls();
+    currentLevel++;
+
+    if (currentLevel > NUM_LEVELS)
     {
         printf("Félicitations! Vous avez terminé tous les niveaux!\n");
         enteringName = true;
@@ -94,11 +100,8 @@ void nextLevel()
         isGameOver = true;
         return;
     }
-    initializeBalls();
-    initializeLasers();
-    initializeBonuses();
-    initializeHarmfuls();
-    currentLevel++;
+
+    initializeDoh();
     loadCurrentLevel(((currentLevel) % 8 == 0));
 }
 
@@ -107,6 +110,7 @@ void resetGame()
     clearBonuses();
     resetAllBonuses();
     clearHarmfuls();
+    initializeDoh();
     currentLife = 3;
     currentScore = 0;
     currentLevel = 1;
@@ -130,6 +134,7 @@ void updateDeltaTime()
         SDL_Delay((Uint32)(delta_t * 1000));
     prev = SDL_GetPerformanceCounter();
 }
+
 void mainGameLoop()
 {
     bool quit = false;
@@ -190,7 +195,7 @@ void mainGameLoop()
             processInput(&quit);
             updateVaultEnlargement();
 
-            if (allBricksInvisible())
+            if (allBricksInvisible() && currentLevel < NUM_LEVELS)
             {
                 nextLevel();
             }
@@ -223,7 +228,7 @@ void mainGameLoop()
                 }
             }
 
-            if (currentLevel >= NUM_LEVELS)
+            if (currentLevel > NUM_LEVELS)
             {
                 renderCongratulationsScreen(menuSprites, &srcLogo, win_surf);
             }

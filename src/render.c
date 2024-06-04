@@ -5,17 +5,18 @@ SDL_Surface *win_surf = NULL;
 
 SDL_Surface *gameSprites = NULL;
 SDL_Surface *asciiSprites = NULL;
-
 SDL_Surface *menuSprites = NULL;
 SDL_Surface *topWallSprites = NULL;
 SDL_Surface *leftWallSprites = NULL;
 SDL_Surface *rightWallSprites = NULL;
+SDL_Surface *dohSprites = NULL;
 
 SDL_Rect srcBackground = {0, 128, 64, 64};
 SDL_Rect srcLogo = {0, 0, 388, 96};
 SDL_Rect srcVaus = {0, 108, 192, 90};
 SDL_Rect srcTopWall = {22, 0, 512, 22};
 SDL_Rect srcEdgeWall = {0, 0, 22, 650};
+SDL_Rect srcDoh = {0, 144, 64, 96};
 
 Color red = {255, 0, 0};
 Color green = {0, 255, 0};
@@ -46,6 +47,7 @@ void initializeSDL()
     gameSprites = SDL_LoadBMP("./Arkanoid_sprites.bmp");
     asciiSprites = SDL_LoadBMP("./Arkanoid_ascii_sprites.bmp");
     menuSprites = SDL_LoadBMP("./Arkanoid_menu_sprites.bmp");
+    dohSprites = SDL_LoadBMP("./Arkanoid_DOH_sprite.bmp");
     topWallSprites = SDL_LoadBMP("./edge_top.bmp");
     leftWallSprites = SDL_LoadBMP("./edge_left.bmp");
     rightWallSprites = SDL_LoadBMP("./edge_right.bmp");
@@ -63,6 +65,7 @@ void initializeSDL()
     SDL_SetColorKey(topWallSprites, SDL_TRUE, 0);
     SDL_SetColorKey(leftWallSprites, SDL_TRUE, 0);
     SDL_SetColorKey(rightWallSprites, SDL_TRUE, 0);
+    SDL_SetColorKey(dohSprites, SDL_TRUE, 0);
 
     x_vault = (win_surf->w - srcVault.w) / 2;
     vault_width = srcVault.w;
@@ -320,6 +323,11 @@ void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface
 
 void changeBackground()
 {
+    if (currentLevel == NUM_LEVELS - 1)
+    {
+        srcBackground.x = 256;
+        return;
+    }
     if (backgroundChange < MAX_BACKGROUND)
     {
         srcBackground.x += 64;
@@ -334,7 +342,7 @@ void changeBackground()
 
 void renderBallTrail(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf, struct Ball *ball)
 {
-    if (ACTIVATE_TRAIl)
+    if (ACTIVATE_TRAIL)
     {
         for (int i = 1; i < ball->trailLength; i++)
         {
@@ -697,8 +705,8 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
 
                         if (brick[j].isDestructible)
                         {
-                            brick[j].touched--;
-                            if (brick[j].touched == 0)
+                            brick[j].health--;
+                            if (brick[j].health == 0)
                             {
                                 brick[j].isVisible = false;
                                 currentScore += brick[j].scoreValue;
@@ -817,6 +825,12 @@ void render()
             attachBallToVault(&balls[i], x_vault);
         }
     }
+
+    if (currentLevel == NUM_LEVELS)
+    {
+        renderDoh(dohSprites, win_surf);
+    }
+
     handleBallUpdates();
     renderBalls(gameSprites, &srcBall, win_surf);
     moveBonuses();
@@ -882,4 +896,104 @@ void renderBorderShadows()
 
         SDL_DestroyRenderer(renderer);
     }
+}
+void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
+{
+    Uint64 now = SDL_GetPerformanceCounter();
+    double elapsed = (now - doh.phaseStartTime) / (double)SDL_GetPerformanceFrequency();
+
+    if (doh.disappearing)
+    {
+        if (elapsed > 0.1)
+        {
+            if (doh.animationPhase < 9)
+            {
+                srcDoh.y = 624;
+                srcDoh.x += srcDoh.w;
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            else
+            {
+                nextLevel();
+            }
+        }
+    }
+    else
+    {
+        if (doh.moveDown && !doh.hasMovedDown)
+        {
+            double moveElapsed = (now - doh.moveStartTime) / (double)SDL_GetPerformanceFrequency();
+            if (moveElapsed < 0.1)
+            {
+                srcDoh.y += srcDoh.h;
+                doh.hasMovedDown = true;
+            }
+        }
+        else if (doh.moveDown && doh.hasMovedDown)
+        {
+            double moveElapsed = (now - doh.moveStartTime) / (double)SDL_GetPerformanceFrequency();
+            if (moveElapsed >= 0.1)
+            {
+                srcDoh.y = 144;
+                doh.moveDown = false;
+                doh.hasMovedDown = false;
+                doh.moveDownTime = 0;
+            }
+        }
+
+        // Animation normale
+        switch (doh.animationPhase)
+        {
+        case 0:
+        case 1:
+        case 2:
+            if (elapsed > 0.1)
+            {
+                srcDoh.x += srcDoh.w;
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            break;
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+            if (elapsed > 0.1)
+            {
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            break;
+        case 7:
+        case 8:
+            if (elapsed > 0.1)
+            {
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            break;
+        case 9:
+        case 10:
+        case 11:
+            if (elapsed > 0.1)
+            {
+                srcDoh.x -= srcDoh.w;
+                doh.animationPhase++;
+                doh.phaseStartTime = now;
+            }
+            break;
+        case 12:
+        case 13:
+            if (elapsed > 0.1)
+            {
+                doh.animationPhase = 0;
+                doh.phaseStartTime = now;
+            }
+            break;
+        }
+    }
+
+    SDL_Rect destRect = {doh.x, doh.y, doh.width, doh.height};
+    SDL_BlitScaled(sprites, &srcDoh, win_surf, &destRect);
 }

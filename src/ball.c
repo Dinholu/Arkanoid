@@ -66,6 +66,10 @@ void handleCollisions()
     {
         if (balls[i].isActive)
         {
+            if (currentLevel == NUM_LEVELS)
+            {
+                dohCollision(&balls[i]);
+            }
             wallCollision(&balls[i]);
             vaultCollision(&balls[i]);
             brickCollision(&balls[i]);
@@ -81,8 +85,7 @@ void brickCollision(struct Ball *ball)
         if (brick[i].isVisible)
         {
             SDL_Rect ballRect = {ball->x, ball->y, srcBall.w, srcBall.h};
-            SDL_Rect brickRect = {
-                brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
+            SDL_Rect brickRect = {brick[i].x + srcEdgeWall.w, brick[i].y + srcTopWall.h + Y_WALLS, BRICK_WIDTH, BRICK_HEIGHT};
 
             if (isCollision(ballRect, brickRect))
             {
@@ -90,9 +93,9 @@ void brickCollision(struct Ball *ball)
                 handleBallProperty(ball, brickRect);
                 if (brick[i].isDestructible)
                 {
-                    printf("Brick touched: %i\n", i);
-                    brick[i].touched--;
-                    if (brick[i].touched == 0)
+                    printf("Brick health: %i\n", i);
+                    brick[i].health--;
+                    if (brick[i].health == 0)
                     {
                         brick[i].isDisappearing = true;
                         currentScore += brick[i].scoreValue;
@@ -265,6 +268,33 @@ void handleBallUpdates()
             updateBallTrail(&balls[i]);
             balls[i].x += balls[i].vx;
             balls[i].y += balls[i].vy;
+        }
+    }
+}
+
+void dohCollision(struct Ball *ball)
+{
+
+    SDL_Rect dohRect = {doh.x, doh.y, doh.width, doh.height};
+    SDL_Rect ballRect = {ball->x, ball->y, srcBall.w, srcBall.h};
+
+    if (isCollision(ballRect, dohRect))
+    {
+        handleBallProperty(ball, dohRect);
+        currentScore += doh.scoreValue;
+        doh.health--;
+        printf("Doh health: %d\n", doh.health);
+
+        if (doh.health == 0)
+        {
+            doh.disappearing = true;                          // Déclencher l'animation de disparition
+            doh.animationPhase = 0;                           // Réinitialiser la phase d'animation
+            doh.phaseStartTime = SDL_GetPerformanceCounter(); // Enregistrer le temps de début de l'animation
+        }
+        else
+        {
+            doh.moveDown = true;
+            doh.moveStartTime = SDL_GetPerformanceCounter(); // Enregistrer le temps de début du mouvement
         }
     }
 }
