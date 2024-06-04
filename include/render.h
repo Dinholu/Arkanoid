@@ -14,7 +14,7 @@
 #define DOH (SDL_Rect) {0, 144, 64, 96}
 #define MAX_BACKGROUND 5
 #define ACTIVATE_SHADOW true
-#define ACTIVATE_TRAIl true
+#define ACTIVATE_TRAIL true
 
 typedef struct
 {
