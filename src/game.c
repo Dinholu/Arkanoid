@@ -45,7 +45,7 @@ void loadLevelFromFile(const char *filename, bool isEight)
         brick[row * NUM_BRICKS_PER_ROW + col].type = brickType;
         brick[row * NUM_BRICKS_PER_ROW + col].x = col * BRICK_WIDTH;
         brick[row * NUM_BRICKS_PER_ROW + col].y = row * BRICK_HEIGHT;
-        brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-');
+        brick[row * NUM_BRICKS_PER_ROW + col].isVisible = (brickType != '-' && brickType != 'X');
         brick[row * NUM_BRICKS_PER_ROW + col].isDestructible = (brickType != 'D');
         brick[row * NUM_BRICKS_PER_ROW + col].health = (brickType == 'E') ? health : 1;
         brick[row * NUM_BRICKS_PER_ROW + col].isAnimating = false;
