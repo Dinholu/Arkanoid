@@ -15,7 +15,7 @@
 #define VAUS_HP (SDL_Rect) { 384, 118, 28, 10 }
 #define MAX_BACKGROUND 5
 #define ACTIVATE_SHADOW true
-#define ACTIVATE_TRAIL true
+#define ACTIVATE_TRAIL false
 
 typedef struct
 {

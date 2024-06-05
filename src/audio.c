@@ -29,8 +29,13 @@ void initializeAudio()
     dohFaceSound = Mix_LoadMUS("./05_Doh_Face.mp3");
     gameOverSound = Mix_LoadMUS("./06_Game_Over.mp3");
     laserSoundEffect = Mix_LoadWAV("./laser_sound.wav");
+    brickSoundEffect = Mix_LoadWAV("./brick_sound.wav");
+    brickUndestructibleSoundEffect = Mix_LoadWAV("./brick_undestructible_sound.wav");
+    enlargeSoundEffect = Mix_LoadWAV("./enlarge_sound.wav");
+    explosionSoundEffect = Mix_LoadWAV("./explosion_sound.wav");
 
-    if (!menuSound || !roundStartSound || !gameOverSound || !dohLevelSound || !victorySound || !dohFaceSound || !laserSoundEffect)
+    if (!menuSound || !roundStartSound || !gameOverSound || !dohLevelSound || !victorySound || !dohFaceSound 
+        || !laserSoundEffect || !brickSoundEffect || !brickUndestructibleSoundEffect || !enlargeSoundEffect || !explosionSoundEffect)
     {
         fprintf(stderr, "Failed to load audio files! SDL_mixer Error: %s\n", Mix_GetError());
         exit(EXIT_FAILURE);

@@ -18,6 +18,7 @@ double shrinkDuration = 0.5;
 
 void fireLaser()
 {
+    playOneTimeSoundEffect(laserSoundEffect);
     mWasPressed = true;
     for (int i = 0; i < MAX_LASERS; i += 2)
     {
