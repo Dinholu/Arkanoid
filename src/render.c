@@ -567,10 +567,10 @@ void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int st
 
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
 {
-    playMenuSound();
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     bool inMenu = true;
     SDL_Event event;
+    playMenuSound();
 
     int startOptionX = 192;
 
@@ -596,6 +596,8 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
                 case SDLK_1:
                     inMenu = false;
                     showMenu = false;
+                    stopMusic();
+                    playRoundStartSound();
                     break;
                 case SDLK_2:
                     showHighScores(win_surf, asciiSprites);

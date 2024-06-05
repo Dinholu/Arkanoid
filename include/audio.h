@@ -13,6 +13,7 @@ extern Mix_Music *gameOverSound;
 
 void initializeAudio();
 void playMenuSound();
+void stopMusic();
 void playRoundStartSound();
 void playGameOverSound();
 void cleanupAudio();

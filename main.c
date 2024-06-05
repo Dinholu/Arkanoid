@@ -18,6 +18,8 @@ void freeAllResources()
 
     if (pWindow)
         SDL_DestroyWindow(pWindow);
+
+    cleanupAudio();
     SDL_Quit();
 }
 

@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.7)
 project(Arkanoid LANGUAGES C)
 
 find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2_mixer REQUIRED)
 
 add_executable(${PROJECT_NAME}
         include/render.h
@@ -33,10 +34,10 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 
 if (TARGET SDL2::SDL2)
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main m)
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2_mixer::SDL2_mixer m)
 else ()
-    target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS})
-    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2 SDL2main m)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2_MIXER_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE SDL2 SDL2main SDL2_mixer m)
 endif ()
 
 file(COPY
