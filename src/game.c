@@ -7,7 +7,6 @@ bool isGameOver = false;
 bool showMenu = true;
 int currentLife = 3;
 double delta_t;
-const int FPS = 60;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2)
 {
@@ -234,10 +233,12 @@ void mainGameLoop()
             if (currentLevel > NUM_LEVELS)
             {
                 renderCongratulationsScreen(menuSprites, &srcLogo, win_surf);
+                playOneTimeMusic(victorySound);
             }
             else
             {
                 renderGameOverScreen(menuSprites, &srcLogo, win_surf);
+                playOneTimeMusic(gameOverSound);
             }
 
             SDL_UpdateWindowSurface(pWindow);

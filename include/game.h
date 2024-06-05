@@ -17,6 +17,7 @@
 
 #define NUM_LEVELS 33
 #define VIE_MAX 5
+#define FPS 60
 
 typedef struct Level
 {
@@ -30,7 +31,6 @@ extern bool isGameOver;
 extern bool showMenu;
 extern int currentLife;
 extern double delta_t;
-extern const int FPS;
 
 bool isCollision(SDL_Rect rect1, SDL_Rect rect2);
 void loadCurrentLevel(bool isEight);

@@ -297,6 +297,7 @@ void renderCongratulationsScreen(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Su
     renderString(asciiSprites, win_surf, "CONGRATULATIONS!", win_surf->w / 2, 300, "center", green);
     renderString(asciiSprites, win_surf, "ENTER NAME", win_surf->w / 2, 350, "center", grey);
     renderString(asciiSprites, win_surf, playerName, win_surf->w / 2, 400, "center", white);
+    playOneTimeMusic(victorySound);
 }
 
 void renderMenu(SDL_Surface *sprites, SDL_Rect *srcLogo, SDL_Surface *win_surf)
