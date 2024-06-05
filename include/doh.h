@@ -32,6 +32,9 @@ typedef struct Doh
 } Doh;
 
 extern Doh doh;
+extern SDL_Rect srcDoh;
+extern SDL_Rect srcEnemyBall;
+
 void initializeDoh();
 
 #endif // ARKANOID_DOH_H

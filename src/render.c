@@ -840,7 +840,6 @@ void render()
     handleCollisions();
     handleHarmfulCollisions();
     handleBonusCollision();
-    SDL_Rect srcEnemyBall = {63, 65, 16, 16}; // Ajuster la taille si nécessaire
     moveAndRenderEnemyBalls(gameSprites, &srcEnemyBall, win_surf);
     handleEnemyBallCollisions();
 }

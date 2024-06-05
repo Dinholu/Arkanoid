@@ -1,16 +1,17 @@
 #include "doh.h"
 
 Doh doh;
+SDL_Rect srcEnemyBall = {96, 64, 24, 24};
 
 void initializeDoh()
 {
-    srcDoh = (SDL_Rect){0, 144, 64, 96};
+    SDL_Rect srcDoh = {0, 144, 64, 96};
     doh.height = 256;
     doh.width = 192;
     doh.x = win_surf->w / 2 - doh.width / 2;
     doh.y = srcTopWall.h + Y_WALLS + doh.height / 2;
     doh.type = 'X';
-    doh.health = 10;
+    doh.health = 5;
     doh.scoreValue = 1000;
     doh.animationPhase = 0;
     doh.phaseStartTime = SDL_GetPerformanceCounter();

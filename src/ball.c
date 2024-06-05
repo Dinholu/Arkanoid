@@ -189,7 +189,7 @@ void brickCollision(struct Ball *ball)
     }
 }
 
-clearEnemyBall()
+void clearEnemyBall()
 {
     for (int i = 0; i < MAX_ENEMY_BALLS; i++)
     {
