@@ -446,7 +446,7 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
         if (brick[i].isDisappearing)
         {
             double elapsed = (now - brick[i].lastFrameTime) / (double)SDL_GetPerformanceFrequency();
-            if (elapsed > 0.05)
+            if (elapsed > 0.1)
             {
                 brick[i].disappearAnimationFrame++;
                 brick[i].lastFrameTime = now;
