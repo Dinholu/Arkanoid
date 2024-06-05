@@ -158,10 +158,10 @@ void updateVaultEnlargement()
     {
         double stepDuration = enlargeDuration / enlargeSteps;
         double t = elapsed / stepDuration;
+        
         if (t >= 1.0 && currentStep < enlargeSteps)
         {
             vault_width = srcVault.w;
-
             srcVault.y += 16;         // Déplacer vers la ligne du sprite agrandi
             srcVault.w += 9;          // Augmenter la largeur du sprite
             vault_width = srcVault.w; // Mettre à jour la largeur du vaisseau

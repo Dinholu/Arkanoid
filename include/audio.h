@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
+#include "game.h"
 
 extern Mix_Music *menuSound;
 extern Mix_Music *roundStartSound;
@@ -24,6 +25,7 @@ void playLoopingMusic(Mix_Music *music);
 void playOneTimeMusic(Mix_Music *music);
 void playLoopingSoundEffect(Mix_Chunk *soundEffect);
 void playOneTimeSoundEffect(Mix_Chunk *soundEffect);
+void playLevelSound();
 void stopMusic();
 void cleanupAudio();
 

@@ -80,7 +80,6 @@ void loadCurrentLevel(bool isEight)
 
 void nextLevel()
 {
-    playOneTimeMusic(roundStartSound);
     clearEnemyBall();
     changeBackground();
     clearBonuses();
@@ -105,6 +104,7 @@ void nextLevel()
 
     initializeDoh();
     loadCurrentLevel(((currentLevel) % 8 == 0));
+    playLevelSound();
 }
 
 void resetGame()

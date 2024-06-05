@@ -69,6 +69,18 @@ void playOneTimeSoundEffect(Mix_Chunk *soundEffect)
     Mix_PlayChannel(-1, soundEffect, 0); // 0 for playing once
 }
 
+void playLevelSound()
+{
+    if( currentLevel >= NUM_LEVELS)
+    {
+        playOneTimeMusic(dohLevelSound);
+    }
+    else
+    {
+        playOneTimeMusic(roundStartSound);
+    }
+}
+
 void stopMusic()
 {
     Mix_HaltMusic();
