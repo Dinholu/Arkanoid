@@ -142,7 +142,7 @@ void enlargeVault()
 {
     if (!isEnlarging && !isVaultEnlarged && !isShrinking)
     {
-        printf("Agrandissement du vaisseau!\n");
+        playOneTimeSoundEffect(enlargeSoundEffect);
         isEnlarging = true;
         currentStep = 0;
         enlargeStartTime = SDL_GetPerformanceCounter();

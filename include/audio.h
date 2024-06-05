@@ -17,6 +17,7 @@ extern Mix_Chunk *brickSoundEffect;
 extern Mix_Chunk *brickUndestructibleSoundEffect;
 extern Mix_Chunk *enlargeSoundEffect;
 extern Mix_Chunk *explosionSoundEffect;
+extern Mix_Chunk *vaultCollisionSoundEffect;
 
 void initializeAudio();
 void playLoopingMusic(Mix_Music *music);

@@ -13,10 +13,11 @@ Mix_Chunk *brickSoundEffect = NULL;
 Mix_Chunk *brickUndestructibleSoundEffect = NULL;
 Mix_Chunk *enlargeSoundEffect = NULL;
 Mix_Chunk *explosionSoundEffect = NULL;
+Mix_Chunk *vaultCollisionSoundEffect = NULL;
 
 void initializeAudio()
 {
-    if (Mix_OpenAudio(48000, AUDIO_F32, 2, 4096) < 0)
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
     {
         fprintf(stderr, "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
         exit(EXIT_FAILURE);
@@ -33,9 +34,9 @@ void initializeAudio()
     brickUndestructibleSoundEffect = Mix_LoadWAV("./brick_undestructible_sound.wav");
     enlargeSoundEffect = Mix_LoadWAV("./enlarge_sound.wav");
     explosionSoundEffect = Mix_LoadWAV("./explosion_sound.wav");
+    vaultCollisionSoundEffect = Mix_LoadWAV("./vault_collision_sound.wav");
 
-    if (!menuSound || !roundStartSound || !gameOverSound || !dohLevelSound || !victorySound || !dohFaceSound 
-        || !laserSoundEffect || !brickSoundEffect || !brickUndestructibleSoundEffect || !enlargeSoundEffect || !explosionSoundEffect)
+    if (!menuSound || !roundStartSound || !gameOverSound || !dohLevelSound || !victorySound || !dohFaceSound || !laserSoundEffect || !brickSoundEffect || !brickUndestructibleSoundEffect || !enlargeSoundEffect || !explosionSoundEffect || !vaultCollisionSoundEffect)
     {
         fprintf(stderr, "Failed to load audio files! SDL_mixer Error: %s\n", Mix_GetError());
         exit(EXIT_FAILURE);
@@ -82,5 +83,10 @@ void cleanupAudio()
     Mix_FreeMusic(dohFaceSound);
     Mix_FreeMusic(gameOverSound);
     Mix_FreeChunk(laserSoundEffect);
+    Mix_FreeChunk(brickSoundEffect);
+    Mix_FreeChunk(brickUndestructibleSoundEffect);
+    Mix_FreeChunk(enlargeSoundEffect);
+    Mix_FreeChunk(explosionSoundEffect);
+    Mix_FreeChunk(vaultCollisionSoundEffect);
     Mix_CloseAudio();
 }

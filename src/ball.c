@@ -39,6 +39,7 @@ void vaultCollision(struct Ball *ball)
 {
     if ((ball->y + srcBall.h > win_surf->h - 32) && (ball->x + srcBall.w > x_vault) && (ball->x < x_vault + vault_width))
     {
+        playOneTimeSoundEffect(vaultCollisionSoundEffect);
         ball->relative = (x_vault + (vault_width / 2) - (ball->x + (srcBall.w / 2)));
 
         if (releaseCount > 0)
