@@ -34,6 +34,7 @@ void handleEnemyBallCollisions()
         }
     }
 }
+
 void vaultCollision(struct Ball *ball)
 {
     if ((ball->y + srcBall.h > win_surf->h - 32) && (ball->x + srcBall.w > x_vault) && (ball->x < x_vault + vault_width))

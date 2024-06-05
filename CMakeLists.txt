@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
         include/score.h
         include/input.h
         include/doh.h
+        include/audio.h
         src/doh.c
         src/render.c
         src/brick.c
@@ -25,6 +26,7 @@ add_executable(${PROJECT_NAME}
         src/harmful.c
         src/score.c
         src/input.c
+        src/audio.c
         main.c
 )
 
@@ -49,9 +51,14 @@ file(COPY
         resources/sprites/Arkanoid_menu_sprites.bmp
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 
+# Audio files copy
+file(GLOB AUDIO_FILES resources/audio/*)
+foreach(audio_file ${AUDIO_FILES})
+    file(COPY ${audio_file} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endforeach()
+
 # Ensure the dummy file exists to avoid configuration errors
 file(WRITE ${CMAKE_BINARY_DIR}/dummy.txt "")
-
 file(GLOB LEVEL_FILES resources/levels/*)
 
 add_custom_target(generate_levels ALL

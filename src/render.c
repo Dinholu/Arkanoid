@@ -69,6 +69,8 @@ void initializeSDL()
 
     x_vault = (win_surf->w - srcVault.w) / 2;
     vault_width = srcVault.w;
+
+    initializeAudio();
 }
 
 void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
@@ -565,6 +567,7 @@ void renderInfo(SDL_Surface *sprites, int value, char *label, int startX, int st
 
 void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
 {
+    playMenuSound();
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     bool inMenu = true;
     SDL_Event event;
