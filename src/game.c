@@ -80,7 +80,7 @@ void loadCurrentLevel(bool isEight)
 
 void nextLevel()
 {
-    playRoundStartSound();
+    playOneTimeMusic(roundStartSound);
     clearEnemyBall();
     changeBackground();
     clearBonuses();

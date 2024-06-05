@@ -52,7 +52,7 @@ void initializeSDL()
     leftWallSprites = SDL_LoadBMP("./edge_left.bmp");
     rightWallSprites = SDL_LoadBMP("./edge_right.bmp");
 
-    if (!gameSprites || !asciiSprites || !menuSprites || !topWallSprites || !leftWallSprites || !rightWallSprites)
+    if (!gameSprites || !asciiSprites || !menuSprites || !topWallSprites || !leftWallSprites || !rightWallSprites || !dohSprites)
     {
         fprintf(stderr, "Sprite loading failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -570,7 +570,7 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     bool inMenu = true;
     SDL_Event event;
-    playMenuSound();
+    playLoopingMusic(menuSound);
 
     int startOptionX = 192;
 
@@ -597,7 +597,7 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
                     inMenu = false;
                     showMenu = false;
                     stopMusic();
-                    playRoundStartSound();
+                    playOneTimeMusic(roundStartSound);
                     break;
                 case SDLK_2:
                     showHighScores(win_surf, asciiSprites);

@@ -8,14 +8,22 @@
 extern Mix_Music *menuSound;
 extern Mix_Music *roundStartSound;
 extern Mix_Music *dohRoundSound;
-extern Mix_Music *laserSound;
 extern Mix_Music *gameOverSound;
+extern Mix_Music *victorySound;
+extern Mix_Music *dohLevelSound;
+extern Mix_Music *dohFaceSound;
+extern Mix_Chunk *laserSoundEffect;
+extern Mix_Chunk *brickSoundEffect;
+extern Mix_Chunk *brickUndestructibleSoundEffect;
+extern Mix_Chunk *enlargeSoundEffect;
+extern Mix_Chunk *explosionSoundEffect;
 
 void initializeAudio();
-void playMenuSound();
+void playLoopingMusic(Mix_Music *music);
+void playOneTimeMusic(Mix_Music *music);
+void playLoopingSoundEffect(Mix_Chunk *soundEffect);
+void playOneTimeSoundEffect(Mix_Chunk *soundEffect);
 void stopMusic();
-void playRoundStartSound();
-void playGameOverSound();
 void cleanupAudio();
 
 #endif // AUDIO_H
