@@ -79,6 +79,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
     {
         if (harmfuls[i].isDestroying)
         {
+            playOneTimeSoundEffect(explosionSoundEffect);
             harmfuls[i].destroyAnimationTime += 1.0 / FPS;
             if (harmfuls[i].destroyAnimationTime >= 0.1)
             {
@@ -100,6 +101,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmfulExplosion.w, srcHarmfulExplosion.h};
             SDL_BlitSurface(gameSprites, &srcHarmfulExplosion, win_surf, &destHarmful);
         }
+        
         if (harmfuls[i].isActive)
         {
             if (harmfuls[i].y > win_surf->h / 2 && !harmfuls[i].isSinusoidal)
