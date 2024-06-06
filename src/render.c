@@ -101,7 +101,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmfulExplosion.w, srcHarmfulExplosion.h};
             SDL_BlitSurface(gameSprites, &srcHarmfulExplosion, win_surf, &destHarmful);
         }
-        
+
         if (harmfuls[i].isActive)
         {
             if (harmfuls[i].y > win_surf->h / 2 && !harmfuls[i].isSinusoidal)
@@ -230,7 +230,7 @@ void moveAndRenderHarmfuls(SDL_Surface *gameSprites, SDL_Surface *win_surf)
 
             SDL_Rect srcHarmful = getHarmfulSrcRect(harmfuls[i].type, harmfuls[i].animationFrame);
             SDL_Rect destHarmful = {harmfuls[i].x, harmfuls[i].y, srcHarmful.w, srcHarmful.h};
-            renderShadow(gameSprites, &srcHarmful, &destHarmful, 5, 4, 255);
+            renderShadow(gameSprites, &srcHarmful, &destHarmful, 5, 5, 144);
             SDL_BlitSurface(gameSprites, &srcHarmful, win_surf, &destHarmful);
         }
     }
@@ -370,9 +370,11 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
         if (balls[i].isActive)
         {
             renderBallTrail(sprites, srcBall, win_surf, &balls[i]);
-
             SDL_Rect destBall = {balls[i].x, balls[i].y, srcBall->w, srcBall->h};
-            renderShadow(sprites, srcBall, &destBall, 4, 4, 144);
+            if (!balls[i].isAttached)
+            {
+                renderShadow(sprites, srcBall, &destBall, 8, 8, 96);
+            }
             SDL_BlitSurface(sprites, srcBall, win_surf, &destBall);
         }
     }
@@ -381,7 +383,7 @@ void renderBalls(SDL_Surface *sprites, SDL_Rect *srcBall, SDL_Surface *win_surf)
 void renderVault(SDL_Surface *sprites, SDL_Rect *srcVault, SDL_Surface *win_surf, int x_vault)
 {
     destVault = (SDL_Rect){x_vault, win_surf->h - 32, 0, 0};
-    renderShadow(sprites, srcVault, &destVault, 5, 7, 255);
+    renderShadow(sprites, srcVault, &destVault, 5, 7, 144);
     SDL_BlitSurface(sprites, srcVault, win_surf, &destVault);
 }
 
@@ -681,7 +683,7 @@ void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf)
             }
             SDL_Rect destBonus = {bonuses[i].x + srcEdgeWall.w, bonuses[i].y + Y_WALLS + srcTopWall.h, srcBonus.w, srcBonus.h};
 
-            renderShadow(gameSprites, &srcBonus, &destBonus, 3, 5, 192);
+            renderShadow(gameSprites, &srcBonus, &destBonus, 3, 5, 144);
             SDL_BlitSurface(gameSprites, &srcBonus, win_surf, &destBonus);
         }
     }
@@ -765,6 +767,7 @@ void moveAndRenderLasers(SDL_Surface *gameSprites, SDL_Rect *srcLeftLaser, SDL_R
                 }
                 srcLaser.y += lasers[i].animationFrame * 16;
             }
+            renderShadow(gameSprites, &srcLaser, &destLaser, 5, 5, 144);
             SDL_BlitSurface(gameSprites, &srcLaser, win_surf, &destLaser);
         }
     }
@@ -908,6 +911,22 @@ void renderBorderShadows()
     }
 }
 
+void renderScaledShadow(SDL_Surface *sprites, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY, int alpha)
+{
+    if (ACTIVATE_SHADOW)
+    {
+        SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_BLEND);
+        SDL_SetSurfaceAlphaMod(sprites, alpha);
+        SDL_SetSurfaceColorMod(sprites, 10, 10, 10);
+        SDL_Rect shadowDest = {destRect->x + offsetX, destRect->y + offsetY, destRect->w, destRect->h};
+
+        SDL_BlitScaled(sprites, srcRect, win_surf, &shadowDest);
+
+        SDL_SetSurfaceAlphaMod(sprites, 255);
+        SDL_SetSurfaceColorMod(sprites, 255, 255, 255);
+    }
+}
+
 void moveAndRenderEnemyBalls(SDL_Surface *sprites, SDL_Rect *srcEnemyBall, SDL_Surface *win_surf)
 {
     for (int i = 0; i < MAX_ENEMY_BALLS; i++)
@@ -1039,6 +1058,7 @@ void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
         }
     }
 
-    SDL_Rect destRect = {doh.x, doh.y, doh.width, doh.height};
-    SDL_BlitScaled(sprites, &srcDoh, win_surf, &destRect);
+    SDL_Rect destDoh = {doh.x, doh.y, doh.width, doh.height};
+    renderScaledShadow(sprites, &srcDoh, &destDoh, 10, 10, 144);
+    SDL_BlitScaled(sprites, &srcDoh, win_surf, &destDoh);
 }
