@@ -573,8 +573,8 @@ void showOptionsMenu(SDL_Window *pWindow, SDL_Surface *win_surf)
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
     bool inMenu = true;
     SDL_Event event;
+    stopMusic();
     playLoopingMusic(menuSound);
-
     int startOptionX = 192;
 
     while (inMenu)
