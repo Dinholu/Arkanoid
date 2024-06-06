@@ -328,7 +328,7 @@ void renderBackground(SDL_Surface *sprites, SDL_Rect *srcBackground, SDL_Surface
 
 void changeBackground()
 {
-    if (currentLevel == NUM_LEVELS - 1)
+    if (currentLevel == NUM_LEVELS)
     {
         srcBackground.x = 256;
         return;

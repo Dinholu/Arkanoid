@@ -128,6 +128,7 @@ void brickCollision(struct Ball *ball)
                         brick[i].isDisappearing = true;
                         currentScore += brick[i].scoreValue;
                         printf("Score: %d\n", currentScore);
+                        playBrickCollisionSound(true);
 
                         // Generate bonus
                         int randValue = rand() % 100;
@@ -178,6 +179,7 @@ void brickCollision(struct Ball *ball)
                         brick[i].isAnimating = true;
                         brick[i].animationFrame = 0;
                         brick[i].lastFrameTime = SDL_GetPerformanceCounter();
+                        playBrickCollisionSound(false);
                     }
                 }
                 else
@@ -185,6 +187,7 @@ void brickCollision(struct Ball *ball)
                     brick[i].isAnimating = true;
                     brick[i].animationFrame = 0;
                     brick[i].lastFrameTime = SDL_GetPerformanceCounter();
+                    playBrickCollisionSound(false);
                 }
             }
         }

@@ -9,7 +9,7 @@ void initializeDoh()
     doh.height = 256;
     doh.width = 192;
     doh.x = win_surf->w / 2 - doh.width / 2;
-    doh.y = srcTopWall.h + Y_WALLS + doh.height / 2;
+    doh.y = srcTopWall.h + Y_WALLS + doh.height / 4;
     doh.type = 'X';
     doh.health = 5;
     doh.scoreValue = 1000;

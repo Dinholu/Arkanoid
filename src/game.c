@@ -79,18 +79,18 @@ void loadCurrentLevel(bool isEight)
 
 void nextLevel()
 {
+    vault_width = srcVault.w;
+    currentLevel++;
+    currentHarmfulsType++;
     clearEnemyBall();
-    changeBackground();
     clearBonuses();
     resetAllBonuses();
     clearHarmfuls();
-    vault_width = srcVault.w;
-    currentHarmfulsType++;
     initializeBalls();
     initializeLasers();
     initializeBonuses();
     initializeHarmfuls();
-    currentLevel++;
+    changeBackground();
 
     if (currentLevel > NUM_LEVELS)
     {

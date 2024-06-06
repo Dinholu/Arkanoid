@@ -26,6 +26,7 @@ void playOneTimeMusic(Mix_Music *music);
 void playLoopingSoundEffect(Mix_Chunk *soundEffect);
 void playOneTimeSoundEffect(Mix_Chunk *soundEffect);
 void playLevelSound();
+void playBrickCollisionSound(bool isDestroyed);
 void stopMusic();
 void cleanupAudio();
 

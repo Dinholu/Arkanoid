@@ -81,6 +81,19 @@ void playLevelSound()
     }
 }
 
+
+void playBrickCollisionSound(bool isDestroyed)
+{
+    if (isDestroyed)
+    {
+        playOneTimeSoundEffect(brickSoundEffect);
+    }
+    else
+    {
+        playOneTimeSoundEffect(brickUndestructibleSoundEffect);
+    }
+}
+
 void stopMusic()
 {
     Mix_HaltMusic();
