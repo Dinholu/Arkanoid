@@ -17,7 +17,13 @@ Mix_Chunk *vaultCollisionSoundEffect = NULL;
 
 void initializeAudio()
 {
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        fprintf(stderr, "SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 512) < 0) // Reduced buffer size
     {
         fprintf(stderr, "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
         exit(EXIT_FAILURE);
@@ -71,7 +77,8 @@ void playOneTimeSoundEffect(Mix_Chunk *soundEffect)
 
 void playLevelSound()
 {
-    if( currentLevel >= NUM_LEVELS)
+
+    if(currentLevel >= NUM_LEVELS)
     {
         playOneTimeMusic(dohLevelSound);
     }
@@ -80,7 +87,6 @@ void playLevelSound()
         playOneTimeMusic(roundStartSound);
     }
 }
-
 
 void playBrickCollisionSound(bool isDestroyed)
 {
