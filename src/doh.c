@@ -6,10 +6,10 @@ SDL_Rect srcEnemyBall = {96, 64, 24, 24};
 void initializeDoh()
 {
     SDL_Rect srcDoh = {0, 144, 64, 96};
-    doh.height = 256;
-    doh.width = 192;
+    doh.height = 240;
+    doh.width = 176;
     doh.x = win_surf->w / 2 - doh.width / 2;
-    doh.y = srcTopWall.h + Y_WALLS + doh.height / 4;
+    doh.y = srcTopWall.h + Y_WALLS + doh.height / 3;
     doh.type = 'X';
     doh.health = 5;
     doh.scoreValue = 1000;

@@ -78,5 +78,6 @@ void renderBonuses(SDL_Surface *gameSprites, SDL_Surface *win_surf);
 void renderShadow(SDL_Surface *surface, SDL_Rect *srcRect, SDL_Rect *destRect, int offsetX, int offsetY, int alpha);
 void renderBorderShadows();
 void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf);
+void renderDohBackground(SDL_Surface *sprites, SDL_Surface *win_surf);
 
 #endif // ARKANOID_RENDER_H

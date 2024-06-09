@@ -839,6 +839,7 @@ void render()
 
     if (currentLevel == NUM_LEVELS)
     {
+        renderDohBackground(dohSprites, win_surf);
         renderDoh(dohSprites, win_surf);
     }
 
@@ -1061,4 +1062,20 @@ void renderDoh(SDL_Surface *sprites, SDL_Surface *win_surf)
     SDL_Rect destDoh = {doh.x, doh.y, doh.width, doh.height};
     renderScaledShadow(sprites, &srcDoh, &destDoh, 10, 10, 144);
     SDL_BlitScaled(sprites, &srcDoh, win_surf, &destDoh);
+}
+
+void renderDohBackground(SDL_Surface *sprites, SDL_Surface *win_surf)
+{
+    SDL_Rect srcDohBackground = {0, 0, 80, 134};
+
+    int backgroundWidth = doh.width + 128;
+    int backgroundHeight = doh.height + 128;
+    int backgroundX = doh.x - (backgroundWidth - doh.width) / 2;
+    int backgroundY = doh.y - (backgroundHeight - doh.height) / 2;
+
+    SDL_Rect destDohBackground = {backgroundX, backgroundY, backgroundWidth, backgroundHeight};
+
+    SDL_FillRect(win_surf, &destDohBackground, SDL_MapRGB(win_surf->format, 0, 0, 0));
+    SDL_SetSurfaceBlendMode(sprites, SDL_BLENDMODE_NONE);
+    SDL_BlitScaled(sprites, &srcDohBackground, win_surf, &destDohBackground);
 }
