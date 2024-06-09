@@ -326,6 +326,7 @@ void dohCollision(struct Ball *ball)
 
         if (doh.health == 0)
         {
+            playOneTimeSoundEffect(dohDeathSoundEffect);
             doh.disappearing = true;                          // Déclencher l'animation de disparition
             doh.animationPhase = 0;                           // Réinitialiser la phase d'animation
             doh.phaseStartTime = SDL_GetPerformanceCounter(); // Enregistrer le temps de début de l'animation

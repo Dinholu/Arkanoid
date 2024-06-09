@@ -8,6 +8,7 @@ Mix_Music *gameOverSound = NULL;
 Mix_Music *victorySound = NULL;
 Mix_Music *dohLevelSound = NULL;
 Mix_Music *dohFaceSound = NULL;
+Mix_Chunk *dohDeathSoundEffect = NULL;
 Mix_Chunk *laserSoundEffect = NULL;
 Mix_Chunk *brickSoundEffect = NULL;
 Mix_Chunk *brickUndestructibleSoundEffect = NULL;
@@ -35,6 +36,7 @@ void initializeAudio()
     victorySound = Mix_LoadMUS("./04_Ending.mp3");
     dohFaceSound = Mix_LoadMUS("./05_Doh_Face.mp3");
     gameOverSound = Mix_LoadMUS("./06_Game_Over.mp3");
+    dohDeathSoundEffect = Mix_LoadWAV("./doh_death_sound.wav");
     laserSoundEffect = Mix_LoadWAV("./laser_sound.wav");
     brickSoundEffect = Mix_LoadWAV("./brick_sound.wav");
     brickUndestructibleSoundEffect = Mix_LoadWAV("./brick_undestructible_sound.wav");

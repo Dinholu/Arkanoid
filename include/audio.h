@@ -13,6 +13,7 @@ extern Mix_Music *gameOverSound;
 extern Mix_Music *victorySound;
 extern Mix_Music *dohLevelSound;
 extern Mix_Music *dohFaceSound;
+extern Mix_Chunk *dohDeathSoundEffect;
 extern Mix_Chunk *laserSoundEffect;
 extern Mix_Chunk *brickSoundEffect;
 extern Mix_Chunk *brickUndestructibleSoundEffect;
