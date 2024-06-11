@@ -556,7 +556,7 @@ void renderBricks(SDL_Surface *sprites, int num_bricks)
                     continue;
                 }
             }
-            renderShadow(sprites, &srcBrick, &destBrick, 7, 12, 96);
+            renderShadow(sprites, &srcBrick, &destBrick, 8, 12, 96);
             SDL_BlitSurface(sprites, &srcBrick, win_surf, &destBrick);
         }
     }
@@ -819,7 +819,6 @@ void showHighScores(SDL_Surface *win_surf, SDL_Surface *asciiSprites)
 void render()
 {
     SDL_FillRect(win_surf, NULL, SDL_MapRGB(win_surf->format, 0, 0, 0));
-    renderAllWalls();
     renderBackground(gameSprites, &srcBackground, win_surf);
     renderVault(gameSprites, &srcVault, win_surf, x_vault);
     renderBricks(gameSprites, NUM_BRICKS);
@@ -854,6 +853,7 @@ void render()
     handleBonusCollision();
     moveAndRenderEnemyBalls(gameSprites, &srcEnemyBall, win_surf);
     handleEnemyBallCollisions();
+    renderAllWalls();
 }
 
 SDL_Rect charToSDLRect(char character)

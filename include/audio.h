@@ -5,6 +5,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
 #include "game.h"
+#define NUM_CHANNELS 16
 
 extern Mix_Music *menuSound;
 extern Mix_Music *roundStartSound;
