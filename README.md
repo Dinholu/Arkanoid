@@ -1,39 +1,34 @@
-# Cahier des charges 
+# Arkanoid
 
+## Description
+Arkanoid est un jeu classique de casse-briques où le joueur contrôle une raquette pour dévier une balle et détruire des briques. Le projet est implémenté en C et offre deux branches :
+- **main** : contient le jeu avec des effets sonores.
+- **no-sound-branch** : contient le jeu sans effets sonores.
 
-## Ce qui est déjà fait 
+## Règles du jeu
+- Le joueur utilise la raquette pour garder la balle en jeu et casser toutes les briques sur l'écran.
+- Certaines briques ont des caractéristiques spéciales :
+  - **Briques grises** : nécessitent 2 coups pour être détruites, puis un coup supplémentaire tous les 8 coups.
+  - **Briques dorées** : indestructibles.
+- Le jeu comporte 33 niveaux, avec un boss final nommé Doh au dernier niveau.
 
-- Une interface graphique
-- Génération d'une plateforme accueillant la balle
-- Une balle qui bouge dans le cadrillage du plateau
+## Bonus Capsules
+Des capsules de bonus tombent parfois des briques détruites. Chaque type de capsule a un effet unique et rapporte 1000 points :
+- **S** : Ralentit la balle.
+- **C** : Attrape la balle et permet de tirer.
+- **E** : Agrandit la raquette.
+- **D** : Divise la balle en trois.
+- **L** : Ajoute des lasers tirés avec la barre d'espace.
+- **B** : Passe au niveau suivant (le plus rare).
+- **P** : Ajoute une vie au joueur.
 
+## Fonctionnalités additionnelles
+- Ombres des balles et des briques.
+- Tracé derrière la balle.
+- Disparition progressive des briques.
+- Distribution non aléatoire des bonus.
+- Niveau final avec le boss Doh.
 
-## A faire 
-
- - Que la balle touche la barre
- - AJouter les briques 3 types de brique:
-        - brique simple
-        - brique double
-        - brique indestructible    
- - Ajouter la vitesse selon l'angle etc
- - Ajouter le score
- - Ajouter les bonus :
-    - Ralentir
-     - Accrocher la balle et tirer
-     - Aggrandir la plateforme
-     - Diviser la balle en 3 balles
-     - laser (qui explose les briques)
-     - break ?
-     - Player ADDITION? 
- - 33 rounds
- - Niveaux stocker sous forme de texte
- - Les données de la balle (position, direction, vitesse) seront calculé et stockés en réel pour plus de précision, même si les positions à l’écran sont entières (pixel)
- - Les objets à l’écran (hormis la balle) étant tous rectangulaires, l’algorithme de détection de collision se fait simplement en comparant x_min, x_max, y_min, y_max avec la position de la balle. Les briques étant alignées régulièrement,
- - Si on touche quelque-chose de vertical, la coordonnée x de la vitesse s’inverse.
- - Si on touche quelque-chose d’horizontal, la coordonnée y de la vitesse s’inverse.
- - Vous prendrez en compte la vitesse (horizontale) du vaisseau pour changer la direction du rebond.
-
-
-### Aide pour la compréhension 
-
-http://nick-aschenbach.github.io/blog/2015/04/27/arkanoid-game-levels/
+## Contributeurs
+@WRKT alias Winness Rakotozaffy 
+@Dinholu alias Alizée HETT
