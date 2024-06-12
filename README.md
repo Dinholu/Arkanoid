@@ -2,7 +2,7 @@
 
 ## Description
 Arkanoid est un jeu classique de casse-briques où le joueur contrôle une raquette pour dévier une balle et détruire des briques. Le projet est implémenté en C et offre deux branches :
-- **main** : contient le jeu avec des effets sonores.
+- **main** : contient le jeu avec des effets sonores dont il est nécessaire d'installer la libraire `SDL_Mixer()` sur votre machine (`apt-get install libsdl2-mixer-2.0-0`)
 - **no-sound-branch** : contient le jeu sans effets sonores.
 
 ## Règles du jeu
@@ -30,5 +30,5 @@ Des capsules de bonus tombent parfois des briques détruites. Chaque type de cap
 - Niveau final avec le boss Doh.
 
 ## Contributeurs
-@WRKT alias Winness Rakotozaffy 
+@WRKT alias Winness Rakotozafy  
 @Dinholu alias Alizée HETT
