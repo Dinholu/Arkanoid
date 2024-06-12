@@ -69,7 +69,7 @@ void initializeSDL()
 
     x_vault = (win_surf->w - srcVault.w) / 2;
     vault_width = srcVault.w;
-
+    srand(time(NULL)); // Pour pouvoir générer des nombres aléatoires
     initializeAudio();
 }
 
