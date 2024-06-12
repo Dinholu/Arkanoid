@@ -5,6 +5,12 @@ SDL_Rect destVault;
 int x_vault;
 int vault_width;
 
+void resetVaultPosition()
+{
+    x_vault = win_surf->w / 2 - srcVault.w / 2;
+    vault_width = srcVault.w;
+}
+
 void moveVault(const Uint8 *keys)
 {
     const int wallWidth = srcEdgeWall.w;

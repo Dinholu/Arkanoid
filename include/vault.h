@@ -10,6 +10,7 @@ extern SDL_Rect destVault;
 extern int x_vault;
 extern int vault_width;
 
+void resetVaultPosition();
 void moveVault(const Uint8 *keys);
 
 #endif // ARKANOID_VAULT_H

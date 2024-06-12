@@ -79,7 +79,7 @@ void loadCurrentLevel(bool isEight)
 
 void nextLevel()
 {
-    vault_width = srcVault.w;
+    resetVaultPosition();
     currentLevel++;
     currentHarmfulsType++;
     clearEnemyBall();
@@ -108,6 +108,7 @@ void nextLevel()
 
 void resetGame()
 {
+    resetVaultPosition();
     clearBonuses();
     resetAllBonuses();
     clearHarmfuls();
