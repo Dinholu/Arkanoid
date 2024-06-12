@@ -67,8 +67,7 @@ void initializeSDL()
     SDL_SetColorKey(rightWallSprites, SDL_TRUE, 0);
     SDL_SetColorKey(dohSprites, SDL_TRUE, 0);
 
-    x_vault = (win_surf->w - srcVault.w) / 2;
-    vault_width = srcVault.w;
+    resetVaultPosition();
     srand(time(NULL)); // Pour pouvoir générer des nombres aléatoires
     initializeAudio();
 }
